@@ -1,0 +1,16 @@
+---
+name: Build and upload artifact
+on:
+  repository_dispatch:
+    types: [trigger-build]
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  pipeline:
+    uses: sipgate/workflows/.github/workflows/pipeline-maven-artifact-default.yaml@main
+    with:
+      maven_docker_tag: 3-openjdk-21
+    secrets: inherit
