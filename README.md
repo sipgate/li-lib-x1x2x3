@@ -18,3 +18,7 @@
     >     <xs:import namespace="http://uri.etsi.org/03221/X1/2017/10/HashedID" schemaLocation="TS_103_221_01_HashedID.xsd"/>
    ```
 6. Run `xjc -d src/main/java TS_103_221_01.xsd` to generate Java classes
+
+## Further information
+
+* TS 103 200 with multiple versions (PDF, XSDs, some versions have examples): https://www.etsi.org/deliver/etsi_ts/103200_103299/10322101/ 
