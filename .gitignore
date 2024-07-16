@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### maybe copyright protected files ###
+*.xsd
+
 ### STS ###
 .apt_generated
 .classpath

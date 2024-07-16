@@ -17,4 +17,4 @@
     >     <xs:import namespace="http://uri.etsi.org/03280/common/2017/07" schemaLocation="TS_103_280.xsd"/>
     >     <xs:import namespace="http://uri.etsi.org/03221/X1/2017/10/HashedID" schemaLocation="TS_103_221_01_HashedID.xsd"/>
    ```
-6. Run `xjc TS_103_221_01.xsd` to generate Java classes
+6. Run `xjc -d src/main/java TS_103_221_01.xsd` to generate Java classes
