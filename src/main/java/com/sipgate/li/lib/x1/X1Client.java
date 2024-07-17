@@ -31,14 +31,16 @@ public class X1Client {
         final var resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
 
         final var either = converter.parseResponse(resp.body());
-        if (either.left() == null) {
-            if (either.right().getX1ResponseMessage().size() != 1) {
-                throw new IOException("Did not receive expected number of responses in Container. Expected 1, received " + either.right().getX1ResponseMessage().size());
-            }
 
-            return either.right().getX1ResponseMessage().getFirst();
+        if (either.isLeft()) {
+            throw new IOException("Request " + request.getX1TransactionId() + " returned TopLevelErrorResponse.");
         }
-        throw new IOException("Request " + request.getX1TransactionId() + " returned TopLevelErrorResponse.");
+
+        if (either.right().getX1ResponseMessage().size() != 1) {
+            throw new IOException("Did not receive expected number of responses in Container. Expected 1, received " + either.right().getX1ResponseMessage().size());
+        }
+
+        return either.right().getX1ResponseMessage().getFirst();
     }
 
 }
