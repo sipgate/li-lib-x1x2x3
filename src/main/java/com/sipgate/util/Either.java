@@ -22,4 +22,11 @@ public record Either<LEFT, RIGHT>(LEFT left, RIGHT right) {
     public RIGHT right() {
         return Objects.requireNonNull(right, "Either is not Right");
     }
+
+    public boolean isLeft() {
+        return left != null;
+    }
+    public boolean isRight() {
+        return right != null;
+    }
 }
