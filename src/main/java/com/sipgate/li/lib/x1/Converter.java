@@ -15,21 +15,21 @@ import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
 import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 
-public class Converter {
+class Converter {
 
   private final JAXBContext context;
   private final ObjectFactory objectFactory;
 
-  public Converter() throws JAXBException {
+  Converter() throws JAXBException {
     context = JAXBContext.newInstance(ObjectFactory.class);
     objectFactory = new ObjectFactory();
   }
 
-  public RequestContainer parseRequest(final String xml) throws JAXBException {
+  RequestContainer parseRequest(final String xml) throws JAXBException {
     return parseRequest(xml, StandardCharsets.UTF_8);
   }
 
-  public RequestContainer parseRequest(final String xml, final Charset charset)
+  RequestContainer parseRequest(final String xml, final Charset charset)
     throws JAXBException {
     final var unmarshaller = context.createUnmarshaller();
     unmarshaller.setEventHandler(
@@ -46,13 +46,13 @@ public class Converter {
     return jaxbElement.getValue();
   }
 
-  public Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
+  Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
     final String xml
   ) throws JAXBException {
     return parseResponse(xml, StandardCharsets.UTF_8);
   }
 
-  public Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
+  Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
     final String xml,
     final Charset charset
   ) throws JAXBException {
@@ -75,7 +75,7 @@ public class Converter {
     };
   }
 
-  public String toXml(final RequestContainer request) throws JAXBException {
+  String toXml(final RequestContainer request) throws JAXBException {
     final var marshaller = context.createMarshaller();
     final var writer = new StringWriter();
     marshaller.marshal(objectFactory.createX1Request(request), writer);
