@@ -1,9 +1,11 @@
 package com.sipgate.li.lib.x1;
 
 import jakarta.xml.bind.JAXBException;
+import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
+import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,11 +55,11 @@ class X1ClientTest {
                 .thenReturn(httpResponse);
 
         // WHEN
-        final var resp = underTest.request(pingRequest);
+        final var resp = underTest.request(pingRequest, PingResponse.class);
 
         // THEN
-        assertThat(resp instanceof PingResponse).isTrue();
-        assertThat(((PingResponse) resp).getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+        assertThat(resp).isInstanceOf(PingResponse.class);
+        assertThat(resp.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
     }
 
 
@@ -75,7 +77,8 @@ class X1ClientTest {
                         any(HttpResponse.BodyHandler.class)))
                 .thenReturn(httpResponse);
 
-        assertThrows(JAXBException.class, () -> underTest.request(pingRequest));
+        // WHEN + THEN
+        assertThrows(JAXBException.class, () -> underTest.request(pingRequest, PingResponse.class));
     }
 
     @Test
@@ -92,7 +95,8 @@ class X1ClientTest {
                         any(HttpResponse.BodyHandler.class)))
                 .thenReturn(httpResponse);
 
-        assertThrows(IOException.class, () -> underTest.request(pingRequest));
+        // WHEN + THEN
+        assertThrows(IOException.class, () -> underTest.request(pingRequest, PingResponse.class));
     }
 
     @Test
@@ -109,7 +113,8 @@ class X1ClientTest {
                         any(HttpResponse.BodyHandler.class)))
                 .thenReturn(httpResponse);
 
-        assertThrows(IOException.class, () -> underTest.request(pingRequest));
+        // WHEN + THEN
+        assertThrows(IOException.class, () -> underTest.request(pingRequest, PingResponse.class));
     }
 
     @Test
@@ -126,7 +131,45 @@ class X1ClientTest {
                         any(HttpResponse.BodyHandler.class)))
                 .thenReturn(httpResponse);
 
-        assertThrows(IOException.class, () -> underTest.request(pingRequest));
+        // WHEN + THEN
+        assertThrows(IOException.class, () -> underTest.request(pingRequest, PingResponse.class));
+    }
+
+    @Test
+    void itThrowsWhenResponseIsNotExpectedType() throws Exception {
+        // GIVEN
+        final var pingRequest = createPingRequest();
+
+        final var httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn(readResource("ActivateTaskResponse_example.xml"));
+
+        final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
+        when(httpClient
+                .send(eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
+                        any(HttpResponse.BodyHandler.class)))
+                .thenReturn(httpResponse);
+
+        // WHEN + THEN
+        assertThrows(IOException.class, () -> underTest.request(pingRequest, PingResponse.class));
+    }
+
+    @Test
+    void itReturnsSuperResponseClass() throws Exception {
+        // GIVEN
+        final var pingRequest = createPingRequest();
+
+        final var httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn(readResource("ActivateTaskResponse_example.xml"));
+
+        final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
+        when(httpClient
+                .send(eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
+                        any(HttpResponse.BodyHandler.class)))
+                .thenReturn(httpResponse);
+
+        // WHEN
+        final var resp = underTest.request(pingRequest, X1ResponseMessage.class);
+        assertThat(resp).isInstanceOf(ActivateTaskResponse.class);
     }
 
     private static PingRequest createPingRequest() throws DatatypeConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {

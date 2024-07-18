@@ -22,25 +22,30 @@ public class X1Client {
         this.converter = new Converter();
     }
 
-    public X1ResponseMessage request(final X1RequestMessage request) throws IOException, InterruptedException, JAXBException {
+    public <R extends X1ResponseMessage> R request(final X1RequestMessage x1Request, final Class<R> responseType) throws IOException, InterruptedException, JAXBException {
         final var x1requestContainer = new RequestContainer();
-        x1requestContainer.getX1RequestMessage().add(request);
+        x1requestContainer.getX1RequestMessage().add(x1Request);
 
         final var body = converter.toXml(x1requestContainer);
-        final var req = HttpRequest.newBuilder(target).POST(HttpRequest.BodyPublishers.ofString(body)).build();
-        final var resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+        final var httpRequest = HttpRequest.newBuilder(target).POST(HttpRequest.BodyPublishers.ofString(body)).build();
+        final var httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-        final var either = converter.parseResponse(resp.body());
+        final var either = converter.parseResponse(httpResponse.body());
 
         if (either.isLeft()) {
-            throw new IOException("Request " + request.getX1TransactionId() + " returned TopLevelErrorResponse.");
+            throw new IOException("Request " + x1Request.getX1TransactionId() + " returned TopLevelErrorResponse.");
         }
 
         if (either.right().getX1ResponseMessage().size() != 1) {
             throw new IOException("Did not receive expected number of responses in Container. Expected 1, received " + either.right().getX1ResponseMessage().size());
         }
 
-        return either.right().getX1ResponseMessage().getFirst();
+        final var x1Response = either.right().getX1ResponseMessage().getFirst();
+        if (!responseType.isAssignableFrom(x1Response.getClass())) {
+            throw new IOException(String.format("%s did not respond with %s, received %s", x1Request.getClass().getSimpleName(), responseType.getSimpleName(), x1Response.getClass().getSimpleName()));
+        }
+
+        return responseType.cast(x1Response);
     }
 
 }
