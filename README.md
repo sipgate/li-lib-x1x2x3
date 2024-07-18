@@ -1,5 +1,10 @@
 # Java Library for ETSI TS 103 221 Lawful Interception
 
+## Local development
+
+1. `git clone` the repository
+2. Run `npm install` for git hooks and prettier (code formatting)
+
 ## Generate Java Classes based on XSD
 
 1. Get `xjc` from https://eclipse-ee4j.github.io/jaxb-ri/
@@ -8,7 +13,7 @@
    - https://www.etsi.org/deliver/etsi_ts/103200_103299/103280/02.12.01_60/
 4. Extract all XSD files in the same directory
 5. Add `schemaLocation="..."` in `TS_103_221_01.xsd` for the `<xs:import>` tags
-   
+
    ```xml
     3,4c3,4
     <     <xs:import namespace="http://uri.etsi.org/03280/common/2017/07"/>
@@ -17,8 +22,9 @@
     >     <xs:import namespace="http://uri.etsi.org/03280/common/2017/07" schemaLocation="TS_103_280.xsd"/>
     >     <xs:import namespace="http://uri.etsi.org/03221/X1/2017/10/HashedID" schemaLocation="TS_103_221_01_HashedID.xsd"/>
    ```
+
 6. Run `xjc -d src/main/java TS_103_221_01.xsd` to generate Java classes
 
 ## Further information
 
-* TS 103 200 with multiple versions (PDF, XSDs, some versions have examples): https://www.etsi.org/deliver/etsi_ts/103200_103299/10322101/ 
+- TS 103 200 with multiple versions (PDF, XSDs, some versions have examples): https://www.etsi.org/deliver/etsi_ts/103200_103299/10322101/

@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+node_modules
+
 ### maybe copyright protected files ###
 *.xsd
 

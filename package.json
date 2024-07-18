@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "li-lib-x1x2x3",
+  "version": "1.0.0",
+  "devDependencies": {
+    "husky": "^9.1.1",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "prettier-plugin-java": "^2.6.4"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-java"
+    ]
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}
