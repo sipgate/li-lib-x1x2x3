@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class X1RequestFactoryTest {
 
-    public static final String ADMF_ID = "admf-id";
-    public static final String NE_ID = "ne-id";
+    private static final String ADMF_ID = "admf-id";
+    private static final String NE_ID = "ne-id";
 
     @Test
     void itProducesRequestObjectWithDefaultValues() throws DatatypeConfigurationException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {

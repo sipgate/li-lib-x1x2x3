@@ -7,8 +7,10 @@ import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -39,12 +41,7 @@ class X1ClientTest {
     @Test
     void itReturnsPositiveResponse() throws Exception {
         // GIVEN
-        final var dataTypeFactory = DatatypeFactory.newInstance();
-        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
-                .create(PingRequest.class);
-
-        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
-        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        final var pingRequest = createPingRequest();
 
         final var httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn(readResource("PingResponse_example.xml"));
@@ -63,15 +60,11 @@ class X1ClientTest {
         assertThat(((PingResponse) resp).getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
     }
 
+
     @Test
     void itThrowsWhenResponseIsInvalidXml() throws Exception {
         // GIVEN
-        final var dataTypeFactory = DatatypeFactory.newInstance();
-        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
-                .create(PingRequest.class);
-
-        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
-        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        final var pingRequest = createPingRequest();
 
         final var httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn("INVALID XML");
@@ -86,14 +79,9 @@ class X1ClientTest {
     }
 
     @Test
-    void itThrowsWhenThereAreMoreThanTwoResponses() throws Exception {
+    void itThrowsWhenThereAreMoreThanOneResponse() throws Exception {
         // GIVEN
-        final var dataTypeFactory = DatatypeFactory.newInstance();
-        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
-                .create(PingRequest.class);
-
-        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
-        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        final var pingRequest = createPingRequest();
 
         final var httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn(readResource("MultipleResponses_example.xml"));
@@ -110,12 +98,7 @@ class X1ClientTest {
     @Test
     void itThrowsWhenThereIsNoResponseInContainer() throws Exception {
         // GIVEN
-        final var dataTypeFactory = DatatypeFactory.newInstance();
-        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
-                .create(PingRequest.class);
-
-        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
-        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        final var pingRequest = createPingRequest();
 
         final var httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn(readResource("NoResponsesInResponseContainer_example.xml"));
@@ -132,12 +115,7 @@ class X1ClientTest {
     @Test
     void itThrowsWhenThereIsATopLevelErrorResponse() throws Exception {
         // GIVEN
-        final var dataTypeFactory = DatatypeFactory.newInstance();
-        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
-                .create(PingRequest.class);
-
-        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
-        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        final var pingRequest = createPingRequest();
 
         final var httpResponse = mock(HttpResponse.class);
         when(httpResponse.body()).thenReturn(readResource("TopLevelErrorResponse_example.xml"));
@@ -149,6 +127,16 @@ class X1ClientTest {
                 .thenReturn(httpResponse);
 
         assertThrows(IOException.class, () -> underTest.request(pingRequest));
+    }
+
+    private static PingRequest createPingRequest() throws DatatypeConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        final var dataTypeFactory = DatatypeFactory.newInstance();
+        final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF")
+                .create(PingRequest.class);
+
+        pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
+        pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+        return pingRequest;
     }
 
     private String readResource(final String name) throws IOException {
