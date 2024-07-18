@@ -1,6 +1,5 @@
 package com.sipgate.li.lib.x1;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.GregorianCalendar;
 import java.util.UUID;
@@ -25,21 +24,27 @@ public class X1RequestFactory {
     this.admfId = admfId;
   }
 
-  public <T extends X1RequestMessage> T create(final Class<T> tClass)
-    throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-    final var request = tClass.getDeclaredConstructor().newInstance();
+  public <T extends X1RequestMessage> T create(final Class<T> tClass) {
+    try {
+      final var request = tClass.getDeclaredConstructor().newInstance();
 
-    request.setAdmfIdentifier(admfId);
-    request.setNeIdentifier(neId);
-    request.setX1TransactionId(UUID.randomUUID().toString());
-    request.setVersion(X1_VERSION_STRING);
+      request.setAdmfIdentifier(admfId);
+      request.setNeIdentifier(neId);
+      request.setX1TransactionId(UUID.randomUUID().toString());
+      request.setVersion(X1_VERSION_STRING);
 
-    final var gregorianCalendar = new GregorianCalendar();
-    gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
-    request.setMessageTimestamp(
-      dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar)
-    );
+      final var gregorianCalendar = new GregorianCalendar();
+      gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
+      request.setMessageTimestamp(
+        dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar)
+      );
 
-    return request;
+      return request;
+    } catch (final Exception e) {
+      throw new IllegalArgumentException(
+        "Could not create X1RequestMessage",
+        e
+      );
+    }
   }
 }

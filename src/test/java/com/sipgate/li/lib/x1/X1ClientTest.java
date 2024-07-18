@@ -1,6 +1,7 @@
 package com.sipgate.li.lib.x1;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -87,7 +88,7 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(JAXBException.class, () ->
+    assertThrows(IOException.class, () ->
       underTest.request(pingRequest, PingResponse.class)
     );
   }
