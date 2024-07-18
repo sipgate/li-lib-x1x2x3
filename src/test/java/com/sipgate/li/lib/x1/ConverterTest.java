@@ -1,8 +1,10 @@
 package com.sipgate.li.lib.x1;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,7 +12,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import org.etsi.uri._03221.x1._2017._10.*;
+import org.etsi.uri._03221.x1._2017._10.ActivateTaskRequest;
+import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
+import org.etsi.uri._03221.x1._2017._10.DeliveryType;
+import org.etsi.uri._03221.x1._2017._10.ListOfDids;
+import org.etsi.uri._03221.x1._2017._10.ListOfTargetIdentifiers;
+import org.etsi.uri._03221.x1._2017._10.OK;
+import org.etsi.uri._03221.x1._2017._10.RequestContainer;
+import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
+import org.etsi.uri._03221.x1._2017._10.TargetIdentifier;
+import org.etsi.uri._03221.x1._2017._10.TaskDetails;
+import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -141,6 +153,17 @@ class ConverterTest {
     expected.setVersion("v1.6.1");
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+  }
+
+  @Test
+  void itProtectsFromXxe() throws IOException {
+    // GIVEN
+    final var xml = readResource("xxe.xml");
+
+    // WHEN + THEN
+    assertThatThrownBy(() -> underTest.parseResponse(xml)).isInstanceOf(
+      UnmarshalException.class
+    );
   }
 
   private String readResource(final String name) throws IOException {
