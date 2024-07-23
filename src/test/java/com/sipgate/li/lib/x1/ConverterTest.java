@@ -24,8 +24,11 @@ import org.etsi.uri._03221.x1._2017._10.TargetIdentifier;
 import org.etsi.uri._03221.x1._2017._10.TaskDetails;
 import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ConverterTest {
 
   private Converter underTest;
@@ -36,7 +39,7 @@ class ConverterTest {
   }
 
   @Test
-  void itParsesRequest()
+  void it_parses_request()
     throws IOException, JAXBException, DatatypeConfigurationException {
     // GIVEN
     final var xml = readResource("ActivateTaskRequest_example.xml");
@@ -90,7 +93,7 @@ class ConverterTest {
   }
 
   @Test
-  void itParsesPositiveResponse()
+  void it_parses_positive_response()
     throws IOException, JAXBException, DatatypeConfigurationException {
     // GIVEN
     final var xml = readResource("ActivateTaskResponse_example.xml");
@@ -125,7 +128,7 @@ class ConverterTest {
   }
 
   @Test
-  void itParsesNegativeResponse()
+  void it_parses_negative_response()
     throws IOException, JAXBException, DatatypeConfigurationException {
     // GIVEN
     final var xml = readResource("TopLevelErrorResponse_example.xml");
@@ -156,7 +159,7 @@ class ConverterTest {
   }
 
   @Test
-  void itProtectsFromXxe() throws IOException {
+  void it_protects_from_xxe() throws IOException {
     // GIVEN
     final var xml = readResource("xxe.xml");
 

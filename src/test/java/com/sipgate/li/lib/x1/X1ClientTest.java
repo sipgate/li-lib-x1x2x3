@@ -19,14 +19,19 @@ import java.util.GregorianCalendar;
 import java.util.Objects;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+
+import org.assertj.core.api.Condition;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class X1ClientTest {
 
   private URI target;
@@ -42,7 +47,7 @@ class X1ClientTest {
   }
 
   @Test
-  void itReturnsPositiveResponse() throws Exception {
+  void it_returns_positive_response() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -70,7 +75,7 @@ class X1ClientTest {
   }
 
   @Test
-  void itThrowsWhenResponseIsInvalidXml() throws Exception {
+  void it_throws_when_response_is_invalid_xml() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -88,13 +93,13 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(IOException.class, () ->
+    assertThrows(X1ClientException.class, () ->
       underTest.request(pingRequest, PingResponse.class)
     );
   }
 
   @Test
-  void itThrowsWhenThereAreMoreThanOneResponse() throws Exception {
+  void it_throws_when_there_are_more_than_one_response() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -114,13 +119,13 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(IOException.class, () ->
+    assertThrows(X1ClientException.class, () ->
       underTest.request(pingRequest, PingResponse.class)
     );
   }
 
   @Test
-  void itThrowsWhenThereIsNoResponseInContainer() throws Exception {
+  void it_throws_when_there_is_no_response_in_container() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -140,13 +145,13 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(IOException.class, () ->
+    assertThrows(X1ClientException.class, () ->
       underTest.request(pingRequest, PingResponse.class)
     );
   }
 
   @Test
-  void itThrowsWhenThereIsATopLevelErrorResponse() throws Exception {
+  void it_throws_when_there_is_a_top_level_error_response() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -166,13 +171,14 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(IOException.class, () ->
+    assertThatThrownBy(() ->
       underTest.request(pingRequest, PingResponse.class)
-    );
+    ).isInstanceOf(X1ClientException.class)
+      .has(new Condition<>(e -> ((X1ClientException) e).getTopLevelErrorResponse() != null, "toplevel error response set!"));
   }
 
   @Test
-  void itThrowsWhenResponseIsNotExpectedType() throws Exception {
+  void it_throws_when_response_is_not_expected_type() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -198,7 +204,7 @@ class X1ClientTest {
   }
 
   @Test
-  void itReturnsSuperResponseClass() throws Exception {
+  void it_returns_super_response_class() throws Exception {
     // GIVEN
     final var pingRequest = createPingRequest();
 
@@ -223,7 +229,7 @@ class X1ClientTest {
   }
 
   private static PingRequest createPingRequest()
-    throws DatatypeConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    throws DatatypeConfigurationException {
     final var dataTypeFactory = DatatypeFactory.newInstance();
     final var pingRequest = new X1RequestFactory(
       dataTypeFactory,

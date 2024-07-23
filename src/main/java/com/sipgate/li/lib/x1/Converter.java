@@ -67,8 +67,8 @@ class Converter {
     final var jaxbElement = (JAXBElement<?>) unmarshaller.unmarshal(source);
     final var value = Objects.requireNonNull(jaxbElement.getValue());
     return switch (value) {
-      case final ResponseContainer response -> new Either<>(null, response);
-      case final TopLevelErrorResponse error -> new Either<>(error, null);
+      case final ResponseContainer response -> Either.right(response);
+      case final TopLevelErrorResponse error -> Either.left(error);
       default -> throw new IllegalArgumentException(
         "Unexpected response type: " + value.getClass()
       );
