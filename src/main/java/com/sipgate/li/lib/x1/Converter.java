@@ -15,21 +15,21 @@ import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
 import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 
-class Converter {
+public class Converter {
 
   private final JAXBContext context;
   private final ObjectFactory objectFactory;
 
-  Converter() throws JAXBException {
+  public Converter() throws JAXBException {
     context = JAXBContext.newInstance(ObjectFactory.class);
     objectFactory = new ObjectFactory();
   }
 
-  RequestContainer parseRequest(final String xml) throws JAXBException {
+  public RequestContainer parseRequest(final String xml) throws JAXBException {
     return parseRequest(xml, StandardCharsets.UTF_8);
   }
 
-  RequestContainer parseRequest(final String xml, final Charset charset)
+  public RequestContainer parseRequest(final String xml, final Charset charset)
     throws JAXBException {
     final var unmarshaller = context.createUnmarshaller();
     unmarshaller.setEventHandler(
@@ -46,13 +46,13 @@ class Converter {
     return jaxbElement.getValue();
   }
 
-  Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
+  public Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
     final String xml
   ) throws JAXBException {
     return parseResponse(xml, StandardCharsets.UTF_8);
   }
 
-  Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
+  public Either<TopLevelErrorResponse, ResponseContainer> parseResponse(
     final String xml,
     final Charset charset
   ) throws JAXBException {
@@ -75,10 +75,29 @@ class Converter {
     };
   }
 
-  String toXml(final RequestContainer request) throws JAXBException {
+  public String toXml(final RequestContainer request) throws JAXBException {
     final var marshaller = context.createMarshaller();
     final var writer = new StringWriter();
     marshaller.marshal(objectFactory.createX1Request(request), writer);
+    return writer.toString();
+  }
+
+  // TODO: test
+  public String toXml(final ResponseContainer response) throws JAXBException {
+    final var marshaller = context.createMarshaller();
+    final var writer = new StringWriter();
+    marshaller.marshal(objectFactory.createX1Response(response), writer);
+    return writer.toString();
+  }
+
+  // TODO: test
+  public String toXml(final TopLevelErrorResponse err) throws JAXBException {
+    final var marshaller = context.createMarshaller();
+    final var writer = new StringWriter();
+    marshaller.marshal(
+      objectFactory.createX1TopLevelErrorResponse(err),
+      writer
+    );
     return writer.toString();
   }
 }
