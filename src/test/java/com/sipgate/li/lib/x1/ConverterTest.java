@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -18,6 +19,7 @@ import org.etsi.uri._03221.x1._2017._10.DeliveryType;
 import org.etsi.uri._03221.x1._2017._10.ListOfDids;
 import org.etsi.uri._03221.x1._2017._10.ListOfTargetIdentifiers;
 import org.etsi.uri._03221.x1._2017._10.OK;
+import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
 import org.etsi.uri._03221.x1._2017._10.TargetIdentifier;
@@ -167,6 +169,22 @@ class ConverterTest {
     assertThatThrownBy(() -> underTest.parseResponse(xml)).isInstanceOf(
       UnmarshalException.class
     );
+  }
+
+  @Test
+  void it_parses_multi_request()
+    throws IOException, JAXBException, DatatypeConfigurationException {
+    // GIVEN
+    final var xml = readResource("MultiRequest_example.xml");
+
+    // WHEN
+    final var actual = underTest.parseRequest(xml);
+
+    // THEN
+    final var list = actual.getX1RequestMessage();
+    assertThat(list.size()).isEqualTo(2);
+    assertThat(list.get(0)).isInstanceOf(PingRequest.class);
+    assertThat(list.get(1)).isInstanceOf(PingRequest.class);
   }
 
   private String readResource(final String name) throws IOException {
