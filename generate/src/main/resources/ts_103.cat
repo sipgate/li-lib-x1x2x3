@@ -1,0 +1,14 @@
+<!DOCTYPE catalog
+    PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
+           "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <public
+        publicId="http://uri.etsi.org/03280/common/2017/07"
+        uri="TS_103_280_v021101.xsd"/>
+
+    <public
+        publicId="http://uri.etsi.org/03221/X1/2017/10/HashedID"
+        uri="TS_103_221_01_HashedID.xsd"/>
+
+</catalog>
