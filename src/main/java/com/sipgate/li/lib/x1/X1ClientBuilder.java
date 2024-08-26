@@ -1,19 +1,23 @@
 package com.sipgate.li.lib.x1;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import javax.net.ssl.*;
 
 public class X1ClientBuilder {
 
+  private String keyStoreProvider;
   private Path pathToKeyStore;
   private String keyStorePassword;
 
+  private String trustStoreProvider;
   private Path pathToTrustStore;
   private String trustStorePassword;
 
@@ -31,12 +35,24 @@ public class X1ClientBuilder {
     return this;
   }
 
+  public X1ClientBuilder withKeyStoreProvider(final String keyStoreProvider) {
+    this.keyStoreProvider = keyStoreProvider;
+    return this;
+  }
+
   public X1ClientBuilder withKeyStore(
     final Path pathToKeyStore,
     final String keyStorePassword
   ) {
     this.pathToKeyStore = pathToKeyStore;
     this.keyStorePassword = keyStorePassword;
+    return this;
+  }
+
+  public X1ClientBuilder withTrustStoreProvider(
+    final String trustStoreProvider
+  ) {
+    this.trustStoreProvider = trustStoreProvider;
     return this;
   }
 
@@ -55,8 +71,9 @@ public class X1ClientBuilder {
   }
 
   private HttpClient buildHttpClient()
-    throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException, NoSuchProviderException {
     final var context = SSLContext.getInstance(sslProtocol);
+
     final var keyManagers = getKeyManagers();
     final var trustManagers = getTrustManagers();
 
@@ -83,7 +100,7 @@ public class X1ClientBuilder {
   }
 
   private KeyManager[] getKeyManagers()
-    throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
+    throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, NoSuchProviderException {
     if (pathToKeyStore == null) {
       return new KeyManager[] {};
     }
@@ -100,9 +117,14 @@ public class X1ClientBuilder {
     }
 
     final var keyStore = KeyStore.getInstance(
-      keystoreFile,
-      keyStorePassword.toCharArray()
+      KeyStore.getDefaultType(),
+      Objects.requireNonNullElse(keyStoreProvider, "SUN")
     );
+
+    try (final var keyStoreFileStream = new FileInputStream(keystoreFile)) {
+      keyStore.load(keyStoreFileStream, keyStorePassword.toCharArray());
+    }
+
     final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
       "PKIX"
     );
@@ -111,7 +133,7 @@ public class X1ClientBuilder {
   }
 
   private TrustManager[] getTrustManagers()
-    throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+    throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, NoSuchProviderException {
     if (pathToTrustStore == null) {
       return new TrustManager[] {};
     }
@@ -128,9 +150,14 @@ public class X1ClientBuilder {
     }
 
     final var trustStore = KeyStore.getInstance(
-      trustStoreFile,
-      trustStorePassword.toCharArray()
+      KeyStore.getDefaultType(),
+      Objects.requireNonNullElse(trustStoreProvider, "SUN")
     );
+
+    try (final var trustStoreFileStream = new FileInputStream(trustStoreFile)) {
+      trustStore.load(trustStoreFileStream, trustStorePassword.toCharArray());
+    }
+
     final var trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
     trustManagerFactory.init(trustStore);
     return trustManagerFactory.getTrustManagers();

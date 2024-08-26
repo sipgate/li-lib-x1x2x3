@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.security.NoSuchProviderException;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -170,6 +171,50 @@ class X1ClientBuilderTest {
       .isInstanceOf(X1ClientBuilderException.class)
       .hasCauseInstanceOf(expectedCause)
       .hasRootCauseMessage(expectedMessage);
+  }
+
+  @Test
+  void it_fails_when_a_unknown_key_store_provider_is_given() {
+    // GIVEN
+    final var target = URI.create("https://localhost/X1/NE");
+    final var pathToKeyStore = Path.of(
+      getClass().getClassLoader().getResource("keystore.pfx").getPath()
+    );
+    final var password = "password";
+
+    // WHEN + THEN
+    assertThatThrownBy(() ->
+      X1ClientBuilder.newBuilder()
+        .withTarget(target)
+        .withKeyStoreProvider("kaputt")
+        .withKeyStore(pathToKeyStore, password)
+        .withTrustStore(pathToKeyStore, password)
+        .build()
+    )
+      .isInstanceOf(X1ClientBuilderException.class)
+      .hasRootCauseInstanceOf(NoSuchProviderException.class);
+  }
+
+  @Test
+  void it_fails_when_a_unknown_trust_store_provider_is_given() {
+    // GIVEN
+    final var target = URI.create("https://localhost/X1/NE");
+    final var pathToKeyStore = Path.of(
+      getClass().getClassLoader().getResource("keystore.pfx").getPath()
+    );
+    final var password = "password";
+
+    // WHEN + THEN
+    assertThatThrownBy(() ->
+      X1ClientBuilder.newBuilder()
+        .withTarget(target)
+        .withKeyStore(pathToKeyStore, password)
+        .withTrustStoreProvider("kaputt")
+        .withTrustStore(pathToKeyStore, password)
+        .build()
+    )
+      .isInstanceOf(X1ClientBuilderException.class)
+      .hasRootCauseInstanceOf(NoSuchProviderException.class);
   }
 
   private void assertValidX1Client(final X1Client client) {
