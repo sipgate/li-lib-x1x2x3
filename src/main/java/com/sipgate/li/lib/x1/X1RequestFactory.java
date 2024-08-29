@@ -14,11 +14,7 @@ public class X1RequestFactory {
   private final String neId;
   private final String admfId;
 
-  public X1RequestFactory(
-    final DatatypeFactory dataTypeFactory,
-    final String neId,
-    final String admfId
-  ) {
+  public X1RequestFactory(final DatatypeFactory dataTypeFactory, final String neId, final String admfId) {
     this.dataTypeFactory = dataTypeFactory;
     this.neId = neId;
     this.admfId = admfId;
@@ -35,16 +31,27 @@ public class X1RequestFactory {
 
       final var gregorianCalendar = new GregorianCalendar();
       gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
-      request.setMessageTimestamp(
-        dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar)
-      );
+      request.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar));
 
       return request;
     } catch (final Exception e) {
-      throw new IllegalArgumentException(
-        "Could not create X1RequestMessage",
-        e
-      );
+      throw new IllegalArgumentException("Could not create X1RequestMessage", e);
+    }
+  }
+
+  // TODO unfinished. return type is not correct?
+  public <P, T extends X1RequestMessage> T.Builder<P> builder(final T.Builder<P> builder) {
+    try {
+      final var gregorianCalendar = new GregorianCalendar();
+      gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
+      return builder
+        .withAdmfIdentifier(admfId)
+        .withNeIdentifier(neId)
+        .withX1TransactionId(UUID.randomUUID().toString())
+        .withVersion(X1_VERSION_STRING)
+        .withMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar));
+    } catch (final Exception e) {
+      throw new IllegalArgumentException("Could not create X1RequestMessage.Builder", e);
     }
   }
 }

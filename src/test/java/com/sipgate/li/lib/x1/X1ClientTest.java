@@ -19,12 +19,12 @@ import java.util.GregorianCalendar;
 import java.util.Objects;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-
 import org.assertj.core.api.Condition;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
+import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -52,13 +52,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("PingResponse_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("PingResponse_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -82,9 +78,7 @@ class X1ClientTest {
     final var httpResponse = mock(HttpResponse.class);
     when(httpResponse.body()).thenReturn("INVALID XML");
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -93,9 +87,7 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(X1ClientException.class, () ->
-      underTest.request(pingRequest, PingResponse.class)
-    );
+    assertThrows(X1ClientException.class, () -> underTest.request(pingRequest, PingResponse.class));
   }
 
   @Test
@@ -104,13 +96,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("MultipleResponses_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("MultipleResponses_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -119,9 +107,7 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(X1ClientException.class, () ->
-      underTest.request(pingRequest, PingResponse.class)
-    );
+    assertThrows(X1ClientException.class, () -> underTest.request(pingRequest, PingResponse.class));
   }
 
   @Test
@@ -130,13 +116,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("NoResponsesInResponseContainer_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("NoResponsesInResponseContainer_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -145,9 +127,7 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(X1ClientException.class, () ->
-      underTest.request(pingRequest, PingResponse.class)
-    );
+    assertThrows(X1ClientException.class, () -> underTest.request(pingRequest, PingResponse.class));
   }
 
   @Test
@@ -156,13 +136,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("TopLevelErrorResponse_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("TopLevelErrorResponse_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -171,10 +147,11 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThatThrownBy(() ->
-      underTest.request(pingRequest, PingResponse.class)
-    ).isInstanceOf(X1ClientException.class)
-      .has(new Condition<>(e -> ((X1ClientException) e).getTopLevelErrorResponse() != null, "toplevel error response set!"));
+    assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class))
+      .isInstanceOf(X1ClientException.class)
+      .has(
+        new Condition<>(e -> ((X1ClientException) e).getTopLevelErrorResponse() != null, "toplevel error response set!")
+      );
   }
 
   @Test
@@ -183,13 +160,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("ActivateTaskResponse_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("ActivateTaskResponse_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -198,9 +171,7 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThrows(IOException.class, () ->
-      underTest.request(pingRequest, PingResponse.class)
-    );
+    assertThrows(IOException.class, () -> underTest.request(pingRequest, PingResponse.class));
   }
 
   @Test
@@ -209,13 +180,9 @@ class X1ClientTest {
     final var pingRequest = createPingRequest();
 
     final var httpResponse = mock(HttpResponse.class);
-    when(httpResponse.body()).thenReturn(
-      readResource("ActivateTaskResponse_example.xml")
-    );
+    when(httpResponse.body()).thenReturn(readResource("ActivateTaskResponse_example.xml"));
 
-    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(
-      readResource("PingRequest_example.xml")
-    );
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
     when(
       httpClient.send(
         eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
@@ -228,21 +195,32 @@ class X1ClientTest {
     assertThat(resp).isInstanceOf(ActivateTaskResponse.class);
   }
 
-  private static PingRequest createPingRequest()
-    throws DatatypeConfigurationException {
+  private static PingRequest createPingRequest() throws DatatypeConfigurationException {
     final var dataTypeFactory = DatatypeFactory.newInstance();
-    final var pingRequest = new X1RequestFactory(
-      dataTypeFactory,
-      "NE",
-      "ADMF"
-    ).create(PingRequest.class);
-
-    pingRequest.setMessageTimestamp(
-      dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar())
-    );
+    final var factory = new X1RequestFactory(dataTypeFactory, "NE", "ADMF");
+    final var pingRequest = factory.create(PingRequest.class);
     pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
     return pingRequest;
   }
+
+  /* TODO
+  private static PingRequest createPingRequestWithBuider()
+    throws DatatypeConfigurationException {
+    final var dataTypeFactory = DatatypeFactory.newInstance();
+      final var requestFactory = new X1RequestFactory(
+      dataTypeFactory,
+      "NE",
+      "ADMF"
+    );
+    final PingRequest.Builder<Void> builder = PingRequest.builder();
+    final var x = builder.withAdmfIdentifier("ADMF");
+    final PingRequest.Builder<Void> y = requestFactory.builder(builder);
+    return y
+      .withMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()))
+      .withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f")
+      .build();
+  }
+  */
 
   private String readResource(final String name) throws IOException {
     try (final var is = getClass().getClassLoader().getResourceAsStream(name)) {

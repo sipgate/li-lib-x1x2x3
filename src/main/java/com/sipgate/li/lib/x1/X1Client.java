@@ -1,15 +1,14 @@
 package com.sipgate.li.lib.x1;
 
 import jakarta.xml.bind.JAXBException;
-import org.etsi.uri._03221.x1._2017._10.RequestContainer;
-import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
-import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
+import org.etsi.uri._03221.x1._2017._10.RequestContainer;
+import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
+import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 
 public class X1Client {
 
@@ -19,38 +18,25 @@ public class X1Client {
 
   X1Client(final URI target, final HttpClient httpClient) throws JAXBException {
     this.target = Objects.requireNonNull(target, "target uri must not be null");
-    this.httpClient = Objects.requireNonNull(
-      httpClient,
-      "httpClient must not be null"
-    );
+    this.httpClient = Objects.requireNonNull(httpClient, "httpClient must not be null");
 
     this.converter = new Converter();
   }
 
-  public <R extends X1ResponseMessage> R request(
-    final X1RequestMessage x1Request,
-    final Class<R> responseType
-  ) throws X1ClientException, InterruptedException {
+  public <R extends X1ResponseMessage> R request(final X1RequestMessage x1Request, final Class<R> responseType)
+    throws X1ClientException, InterruptedException {
     try {
-      final var x1requestContainer = new RequestContainer();
-      x1requestContainer.getX1RequestMessage().add(x1Request);
+      final var x1requestContainer = RequestContainer.builder().withX1RequestMessage(x1Request).build();
 
       final var body = converter.toXml(x1requestContainer);
-      final var httpRequest = HttpRequest.newBuilder(target)
-        .POST(HttpRequest.BodyPublishers.ofString(body))
-        .build();
-      final var httpResponse = httpClient.send(
-        httpRequest,
-        HttpResponse.BodyHandlers.ofString()
-      );
+      final var httpRequest = HttpRequest.newBuilder(target).POST(HttpRequest.BodyPublishers.ofString(body)).build();
+      final var httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
       final var either = converter.parseResponse(httpResponse.body());
 
       if (either.isLeft()) {
         throw new X1ClientException(
-          "Request " +
-          x1Request.getX1TransactionId() +
-          " returned TopLevelErrorResponse.",
+          "Request " + x1Request.getX1TransactionId() + " returned TopLevelErrorResponse.",
           either.left()
         );
       }
@@ -75,7 +61,7 @@ public class X1Client {
       }
 
       return responseType.cast(x1Response);
-    } catch (final InterruptedException | X1ClientException e ) {
+    } catch (final InterruptedException | X1ClientException e) {
       throw e;
     } catch (final Exception e) {
       throw new X1ClientException("Failed to send request", e);
