@@ -20,14 +20,10 @@ class X1RequestFactoryTest {
   void it_produces_request_object_with_default_values()
     throws DatatypeConfigurationException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
     // GIVEN
-    final var factory = new X1RequestFactory(
-      DatatypeFactory.newInstance(),
-      NE_ID,
-      ADMF_ID
-    );
+    final var factory = new X1RequestFactory(DatatypeFactory.newInstance(), NE_ID, ADMF_ID);
 
     // WHEN
-    final var request = factory.create(ActivateTaskRequest.class);
+    final var request = factory.builder(ActivateTaskRequest.builder()).build();
 
     // THEN
     assertThat(request.getAdmfIdentifier()).isEqualTo(ADMF_ID);

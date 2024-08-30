@@ -198,29 +198,8 @@ class X1ClientTest {
   private static PingRequest createPingRequest() throws DatatypeConfigurationException {
     final var dataTypeFactory = DatatypeFactory.newInstance();
     final var factory = new X1RequestFactory(dataTypeFactory, "NE", "ADMF");
-    final var pingRequest = factory.create(PingRequest.class);
-    pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
-    return pingRequest;
+    return factory.builder(PingRequest.builder()).withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f").build();
   }
-
-  /* TODO
-  private static PingRequest createPingRequestWithBuider()
-    throws DatatypeConfigurationException {
-    final var dataTypeFactory = DatatypeFactory.newInstance();
-      final var requestFactory = new X1RequestFactory(
-      dataTypeFactory,
-      "NE",
-      "ADMF"
-    );
-    final PingRequest.Builder<Void> builder = PingRequest.builder();
-    final var x = builder.withAdmfIdentifier("ADMF");
-    final PingRequest.Builder<Void> y = requestFactory.builder(builder);
-    return y
-      .withMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()))
-      .withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f")
-      .build();
-  }
-  */
 
   private String readResource(final String name) throws IOException {
     try (final var is = getClass().getClassLoader().getResourceAsStream(name)) {
