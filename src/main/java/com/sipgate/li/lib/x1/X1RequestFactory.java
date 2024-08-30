@@ -39,17 +39,18 @@ public class X1RequestFactory {
     }
   }
 
-  // TODO unfinished. return type is not correct?
-  public <P, T extends X1RequestMessage> T.Builder<P> builder(final T.Builder<P> builder) {
+  @SuppressWarnings("unchecked")
+  public <P, B extends X1RequestMessage.Builder<P>> B builder(final B builder) {
     try {
       final var gregorianCalendar = new GregorianCalendar();
       gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
-      return builder
+      final var b = builder
         .withAdmfIdentifier(admfId)
         .withNeIdentifier(neId)
         .withX1TransactionId(UUID.randomUUID().toString())
         .withVersion(X1_VERSION_STRING)
         .withMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar));
+      return (B) b; // cast up to derived builder
     } catch (final Exception e) {
       throw new IllegalArgumentException("Could not create X1RequestMessage.Builder", e);
     }
