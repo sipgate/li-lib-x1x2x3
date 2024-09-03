@@ -20,6 +20,8 @@ public class X1RequestFactory {
     this.admfId = admfId;
   }
 
+  /** @Deprecated consider using the builder. */
+  @Deprecated
   public <T extends X1RequestMessage> T create(final Class<T> tClass) {
     try {
       final var request = tClass.getDeclaredConstructor().newInstance();
