@@ -50,9 +50,6 @@ class ConverterTest {
     final var actual = underTest.parseRequest(xml);
 
     // THEN
-    final var activateTaskRequest = new ActivateTaskRequest();
-    activateTaskRequest.setAdmfIdentifier("admfID");
-    activateTaskRequest.setNeIdentifier("neID");
     final var calendar = DatatypeFactory.newInstance()
       .newXMLGregorianCalendar(
         BigInteger.valueOf(2017L),
@@ -64,19 +61,19 @@ class ConverterTest {
         BigDecimal.valueOf(247432, 6),
         0
       );
+    final var activateTaskRequest = ActivateTaskRequest.builder()
+      .withAdmfIdentifier("admfID")
+      .withNeIdentifier("neID")
+      .withMessageTimestamp(calendar)
+      .withVersion("v1.6.1")
+      .withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f")
 
-    activateTaskRequest.setMessageTimestamp(calendar);
-    activateTaskRequest.setVersion("v1.6.1");
-    activateTaskRequest.setX1TransactionId(
-      "3741800e-971b-4aa9-85f4-466d2b1adc7f"
-    );
+    final var details = TaskDetails.builder()
+      .withXId("29f28e1c-f230-486a-a860-f5a784ab9172");
 
-    final var details = new TaskDetails();
-    details.setXId("29f28e1c-f230-486a-a860-f5a784ab9172");
-
-    final var listOfTargetIdentifiers = new ListOfTargetIdentifiers();
-    final var targetIdentifier = new TargetIdentifier();
-    targetIdentifier.setE164Number("447700900000");
+    final var listOfTargetIdentifiers = ListOfTargetIdentifiers.builder()
+    final var targetIdentifier = TargetIdentifier.builder()
+      .withE164Number("447700900000");
     listOfTargetIdentifiers.getTargetIdentifier().add((targetIdentifier));
     details.setTargetIdentifiers(listOfTargetIdentifiers);
 
