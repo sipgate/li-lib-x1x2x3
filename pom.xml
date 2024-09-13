@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sipgate.li</groupId>
 	<artifactId>lib-x1x2x3</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>lib</name>
 	<description>X1/X2/X3 library for Java based on ETSI TS 103 221</description>
 
