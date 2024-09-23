@@ -20,7 +20,7 @@ public class X2X3Decoder {
       LOGGER.debug("- too short");
       return;
     }
-    in.skipBytes(4);
+    in.skipBytes(4); // version:2, pduType:2
     final var headerLength = in.readUnsignedInt();
     final var payloadLength = in.readUnsignedInt();
     final var expectedLength = headerLength + payloadLength;

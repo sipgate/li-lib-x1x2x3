@@ -1,6 +1,5 @@
 package com.sipgate.li.lib.x2x3;
 
-import java.util.List;
 import java.util.UUID;
 
 public record PduObject(
