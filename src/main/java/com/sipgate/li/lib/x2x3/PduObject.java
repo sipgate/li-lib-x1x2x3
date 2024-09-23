@@ -16,15 +16,25 @@ public record PduObject(
   byte[] payload
 ) {
   public PduObject {
-    if (pduType == PduType.X2_PDU && !payloadFormat().x2allowed) {
-      throw new IllegalArgumentException(
-        "X2_PDU does not allow payload format " + payloadFormat
-      );
+    if (majorVersion != 0) {
+      throw new PduValidationException("Must be 0", "majorVersion");
     }
-    if (pduType == PduType.X3_PDU && !payloadFormat().x3allowed) {
-      throw new IllegalArgumentException(
-        "X3_PDU does not allow payload format " + payloadFormat
-      );
+    if (minorVersion != 5) {
+      throw new PduValidationException("Must be 5", "minorVersion");
+    }
+    if (pduType == PduType.X2_PDU && !payloadFormat.x2allowed) {
+      throw new PduValidationException("Must be X2 compatible", "payloadFormat");
+    }
+    if (pduType == PduType.X3_PDU && !payloadFormat.x3allowed) {
+      throw new PduValidationException("Must be X3 compatible", "payloadFormat");
+    }
+    if (payloadLength != payload.length) {
+      throw new PduValidationException("Must match number of bytes provided", "payloadLength");
+    }
+    if (headerLength != MANDATORY_HEADER_LENGTH + conditionalAttributeFields.length) {
+      throw new PduValidationException("Must match number of bytes provided", "headerLength");
     }
   }
+
+  public static final int MANDATORY_HEADER_LENGTH = 40;
 }
