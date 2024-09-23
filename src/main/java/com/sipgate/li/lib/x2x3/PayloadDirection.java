@@ -8,7 +8,7 @@ public enum PayloadDirection {
   MORE_THAN_ONE_DIRECTION(4),
   NOT_APPLICABLE(5);
 
-  private final int value;
+  public final int value;
 
   PayloadDirection(final int value) {
     this.value = value;

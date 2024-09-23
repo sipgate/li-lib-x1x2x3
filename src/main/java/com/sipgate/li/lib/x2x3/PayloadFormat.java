@@ -19,16 +19,12 @@ public enum PayloadFormat {
   MIME(15, true, true),
   _3GPP_UNSTRUCTURED_PDU(16, false, true);
 
-  private final int value;
+  public final int value;
 
   public final boolean x2allowed;
   public final boolean x3allowed;
 
-  PayloadFormat(
-    final int value,
-    final boolean x2allowed,
-    final boolean x3allowed
-  ) {
+  PayloadFormat(final int value, final boolean x2allowed, final boolean x3allowed) {
     this.value = value;
     this.x2allowed = x2allowed;
     this.x3allowed = x3allowed;
