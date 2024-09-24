@@ -24,7 +24,7 @@ public class X2X3Decoder {
   public void decode(final ByteBuf in, final List<Object> out) throws Exception {
     LOGGER.debug("Decoding message: {}", in);
     if (in.readableBytes() < 12) { // version:2, pduType:2, headerLength:4, payloadLength:4 == 12
-      LOGGER.debug("- too short");
+      LOGGER.trace("- too short");
       return;
     }
     in.skipBytes(4); // version:2, pduType:2
@@ -40,7 +40,7 @@ public class X2X3Decoder {
     final var expectedLength = headerLength + payloadLength;
     in.resetReaderIndex();
     if (in.readableBytes() < expectedLength) {
-      LOGGER.debug("- still too short");
+      LOGGER.trace("- still too short");
       return;
     }
     final int condAttrLength = (int) (in.readableBytes() - payloadLength - MANDATORY_HEADER_LENGTH);
@@ -59,7 +59,7 @@ public class X2X3Decoder {
       getCopiedBytes(in, (int) payloadLength) // var
     );
     out.add(pdu);
-    LOGGER.debug("- decoded: {}", pdu);
+    LOGGER.trace("- decoded: {}", pdu);
   }
 
   private static byte[] getCopiedBytes(final ByteBuf in, final int length) {
