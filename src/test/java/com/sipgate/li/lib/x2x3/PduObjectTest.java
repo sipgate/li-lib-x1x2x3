@@ -133,6 +133,26 @@ class PduObjectTest {
   }
 
   @Test
+  void it_throws_with_illegal_correlation_id_length() throws Exception {
+    final var exception = assertThrows(PduValidationException.class, () ->
+      new PduObject(
+        (short) 0,
+        (short) 5,
+        PduType.X2_PDU,
+        MANDATORY_HEADER_LENGTH,
+        0,
+        PayloadFormat.SIP,
+        PayloadDirection.SENT_FROM_TARGET,
+        UUID.randomUUID(),
+        new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 },
+        EMPTY,
+        EMPTY
+      )
+    );
+    assertThat(exception.getFieldName()).isEqualTo("correlationID");
+  }
+
+  @Test
   void it_creates_a_pdu_object() throws Exception {
     new PduObject(
       (short) 0,

@@ -28,6 +28,9 @@ public record PduObject(
     if (pduType == PduType.X3_PDU && !payloadFormat.x3allowed) {
       throw new PduValidationException("Must be X3 compatible", "payloadFormat");
     }
+    if (correlationID.length != CORRELATION_ID_LENGTH) {
+      throw new PduValidationException("Must exactly 8 bytes long", "correlationID");
+    }
     if (payloadLength != payload.length) {
       throw new PduValidationException("Must match number of bytes provided", "payloadLength");
     }
@@ -37,4 +40,5 @@ public record PduObject(
   }
 
   public static final int MANDATORY_HEADER_LENGTH = 40;
+  public static final int CORRELATION_ID_LENGTH = 8;
 }
