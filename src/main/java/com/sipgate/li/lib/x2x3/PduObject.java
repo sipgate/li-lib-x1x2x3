@@ -29,7 +29,7 @@ public record PduObject(
       throw new PduValidationException("Must be X3 compatible", "payloadFormat");
     }
     if (correlationID.length != CORRELATION_ID_LENGTH) {
-      throw new PduValidationException("Must exactly 8 bytes long", "correlationID");
+      throw new PduValidationException("Must be exactly 8 bytes long", "correlationID");
     }
   }
 
