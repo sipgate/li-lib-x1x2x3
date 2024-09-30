@@ -6,8 +6,8 @@ public record PduObject(
   short majorVersion, // 0
   short minorVersion, // 5
   PduType pduType,
-  long headerLength,
-  long payloadLength,
+  // implicit: long headerLength,
+  // implicit: long payloadLength,
   PayloadFormat payloadFormat,
   PayloadDirection payloadDirection,
   UUID xid,
@@ -30,12 +30,6 @@ public record PduObject(
     }
     if (correlationID.length != CORRELATION_ID_LENGTH) {
       throw new PduValidationException("Must exactly 8 bytes long", "correlationID");
-    }
-    if (payloadLength != payload.length) {
-      throw new PduValidationException("Must match number of bytes provided", "payloadLength");
-    }
-    if (headerLength != MANDATORY_HEADER_LENGTH + conditionalAttributeFields.length) {
-      throw new PduValidationException("Must match number of bytes provided", "headerLength");
     }
   }
 

@@ -27,8 +27,6 @@ public class X2X3ClientTest {
           (short) 0,
           (short) 5,
           PduType.X2_PDU,
-          MANDATORY_HEADER_LENGTH,
-          0,
           PayloadFormat.SIP,
           PayloadDirection.SENT_FROM_TARGET,
           UUID.randomUUID(),
@@ -88,8 +86,6 @@ public class X2X3ClientTest {
       (short) 0,
       (short) 5,
       PduType.X2_PDU,
-      MANDATORY_HEADER_LENGTH,
-      DUMMY_INVITE.length,
       PayloadFormat.SIP,
       PayloadDirection.SENT_FROM_TARGET,
       UUID.fromString("12345678-9abc-def0-1234-56789abcdef0"),
@@ -102,49 +98,22 @@ public class X2X3ClientTest {
     underTest.send(pduObject);
     final var actual = os.toByteArray();
 
+    //@formatter:off
+    // prettier-ignore
     final var expectedHeader = new byte[] {
       0, // major version
       5, // minor version
-      0,
-      1, // pdu type
-      0,
-      0,
-      0,
-      40, // header length
-      0,
-      0,
-      0,
-      (byte) DUMMY_INVITE.length, // payload length (attention when greater than 255!)
-      0,
-      9, // payload format
-      0,
-      3, // payload direction
-      18,
-      52,
-      86,
-      120,
-      -102,
-      -68,
-      -34,
-      -16,
-      18,
-      52,
-      86,
-      120,
-      -102,
-      -68,
-      -34,
-      -16, // xid
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8, // correlation id
+      0, 1, // pdu type
+      0, 0, 0, 40, // header length
+      0, 0, 0, (byte) DUMMY_INVITE.length, // payload length (attention when greater than 255!)
+      0, 9, // payload format
+      0, 3, // payload direction
+      18,52,86,120,-102,-68,-34,-16,18,52,86,120,-102,-68,-34,-16, // xid
+      1,2,3,4,5,6,7,8, // correlation id
       // no conditional attributes
     };
+    //@formatter:on
+
     final var expected = concat(expectedHeader, DUMMY_INVITE);
 
     // THEN

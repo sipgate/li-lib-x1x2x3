@@ -1,6 +1,5 @@
 package com.sipgate.li.lib.x2x3;
 
-import static com.sipgate.li.lib.x2x3.PduObject.MANDATORY_HEADER_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,8 +18,6 @@ class PduObjectTest {
         (short) 666,
         (short) 5,
         PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH,
-        0,
         PayloadFormat.SIP,
         PayloadDirection.SENT_FROM_TARGET,
         UUID.randomUUID(),
@@ -39,8 +36,6 @@ class PduObjectTest {
         (short) 0,
         (short) 666,
         PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH,
-        0,
         PayloadFormat.SIP,
         PayloadDirection.SENT_FROM_TARGET,
         UUID.randomUUID(),
@@ -59,8 +54,6 @@ class PduObjectTest {
         (short) 0,
         (short) 5,
         PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH,
-        0,
         PayloadFormat.GTP_U,
         PayloadDirection.SENT_FROM_TARGET,
         UUID.randomUUID(),
@@ -79,8 +72,6 @@ class PduObjectTest {
         (short) 0,
         (short) 5,
         PduType.X3_PDU,
-        MANDATORY_HEADER_LENGTH,
-        0,
         PayloadFormat.SIP,
         PayloadDirection.SENT_FROM_TARGET,
         UUID.randomUUID(),
@@ -93,54 +84,12 @@ class PduObjectTest {
   }
 
   @Test
-  void it_throws_with_illegal_payload_and_length_combination() throws Exception {
-    final var exception = assertThrows(PduValidationException.class, () ->
-      new PduObject(
-        (short) 0,
-        (short) 5,
-        PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH,
-        3,
-        PayloadFormat.SIP,
-        PayloadDirection.SENT_FROM_TARGET,
-        UUID.randomUUID(),
-        CID,
-        EMPTY,
-        new byte[4]
-      )
-    );
-    assertThat(exception.getFieldName()).isEqualTo("payloadLength");
-  }
-
-  @Test
-  void it_throws_with_illegal_header_and_length_combination() throws Exception {
-    final var exception = assertThrows(PduValidationException.class, () ->
-      new PduObject(
-        (short) 0,
-        (short) 5,
-        PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH + 3,
-        0,
-        PayloadFormat.SIP,
-        PayloadDirection.SENT_FROM_TARGET,
-        UUID.randomUUID(),
-        CID,
-        new byte[4],
-        EMPTY
-      )
-    );
-    assertThat(exception.getFieldName()).isEqualTo("headerLength");
-  }
-
-  @Test
   void it_throws_with_illegal_correlation_id_length() throws Exception {
     final var exception = assertThrows(PduValidationException.class, () ->
       new PduObject(
         (short) 0,
         (short) 5,
         PduType.X2_PDU,
-        MANDATORY_HEADER_LENGTH,
-        0,
         PayloadFormat.SIP,
         PayloadDirection.SENT_FROM_TARGET,
         UUID.randomUUID(),
@@ -158,8 +107,6 @@ class PduObjectTest {
       (short) 0,
       (short) 5,
       PduType.X2_PDU,
-      MANDATORY_HEADER_LENGTH,
-      0,
       PayloadFormat.SIP,
       PayloadDirection.SENT_FROM_TARGET,
       UUID.randomUUID(),

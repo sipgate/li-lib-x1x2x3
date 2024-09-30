@@ -30,11 +30,10 @@ class X2X3DecoderTest {
     assertThat(pdu0.majorVersion()).isEqualTo((short) 0);
     assertThat(pdu0.minorVersion()).isEqualTo((short) 5);
     assertThat(pdu0.pduType()).isEqualTo(PduType.X2_PDU);
-    assertThat(pdu0.headerLength()).isEqualTo(81);
-    assertThat(pdu0.payloadLength()).isEqualTo(539);
     assertThat(pdu0.payloadFormat()).isEqualTo(PayloadFormat.SIP);
     assertThat(pdu0.payloadDirection()).isEqualTo(PayloadDirection.SENT_FROM_TARGET);
-    assertThat(pdu0.payload().length).isEqualTo(pdu0.payloadLength());
+    assertThat(pdu0.payload().length).isEqualTo(539);
+    assertThat(pdu0.conditionalAttributeFields().length).isEqualTo(41);
   }
 
   static final int MAJOR_VERSION_INDEX = 0;

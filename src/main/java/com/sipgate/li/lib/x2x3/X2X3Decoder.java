@@ -44,22 +44,24 @@ public class X2X3Decoder {
       return;
     }
     final int condAttrLength = (int) (in.readableBytes() - payloadLength - MANDATORY_HEADER_LENGTH);
-    final var pdu = makePduObject(
-      in.readUnsignedByte(), // 1 major version
-      in.readUnsignedByte(), // 1 minor version
-      in.readUnsignedShort(), // 2 pduType
-      in.readUnsignedInt(), // 4 headerLength
-      in.readUnsignedInt(), // 4 payloadLength
-      in.readUnsignedShort(), // 2 payloadFormat
-      in.readUnsignedShort(), // 2 payloadDirection
-      in.readLong(), // 8 xid high
-      in.readLong(), // 8 xid low
-      getCopiedBytes(in, 8), // 8 correlationID
-      getCopiedBytes(in, condAttrLength), // var conditionalAttributes
-      getCopiedBytes(in, (int) payloadLength) // var
-    );
-    out.add(pdu);
-    LOGGER.trace("- decoded: {}", pdu);
+    final var builder = new PduObjectBuilder()
+      .majorVersion(in.readUnsignedByte()) // 1 major version
+      .minorVersion(in.readUnsignedByte()); // 1 minor version
+
+    final var pduType = PduType.fromValue(in.readUnsignedShort()); // 2 pduType
+    in.skipBytes(8); // length of headerLength and payloadLength
+    final var payloadFormat = PayloadFormat.fromValue(in.readUnsignedShort()); // 2 payloadFormat
+
+    builder
+      .pduTypeAndFormat(pduType, payloadFormat)
+      .payloadDirection(PayloadDirection.fromValue(in.readUnsignedShort())) // 2 payloadDirection
+      .xid(new UUID(in.readLong(), in.readLong())) // 8+8 xid
+      .correlationID(getCopiedBytes(in, 8)) // 8 correlationID
+      .conditionalAttributeFields(getCopiedBytes(in, condAttrLength)) // var conditionalAttributes
+      .payload(getCopiedBytes(in, (int) payloadLength)); // var
+
+    out.add(builder.build());
+    LOGGER.trace("- decoded: {}", builder);
   }
 
   private static byte[] getCopiedBytes(final ByteBuf in, final int length) {
@@ -68,34 +70,5 @@ public class X2X3Decoder {
     final byte[] data = new byte[buff.readableBytes()];
     buff.readBytes(data);
     return data;
-  }
-
-  private PduObject makePduObject(
-    final short majorVersion,
-    final short minorVersion,
-    final int pduType,
-    final long headerLength,
-    final long payloadLength,
-    final int payloadFormat,
-    final int payloadDirection,
-    final long xidHigh,
-    final long xidLow,
-    final byte[] corrId,
-    final byte[] condAttrs,
-    final byte[] payload
-  ) {
-    return new PduObject(
-      majorVersion,
-      minorVersion,
-      PduType.fromValue(pduType),
-      (int) headerLength,
-      (int) payloadLength,
-      PayloadFormat.fromValue(payloadFormat),
-      PayloadDirection.fromValue(payloadDirection),
-      new UUID(xidHigh, xidLow),
-      corrId,
-      condAttrs,
-      payload
-    );
   }
 }

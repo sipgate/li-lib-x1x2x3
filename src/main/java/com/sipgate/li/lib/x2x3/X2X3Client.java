@@ -25,8 +25,8 @@ public class X2X3Client implements AutoCloseable {
     outputStream.write(pduObject.majorVersion());
     outputStream.write(pduObject.minorVersion());
     outputStream.writeShort(pduObject.pduType().value);
-    outputStream.writeInt((int) pduObject.headerLength());
-    outputStream.writeInt((int) pduObject.payloadLength());
+    outputStream.writeInt(PduObject.MANDATORY_HEADER_LENGTH + pduObject.conditionalAttributeFields().length);
+    outputStream.writeInt(pduObject.payload().length);
     outputStream.writeShort(pduObject.payloadFormat().value);
     outputStream.writeShort(pduObject.payloadDirection().value);
     outputStream.writeLong(pduObject.xid().getMostSignificantBits());
