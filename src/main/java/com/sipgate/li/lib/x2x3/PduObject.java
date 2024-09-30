@@ -16,11 +16,11 @@ public record PduObject(
   byte[] payload
 ) {
   public PduObject {
-    if (majorVersion != 0) {
-      throw new PduValidationException("Must be 0", "majorVersion");
+    if (majorVersion != MAJOR_VERSION) {
+      throw new PduValidationException("Must be " + MAJOR_VERSION, "majorVersion");
     }
-    if (minorVersion != 5) {
-      throw new PduValidationException("Must be 5", "minorVersion");
+    if (minorVersion != MINOR_VERSION) {
+      throw new PduValidationException("Must be " + MINOR_VERSION, "minorVersion");
     }
     if (pduType == PduType.X2_PDU && !payloadFormat.x2allowed) {
       throw new PduValidationException("Must be X2 compatible", "payloadFormat");
@@ -39,6 +39,8 @@ public record PduObject(
     }
   }
 
+  public static final int MINOR_VERSION = 5;
+  public static final int MAJOR_VERSION = 0;
   public static final int MANDATORY_HEADER_LENGTH = 40;
   public static final int CORRELATION_ID_LENGTH = 8;
 }
