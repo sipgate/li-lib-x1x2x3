@@ -2,7 +2,10 @@ package com.sipgate.li.lib.x2x3;
 
 import static com.sipgate.li.lib.x2x3.PduObject.MANDATORY_HEADER_LENGTH;
 
+import com.sipgate.li.lib.x2x3.tlv.GenericTLV;
+import com.sipgate.li.lib.x2x3.tlv.TLV;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -57,7 +60,7 @@ public class X2X3Decoder {
       .payloadDirection(PayloadDirection.fromValue(in.readUnsignedShort())) // 2 payloadDirection
       .xid(new UUID(in.readLong(), in.readLong())) // 8+8 xid
       .correlationID(getCopiedBytes(in, 8)) // 8 correlationID
-      .conditionalAttributeFields(getCopiedBytes(in, condAttrLength)) // var conditionalAttributes
+      .conditionalAttributeFields(decodeTlv(in, condAttrLength)) // var conditionalAttributes
       .payload(getCopiedBytes(in, (int) payloadLength)); // var
 
     out.add(builder.build());
@@ -70,5 +73,18 @@ public class X2X3Decoder {
     final byte[] data = new byte[buff.readableBytes()];
     buff.readBytes(data);
     return data;
+  }
+
+  private static List<TLV> decodeTlv(final ByteBuf in, int length) {
+    final var tlvList = new ArrayList<TLV>();
+    while (length > 0) {
+      final var type = in.readUnsignedShort();
+      final var contentLength = in.readUnsignedShort();
+
+      final var content = getCopiedBytes(in, contentLength);
+      tlvList.add(new GenericTLV(type, content));
+      length -= 4 + contentLength; // 2 bytes for type + 2 bytes for contentLength
+    }
+    return tlvList;
   }
 }

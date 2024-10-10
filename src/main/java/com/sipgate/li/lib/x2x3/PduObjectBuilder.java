@@ -1,5 +1,7 @@
 package com.sipgate.li.lib.x2x3;
 
+import com.sipgate.li.lib.x2x3.tlv.TLV;
+import java.util.List;
 import java.util.UUID;
 
 public class PduObjectBuilder {
@@ -11,7 +13,7 @@ public class PduObjectBuilder {
   private PayloadDirection payloadDirection = PayloadDirection.UNKNOWN;
   private UUID xid = UUID.randomUUID();
   private byte[] correlationID = new byte[0]; // must be set before build(), is initialized to incorrect length by design.
-  private byte[] conditionalAttributeFields = new byte[0];
+  private TLV[] conditionalAttributeFields = new TLV[0];
   private byte[] payload = new byte[0];
 
   public PduObjectBuilder majorVersion(final Short majorVersion) {
@@ -45,8 +47,8 @@ public class PduObjectBuilder {
     return this;
   }
 
-  public PduObjectBuilder conditionalAttributeFields(final byte[] conditionalAttributeFields) {
-    this.conditionalAttributeFields = conditionalAttributeFields;
+  public PduObjectBuilder conditionalAttributeFields(final List<TLV> conditionalAttributeFields) {
+    this.conditionalAttributeFields = conditionalAttributeFields.toArray(this.conditionalAttributeFields);
     return this;
   }
 

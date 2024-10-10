@@ -3,6 +3,7 @@ package com.sipgate.li.lib.x2x3;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import javax.net.SocketFactory;
 import org.slf4j.Logger;
@@ -21,20 +22,8 @@ public class X2X3Client implements AutoCloseable {
 
   public void send(final PduObject pduObject) throws IOException {
     LOGGER.debug("Sending PDU: {}", pduObject);
-    final DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-    outputStream.write(pduObject.majorVersion());
-    outputStream.write(pduObject.minorVersion());
-    outputStream.writeShort(pduObject.pduType().value);
-    outputStream.writeInt(PduObject.MANDATORY_HEADER_LENGTH + pduObject.conditionalAttributeFields().length);
-    outputStream.writeInt(pduObject.payload().length);
-    outputStream.writeShort(pduObject.payloadFormat().value);
-    outputStream.writeShort(pduObject.payloadDirection().value);
-    outputStream.writeLong(pduObject.xid().getMostSignificantBits());
-    outputStream.writeLong(pduObject.xid().getLeastSignificantBits());
-    outputStream.write(pduObject.correlationID());
-    outputStream.write(pduObject.conditionalAttributeFields());
-    outputStream.write(pduObject.payload());
-
+    final var outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+    pduObject.writeTo(outputStream);
     outputStream.flush();
   }
 
