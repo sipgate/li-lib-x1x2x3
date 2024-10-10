@@ -46,7 +46,9 @@ public class X2X3Decoder {
       LOGGER.trace("- still too short");
       return;
     }
-    final int condAttrLength = (int) (in.readableBytes() - payloadLength - MANDATORY_HEADER_LENGTH);
+
+    final var condAttrLength = (int) (headerLength - MANDATORY_HEADER_LENGTH);
+
     final var builder = new PduObjectBuilder()
       .majorVersion(in.readUnsignedByte()) // 1 major version
       .minorVersion(in.readUnsignedByte()); // 1 minor version

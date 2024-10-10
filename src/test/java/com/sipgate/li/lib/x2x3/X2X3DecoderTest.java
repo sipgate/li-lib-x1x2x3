@@ -1,8 +1,10 @@
 package com.sipgate.li.lib.x2x3;
 
+import static com.sipgate.util.ArrayUtils.concat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.sipgate.li.lib.x2x3.tlv.GenericTLV;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -12,35 +14,83 @@ import org.junit.jupiter.api.Test;
 
 class X2X3DecoderTest {
 
+  private static final int MAJOR_VERSION_INDEX = 0;
+  private static final int MINOR_VERSION_INDEX = MAJOR_VERSION_INDEX + 1;
+  private static final int PDU_TYPE_INDEX = MINOR_VERSION_INDEX + 1;
+  private static final int HEADER_LENGTH_INDEX = PDU_TYPE_INDEX + 2;
+  private static final int PAYLOAD_LENGTH_INDEX = HEADER_LENGTH_INDEX + 4;
+
   final X2X3Decoder underTest = new X2X3Decoder(120, 1492);
 
   @Test
   void it_parses_x2_packet_correctly() throws Exception {
     // GIVEN
-    final var data = getPduBytesFromPcapFile("x2-demo-01.pcap");
-    final ByteBuf in = Unpooled.wrappedBuffer(data);
+    final var pduBytes = getPduBytesFromPcapFile("x2-demo-01.pcap");
+    // Run test with two pdu packets because, in real life, the buffer might contain the remainder of future packets
+    // at the end.
+    final var inputByteStream = concat(pduBytes, pduBytes);
+
+    final var in = Unpooled.wrappedBuffer(inputByteStream);
 
     // WHEN
     final List<Object> out = new ArrayList<>();
     underTest.decode(in, out);
 
     // THEN
-    assertThat(out).hasSize(1);
-    final PduObject pdu0 = (PduObject) out.getFirst();
+    assertThat(out).hasSize(1); // 1 because netty would loop over remaining data after the first one
+    final var pdu0 = (PduObject) out.getFirst();
     assertThat(pdu0.majorVersion()).isEqualTo((short) 0);
     assertThat(pdu0.minorVersion()).isEqualTo((short) 5);
     assertThat(pdu0.pduType()).isEqualTo(PduType.X2_PDU);
     assertThat(pdu0.payloadFormat()).isEqualTo(PayloadFormat.SIP);
     assertThat(pdu0.payloadDirection()).isEqualTo(PayloadDirection.SENT_FROM_TARGET);
     assertThat(pdu0.payload().length).isEqualTo(539);
-    assertThat(pdu0.conditionalAttributeFields().length).isEqualTo(41);
-  }
+    assertThat(pdu0.conditionalAttributeFields()).hasSize(1);
 
-  static final int MAJOR_VERSION_INDEX = 0;
-  static final int MINOR_VERSION_INDEX = MAJOR_VERSION_INDEX + 1;
-  static final int PDU_TYPE_INDEX = MINOR_VERSION_INDEX + 1;
-  static final int HEADER_LENGTH_INDEX = PDU_TYPE_INDEX + 2;
-  static final int PAYLOAD_LENGTH_INDEX = HEADER_LENGTH_INDEX + 4;
+    final var actualTlv = (GenericTLV) pdu0.conditionalAttributeFields()[0];
+    assertThat(actualTlv.type()).isEqualTo(17);
+    assertThat(actualTlv.contents()).isEqualTo(
+      new byte[] {
+        0x3c,
+        0x45,
+        0x31,
+        0x36,
+        0x34,
+        0x4e,
+        0x75,
+        0x6d,
+        0x62,
+        0x65,
+        0x72,
+        0x3e,
+        0x34,
+        0x39,
+        0x34,
+        0x30,
+        0x31,
+        0x32,
+        0x33,
+        0x34,
+        0x35,
+        0x36,
+        0x37,
+        0x38,
+        0x3c,
+        0x2f,
+        0x45,
+        0x31,
+        0x36,
+        0x34,
+        0x4e,
+        0x75,
+        0x6d,
+        0x62,
+        0x65,
+        0x72,
+        0x3e,
+      }
+    );
+  }
 
   @Test
   void it_throws_on_x2_with_illegal_headerLength() throws Exception {
