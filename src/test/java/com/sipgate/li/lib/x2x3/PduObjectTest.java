@@ -151,10 +151,9 @@ class PduObjectTest {
 
     // THEN
     final var byteBuf = Unpooled.wrappedBuffer(byteArrayOutputStream.toByteArray());
-    final var list = new ArrayList<>();
-    new X2X3Decoder(1024, 1024).decode(byteBuf, list);
+    final var pduObject = new X2X3Decoder(1024, 1024).decode(byteBuf).get();
 
-    final var tlvs = ((PduObject) list.get(0)).conditionalAttributeFields();
+    final var tlvs = pduObject.conditionalAttributeFields();
     assertThat(tlvs).hasSize(1);
     final var tlv = (GenericTLV) tlvs[0];
     assertThat(tlv.type()).isEqualTo(expectedType);

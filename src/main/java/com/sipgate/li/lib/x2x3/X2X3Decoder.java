@@ -7,6 +7,7 @@ import com.sipgate.li.lib.x2x3.tlv.TLV;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,11 @@ public class X2X3Decoder {
   }
 
   /** usage pattern see {@link ByteToMessageDecoder} of netty. */
-  public void decode(final ByteBuf in, final List<Object> out) throws Exception {
+  public Optional<PduObject> decode(final ByteBuf in) {
     LOGGER.debug("Decoding message: {}", in);
     if (in.readableBytes() < 12) { // version:2, pduType:2, headerLength:4, payloadLength:4 == 12
       LOGGER.trace("- too short");
-      return;
+      return Optional.empty();
     }
     in.skipBytes(4); // version:2, pduType:2
     final var headerLength = in.readUnsignedInt();
@@ -44,7 +45,7 @@ public class X2X3Decoder {
     in.resetReaderIndex();
     if (in.readableBytes() < expectedLength) {
       LOGGER.trace("- still too short");
-      return;
+      return Optional.empty();
     }
 
     final var condAttrLength = (int) (headerLength - MANDATORY_HEADER_LENGTH);
@@ -65,8 +66,8 @@ public class X2X3Decoder {
       .conditionalAttributeFields(decodeTlv(in, condAttrLength)) // var conditionalAttributes
       .payload(getCopiedBytes(in, (int) payloadLength)); // var
 
-    out.add(builder.build());
     LOGGER.trace("- decoded: {}", builder);
+    return Optional.of(builder.build());
   }
 
   private static byte[] getCopiedBytes(final ByteBuf in, final int length) {

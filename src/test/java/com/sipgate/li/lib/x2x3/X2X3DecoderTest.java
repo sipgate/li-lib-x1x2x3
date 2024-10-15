@@ -33,21 +33,19 @@ class X2X3DecoderTest {
     final var in = Unpooled.wrappedBuffer(inputByteStream);
 
     // WHEN
-    final List<Object> out = new ArrayList<>();
-    underTest.decode(in, out);
+
+    final var pdu = underTest.decode(in).get();
 
     // THEN
-    assertThat(out).hasSize(1); // 1 because netty would loop over remaining data after the first one
-    final var pdu0 = (PduObject) out.getFirst();
-    assertThat(pdu0.majorVersion()).isEqualTo((short) 0);
-    assertThat(pdu0.minorVersion()).isEqualTo((short) 5);
-    assertThat(pdu0.pduType()).isEqualTo(PduType.X2_PDU);
-    assertThat(pdu0.payloadFormat()).isEqualTo(PayloadFormat.SIP);
-    assertThat(pdu0.payloadDirection()).isEqualTo(PayloadDirection.SENT_FROM_TARGET);
-    assertThat(pdu0.payload().length).isEqualTo(539);
-    assertThat(pdu0.conditionalAttributeFields()).hasSize(1);
+    assertThat(pdu.majorVersion()).isEqualTo((short) 0);
+    assertThat(pdu.minorVersion()).isEqualTo((short) 5);
+    assertThat(pdu.pduType()).isEqualTo(PduType.X2_PDU);
+    assertThat(pdu.payloadFormat()).isEqualTo(PayloadFormat.SIP);
+    assertThat(pdu.payloadDirection()).isEqualTo(PayloadDirection.SENT_FROM_TARGET);
+    assertThat(pdu.payload().length).isEqualTo(539);
+    assertThat(pdu.conditionalAttributeFields()).hasSize(1);
 
-    final var actualTlv = (GenericTLV) pdu0.conditionalAttributeFields()[0];
+    final var actualTlv = (GenericTLV) pdu.conditionalAttributeFields()[0];
     assertThat(actualTlv.type()).isEqualTo(17);
     assertThat(actualTlv.contents()).isEqualTo(
       new byte[] {
@@ -98,10 +96,9 @@ class X2X3DecoderTest {
     final var data = getPduBytesFromPcapFile("x2-demo-01.pcap");
     data[HEADER_LENGTH_INDEX] = 0x7f; // <<< too high
     final ByteBuf in = Unpooled.wrappedBuffer(data);
-    final List<Object> out = new ArrayList<>();
 
     // WHEN-THEN
-    assertThrows(IllegalArgumentException.class, () -> underTest.decode(in, out));
+    assertThrows(IllegalArgumentException.class, () -> underTest.decode(in));
   }
 
   @Test
@@ -110,10 +107,9 @@ class X2X3DecoderTest {
     final var data = getPduBytesFromPcapFile("x2-demo-01.pcap");
     data[PAYLOAD_LENGTH_INDEX] = 0x7f; // <<< too high
     final ByteBuf in = Unpooled.wrappedBuffer(data);
-    final List<Object> out = new ArrayList<>();
 
     // WHEN-THEN
-    assertThrows(IllegalArgumentException.class, () -> underTest.decode(in, out));
+    assertThrows(IllegalArgumentException.class, () -> underTest.decode(in));
   }
 
   private byte[] getPduBytesFromPcapFile(final String pcapFilename) throws IOException {
