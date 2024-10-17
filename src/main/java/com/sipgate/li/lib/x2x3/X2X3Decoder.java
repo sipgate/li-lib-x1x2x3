@@ -24,7 +24,6 @@ public class X2X3Decoder {
     this.maxPayloadLength = maxPayloadLength;
   }
 
-  /** usage pattern see {@link ByteToMessageDecoder} of netty. */
   public Optional<PduObject> decode(final ByteBuf in) {
     LOGGER.debug("Decoding message: {}", in);
     if (in.readableBytes() < 12) { // version:2, pduType:2, headerLength:4, payloadLength:4 == 12
@@ -73,7 +72,7 @@ public class X2X3Decoder {
   private static byte[] getCopiedBytes(final ByteBuf in, final int length) {
     final var buff = in.readBytes(length);
     // buff.array() does not work, because it is not a direct buffer ant thus throws an exception.
-    final byte[] data = new byte[buff.readableBytes()];
+    final var data = new byte[buff.readableBytes()];
     buff.readBytes(data);
     return data;
   }
