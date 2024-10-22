@@ -20,11 +20,23 @@ public class X1Server extends NettyChildHandler<X1Server> {
 
   private final X1HttpServerHandler x1HttpServerHandler;
 
+  /**
+   * @param sslContext SSLContext or null to disable SSL
+   * @param x1HttpServerHandler The handler to use for incoming HTTP requests
+   */
   public X1Server(final SSLContext sslContext, final X1HttpServerHandler x1HttpServerHandler) {
     super(sslContext);
     this.x1HttpServerHandler = x1HttpServerHandler;
   }
 
+  /**
+   * Creates a new X1Server instance
+   *
+   * @param sslContext SSLContext or null to disable SSL
+   * @param destinationRepository The repository to use for destination management
+   * @param taskRepository The repository to use for task management
+   * @return A new X1Server instance
+   */
   public static X1Server create(
     final SSLContext sslContext,
     final DestinationRepository destinationRepository,
@@ -63,9 +75,9 @@ public class X1Server extends NettyChildHandler<X1Server> {
 
   @Override
   public void initChannel(final SocketChannel ch) {
-    ch
-      .pipeline()
-      .addLast(getSslHandler())
+    final var pipeline = ch.pipeline();
+    getSslHandler().ifPresent(pipeline::addLast);
+    pipeline
       .addLast(new HttpRequestDecoder())
       .addLast(new HttpResponseEncoder())
       .addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH_BYTES))
