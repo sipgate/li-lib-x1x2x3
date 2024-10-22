@@ -190,6 +190,7 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     HttpUtil.setContentLength(response, response.content().readableBytes());
 
     // Don't handle keep alive here because there was an error and we can't recover from it.
+    HttpUtil.setKeepAlive(response, false);
     channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
   }
 
