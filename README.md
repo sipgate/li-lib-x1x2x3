@@ -1,5 +1,15 @@
 # Java Library for ETSI TS 103 221 Lawful Interception
 
+## Metrics
+
+In order to collect Metrics, implement the interface `MetricsService` and set it on the `X1Server`.
+
+| Metric name            | Type    | Tags              | Description                                                                                  |
+| ---------------------- | ------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| `li_x1_exception`      | Counter | `type`            | Number of requests that failed because of a Java exception (`type` is the simple class name) |
+| `li_x1_requestError`   | Counter | `type`            | Number of requests that caused a TopLevelError (currently: `type`=`unknown_message_type`)    |
+| `li_x1_requestMessage` | Counter | `type`, `version` | Number of received X1 request messages, SimpleClassName and version in RequestMessage xml    |
+
 ## Local development
 
 1. `git clone` the repository
