@@ -86,7 +86,6 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
   public X1HttpServerHandler(
     final Converter converter,
-    final DeliveryTypeCompatibleValidator validator,
     final DestinationRepository destinationRepository,
     final TaskRepository taskRepository,
     final DatatypeFactory datatypeFactory
@@ -99,13 +98,13 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     this.handlers.put(KeepaliveRequest.class, new KeepaliveHandler());
     this.handlers.put(
         ActivateTaskRequest.class,
-        new ActivateTaskHandler(taskRepository, validator, delegatingTaskListener, taskFactory)
+        new ActivateTaskHandler(taskRepository, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(DeactivateTaskRequest.class, new DeactivateTaskHandler(taskRepository, delegatingTaskListener));
     this.handlers.put(ListAllDetailsRequest.class, new ListAllDetailsHandler(taskRepository, destinationRepository));
     this.handlers.put(
         ModifyTaskRequest.class,
-        new ModifyTaskHandler(taskRepository, validator, delegatingTaskListener, taskFactory)
+        new ModifyTaskHandler(taskRepository, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(GetTaskDetailsRequest.class, new GetTaskDetailsHandler(taskRepository));
     this.handlers.put(

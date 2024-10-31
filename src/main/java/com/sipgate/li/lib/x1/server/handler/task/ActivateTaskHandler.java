@@ -1,6 +1,5 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
-import com.sipgate.li.lib.x1.server.DeliveryTypeCompatibleValidator;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
@@ -13,18 +12,15 @@ import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 public class ActivateTaskHandler implements X1RequestHandler<ActivateTaskRequest, ActivateTaskResponse> {
 
   private final TaskRepository taskRepository;
-  private final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator;
   private final TaskListener taskListener;
   private final TaskFactory taskFactory;
 
   public ActivateTaskHandler(
     final TaskRepository taskRepository,
-    final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator,
     final TaskListener taskListener,
     final TaskFactory taskFactory
   ) {
     this.taskRepository = taskRepository;
-    this.deliveryTypeCompatibleValidator = deliveryTypeCompatibleValidator;
     this.taskListener = taskListener;
     this.taskFactory = taskFactory;
   }
@@ -32,8 +28,6 @@ public class ActivateTaskHandler implements X1RequestHandler<ActivateTaskRequest
   @Override
   public ActivateTaskResponse handle(final ActivateTaskRequest request) {
     final var task = taskFactory.create(request.getTaskDetails());
-
-    deliveryTypeCompatibleValidator.validate(task);
 
     taskListener.onTaskActivateRequest(task);
     taskRepository.insert(task);

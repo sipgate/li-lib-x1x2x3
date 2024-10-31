@@ -2,8 +2,11 @@ package com.sipgate.li.lib.x1.server.entity;
 
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.math.BigInteger;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.etsi.uri._03221.x1._2017._10.DeliveryType;
 import org.etsi.uri._03221.x1._2017._10.ListOfDids;
 import org.etsi.uri._03221.x1._2017._10.ListOfFaults;
 import org.etsi.uri._03221.x1._2017._10.ListOfTargetIdentifiers;
@@ -56,13 +59,42 @@ public class TaskFactory {
     final var destinations = destinationRepository.findByDIDs(
       details.getListOfDIDs().getDId().stream().map(UUID::fromString).collect(Collectors.toSet())
     );
+
     if (destinations.size() != details.getListOfDIDs().getDId().size()) {
       throw new IllegalArgumentException("Some of the provided DIDs are not present");
+    }
+
+    if (!hasAllWantedDeliveryTypes(details.getDeliveryType(), destinations)) {
+      throw new IllegalArgumentException(
+        "Not all delivery types are present as destinations, expected: " +
+        details.getDeliveryType() +
+        ", actual: " +
+        destinations
+      );
     }
 
     final var xId = UUID.fromString(details.getXId());
     final var e164number = details.getTargetIdentifiers().getTargetIdentifier().getFirst().getE164Number();
     final var deliveryType = details.getDeliveryType();
     return new Task(xId, destinations, e164number, deliveryType);
+  }
+
+  private static boolean hasAllWantedDeliveryTypes(final DeliveryType wanted, final Set<Destination> destinations) {
+    if (DeliveryType.X_2_AND_X_3.equals(wanted)) {
+      return isOffered(DeliveryType.X_2_ONLY, destinations) && isOffered(DeliveryType.X_3_ONLY, destinations);
+    }
+
+    return isOffered(wanted, destinations);
+  }
+
+  private static boolean isOffered(final DeliveryType wanted, final Set<Destination> destinations) {
+    return destinations
+      .stream()
+      .map(Destination::deliveryType)
+      .anyMatch(deliveryType -> isCompatible(wanted, deliveryType));
+  }
+
+  private static boolean isCompatible(final DeliveryType wanted, final DeliveryType offered) {
+    return Objects.equals(wanted, offered) || DeliveryType.X_2_AND_X_3.equals(offered);
   }
 }

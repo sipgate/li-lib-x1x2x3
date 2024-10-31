@@ -51,9 +51,6 @@ class X1HttpServerHandlerTest {
   private Converter converter;
 
   @Mock
-  private DeliveryTypeCompatibleValidator validator;
-
-  @Mock
   private DestinationRepository destinationRepository;
 
   @Mock
@@ -64,7 +61,7 @@ class X1HttpServerHandlerTest {
     converter = new Converter();
     final var datatypeFactory = DatatypeFactory.newInstance();
 
-    underTest = new X1HttpServerHandler(converter, validator, destinationRepository, taskRepository, datatypeFactory);
+    underTest = new X1HttpServerHandler(converter, destinationRepository, taskRepository, datatypeFactory);
   }
 
   @Test

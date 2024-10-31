@@ -9,12 +9,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.sipgate.li.lib.x1.server.DeliveryTypeCompatibleValidator;
 import com.sipgate.li.lib.x1.server.entity.Task;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
-import java.util.UUID;
 import org.etsi.uri._03221.x1._2017._10.ModifyTaskRequest;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.TaskDetails;
@@ -30,13 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ModifyTaskHandlerTest {
 
-  private static final UUID X_ID = UUID.randomUUID();
-
   @Mock
   private TaskRepository taskRepository;
-
-  @Mock
-  private DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator;
 
   @Mock
   private TaskListener taskListener;
@@ -63,8 +56,8 @@ class ModifyTaskHandlerTest {
     assertThat(response.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
 
     // - We need to verify that the task is validated before it is inserted and events need to be fired in the right order
-    final var order = inOrder(deliveryTypeCompatibleValidator, taskListener, taskRepository);
-    order.verify(deliveryTypeCompatibleValidator).validate(task);
+    final var order = inOrder(taskFactory, taskListener, taskRepository);
+    order.verify(taskFactory).create(taskDetails);
     order.verify(taskListener).onTaskModifyRequest(task);
     order.verify(taskRepository).update(task);
     order.verify(taskListener).onTaskModified(task);
@@ -74,12 +67,9 @@ class ModifyTaskHandlerTest {
   void it_rejects_invalid_requests() {
     //GIVEN
     final var request = mock(ModifyTaskRequest.class);
-    final var task = mock(Task.class);
     final var taskDetails = mock(TaskDetails.class);
     when(request.getTaskDetails()).thenReturn(taskDetails);
-    when(taskFactory.create(taskDetails)).thenReturn(task);
-
-    doThrow(new IllegalArgumentException()).when(deliveryTypeCompatibleValidator).validate(task);
+    doThrow(new IllegalArgumentException()).when(taskFactory).create(taskDetails);
 
     //WHEN
     assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(IllegalArgumentException.class);

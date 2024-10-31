@@ -45,13 +45,7 @@ public class X1Server extends NettyChildHandler<X1Server> {
     try {
       return new X1Server(
         sslContext,
-        new X1HttpServerHandler(
-          new Converter(),
-          new DeliveryTypeCompatibleValidator(destinationRepository),
-          destinationRepository,
-          taskRepository,
-          DatatypeFactory.newInstance()
-        )
+        new X1HttpServerHandler(new Converter(), destinationRepository, taskRepository, DatatypeFactory.newInstance())
       );
     } catch (final Exception e) {
       throw new RuntimeException(e);
