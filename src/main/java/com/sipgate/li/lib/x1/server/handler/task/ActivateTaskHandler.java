@@ -15,20 +15,23 @@ public class ActivateTaskHandler implements X1RequestHandler<ActivateTaskRequest
   private final TaskRepository taskRepository;
   private final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator;
   private final TaskListener taskListener;
+  private final TaskFactory taskFactory;
 
   public ActivateTaskHandler(
     final TaskRepository taskRepository,
     final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator,
-    final TaskListener taskListener
+    final TaskListener taskListener,
+    final TaskFactory taskFactory
   ) {
     this.taskRepository = taskRepository;
     this.deliveryTypeCompatibleValidator = deliveryTypeCompatibleValidator;
     this.taskListener = taskListener;
+    this.taskFactory = taskFactory;
   }
 
   @Override
   public ActivateTaskResponse handle(final ActivateTaskRequest request) {
-    final var task = TaskFactory.create(request.getTaskDetails());
+    final var task = taskFactory.create(request.getTaskDetails());
 
     deliveryTypeCompatibleValidator.validate(task);
 

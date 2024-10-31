@@ -1,7 +1,9 @@
 package com.sipgate.li.lib.x1.server.entity;
 
+import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.math.BigInteger;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.etsi.uri._03221.x1._2017._10.ListOfDids;
 import org.etsi.uri._03221.x1._2017._10.ListOfFaults;
 import org.etsi.uri._03221.x1._2017._10.ListOfTargetIdentifiers;
@@ -12,7 +14,11 @@ import org.etsi.uri._03221.x1._2017._10.TaskStatus;
 
 public class TaskFactory {
 
-  private TaskFactory() {}
+  private final DestinationRepository destinationRepository;
+
+  public TaskFactory(final DestinationRepository repository) {
+    this.destinationRepository = repository;
+  }
 
   public static TaskResponseDetails create(final Task task) {
     final var targetIdentifier = new TargetIdentifier();
@@ -27,7 +33,7 @@ public class TaskFactory {
     taskDetails.setDeliveryType(task.deliveryType());
 
     final var listOfDIDs = new ListOfDids();
-    listOfDIDs.getDId().add(task.dID().toString());
+    task.destinations().stream().map(Destination::dID).map(UUID::toString).forEach(listOfDIDs.getDId()::add);
     taskDetails.setListOfDIDs(listOfDIDs);
 
     final var taskStatus = new TaskStatus();
@@ -42,15 +48,21 @@ public class TaskFactory {
     return taskResponseDetails;
   }
 
-  public static Task create(final TaskDetails details) {
-    if (details.getListOfDIDs().getDId().size() != 1) {
-      throw new IllegalArgumentException("List of DIDs must contain exactly one DID.");
+  public Task create(final TaskDetails details) {
+    if (details.getListOfDIDs().getDId().isEmpty()) {
+      throw new IllegalArgumentException("List of DIDs must contain at least one DID");
+    }
+
+    final var destinations = destinationRepository.findByDIDs(
+      details.getListOfDIDs().getDId().stream().map(UUID::fromString).collect(Collectors.toSet())
+    );
+    if (destinations.size() != details.getListOfDIDs().getDId().size()) {
+      throw new IllegalArgumentException("Some of the provided DIDs are not present");
     }
 
     final var xId = UUID.fromString(details.getXId());
-    final var dId = UUID.fromString(details.getListOfDIDs().getDId().getFirst());
     final var e164number = details.getTargetIdentifiers().getTargetIdentifier().getFirst().getE164Number();
     final var deliveryType = details.getDeliveryType();
-    return new Task(xId, dId, e164number, deliveryType);
+    return new Task(xId, destinations, e164number, deliveryType);
   }
 }

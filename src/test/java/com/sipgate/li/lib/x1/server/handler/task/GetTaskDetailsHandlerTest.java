@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.Task;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
-import com.sipgate.li.lib.x1.server.handler.task.GetTaskDetailsHandler;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
 import java.math.BigInteger;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.etsi.uri._03221.x1._2017._10.DeliveryType;
 import org.etsi.uri._03221.x1._2017._10.GetTaskDetailsRequest;
@@ -19,11 +20,11 @@ import org.etsi.uri._03221.x1._2017._10.GetTaskDetailsResponse;
 import org.etsi.uri._03221.x1._2017._10.ListOfFaults;
 import org.etsi.uri._03221.x1._2017._10.ProvisioningStatus;
 import org.etsi.uri._03221.x1._2017._10.TaskStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,14 +33,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GetTaskDetailsHandlerTest {
 
   @Mock
-  TaskRepository taskRepository;
+  private TaskRepository taskRepository;
 
+  @InjectMocks
   private GetTaskDetailsHandler underTest;
-
-  @BeforeEach
-  void setUp() {
-    underTest = new GetTaskDetailsHandler(taskRepository);
-  }
 
   @Test
   void returns_task_response_when_modified_correctly() {
@@ -96,7 +93,7 @@ class GetTaskDetailsHandlerTest {
   private Task createValidTask() {
     return new Task(
       UUID.randomUUID(),
-      UUID.randomUUID(),
+      Set.of(new Destination(UUID.randomUUID(), null, null, null, 0)),
       "4963721673",
       DeliveryType.X_2_AND_X_3,
       ProvisioningStatus.AWAITING_PROVISIONING,

@@ -15,20 +15,23 @@ public class ModifyTaskHandler implements X1RequestHandler<ModifyTaskRequest, Mo
   private final TaskRepository taskRepository;
   private final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator;
   private final TaskListener taskListener;
+  private final TaskFactory taskFactory;
 
   public ModifyTaskHandler(
     final TaskRepository taskRepository,
     final DeliveryTypeCompatibleValidator deliveryTypeCompatibleValidator,
-    final TaskListener taskListener
+    final TaskListener taskListener,
+    final TaskFactory taskFactory
   ) {
     this.taskRepository = taskRepository;
     this.deliveryTypeCompatibleValidator = deliveryTypeCompatibleValidator;
     this.taskListener = taskListener;
+    this.taskFactory = taskFactory;
   }
 
   @Override
   public ModifyTaskResponse handle(final ModifyTaskRequest request) {
-    final var task = TaskFactory.create(request.getTaskDetails());
+    final var task = taskFactory.create(request.getTaskDetails());
     deliveryTypeCompatibleValidator.validate(task);
 
     taskListener.onTaskModifyRequest(task);

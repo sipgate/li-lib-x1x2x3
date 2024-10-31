@@ -18,10 +18,16 @@ public class GetAllDetailsHandler implements X1RequestHandler<GetAllDetailsReque
 
   private final TaskRepository taskRepository;
   private final DestinationRepository destinationRepository;
+  private final TaskFactory taskFactory;
 
-  public GetAllDetailsHandler(final TaskRepository taskRepository, final DestinationRepository destinationRepository) {
+  public GetAllDetailsHandler(
+    final TaskRepository taskRepository,
+    final DestinationRepository destinationRepository,
+    final TaskFactory taskFactory
+  ) {
     this.taskRepository = taskRepository;
     this.destinationRepository = destinationRepository;
+    this.taskFactory = taskFactory;
   }
 
   @Override

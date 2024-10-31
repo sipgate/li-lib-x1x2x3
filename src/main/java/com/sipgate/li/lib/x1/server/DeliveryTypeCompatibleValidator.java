@@ -14,14 +14,7 @@ public class DeliveryTypeCompatibleValidator {
   }
 
   public void validate(final Task t) {
-    final var isValid = destinationRepository
-      .findByDID(t.dID())
-      .map(d -> isValid(d.deliveryType(), t.deliveryType()))
-      .orElseThrow(() -> new NoSuchElementException("Could not find destination " + t.dID()));
-
-    if (!isValid) {
-      throw new IllegalArgumentException("Delivery type of task " + t.dID() + " is not compatible with destination.");
-    }
+    // TODO: Validate based on delivery type of the task and the delivery type of its destination.
   }
 
   static boolean isValid(final DeliveryType destinationDeliveryType, final DeliveryType taskDeliveryType) {

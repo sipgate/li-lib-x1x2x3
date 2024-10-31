@@ -6,6 +6,7 @@ import com.sipgate.li.lib.metrics.MetricsService;
 import com.sipgate.li.lib.metrics.NoopMetricsService;
 import com.sipgate.li.lib.x1.protocol.Converter;
 import com.sipgate.li.lib.x1.protocol.X1Version;
+import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.handler.destination.CreateDestinationHandler;
 import com.sipgate.li.lib.x1.server.handler.destination.GetDestinationDetailsHandler;
@@ -93,17 +94,18 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     this.converter = converter;
     this.datatypeFactory = datatypeFactory;
 
+    final var taskFactory = new TaskFactory(destinationRepository);
     this.handlers.put(PingRequest.class, new PingHandler());
     this.handlers.put(KeepaliveRequest.class, new KeepaliveHandler());
     this.handlers.put(
         ActivateTaskRequest.class,
-        new ActivateTaskHandler(taskRepository, validator, delegatingTaskListener)
+        new ActivateTaskHandler(taskRepository, validator, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(DeactivateTaskRequest.class, new DeactivateTaskHandler(taskRepository, delegatingTaskListener));
     this.handlers.put(ListAllDetailsRequest.class, new ListAllDetailsHandler(taskRepository, destinationRepository));
     this.handlers.put(
         ModifyTaskRequest.class,
-        new ModifyTaskHandler(taskRepository, validator, delegatingTaskListener)
+        new ModifyTaskHandler(taskRepository, validator, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(GetTaskDetailsRequest.class, new GetTaskDetailsHandler(taskRepository));
     this.handlers.put(
@@ -119,7 +121,10 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
         RemoveDestinationRequest.class,
         new RemoveDestinationHandler(destinationRepository, delegatingDestinationListener)
       );
-    this.handlers.put(GetAllDetailsRequest.class, new GetAllDetailsHandler(taskRepository, destinationRepository));
+    this.handlers.put(
+        GetAllDetailsRequest.class,
+        new GetAllDetailsHandler(taskRepository, destinationRepository, taskFactory)
+      );
   }
 
   public X1HttpServerHandler setTaskListener(final TaskListener delegatingTaskListener) {
