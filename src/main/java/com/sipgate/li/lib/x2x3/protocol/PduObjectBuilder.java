@@ -71,10 +71,11 @@ public class PduObjectBuilder {
     );
   }
 
-  //region Convenience methods
-
   public PduObjectBuilder sip() {
     return this.pduTypeAndFormat(PduType.X2_PDU, PayloadFormat.SIP);
   }
-  //endregion
+
+  public PduObjectBuilder rtp() {
+    return this.pduTypeAndFormat(PduType.X3_PDU, PayloadFormat.RTP);
+  }
 }
