@@ -1,5 +1,6 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
+import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
@@ -20,7 +21,7 @@ public class DeactivateTaskHandler implements X1RequestHandler<DeactivateTaskReq
   }
 
   @Override
-  public DeactivateTaskResponse handle(final DeactivateTaskRequest request) {
+  public DeactivateTaskResponse handle(final DeactivateTaskRequest request) throws XIDDoesNotExistException {
     final var response = new DeactivateTaskResponse();
 
     final var xId = UUID.fromString(request.getXId());

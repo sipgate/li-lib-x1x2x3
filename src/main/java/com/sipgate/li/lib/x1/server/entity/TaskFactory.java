@@ -1,5 +1,8 @@
 package com.sipgate.li.lib.x1.server.entity;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
+import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -51,26 +54,28 @@ public class TaskFactory {
     return taskResponseDetails;
   }
 
-  public Task create(final TaskDetails details) {
-    if (details.getListOfDIDs().getDId().isEmpty()) {
-      throw new IllegalArgumentException("List of DIDs must contain at least one DID");
+  public Task create(final TaskDetails details)
+    throws DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, SyntaxSchemaErrorException {
+    final var requestedDIDs = details
+      .getListOfDIDs()
+      .getDId()
+      .stream()
+      .map(UUID::fromString)
+      .collect(Collectors.toSet());
+
+    if (requestedDIDs.isEmpty()) {
+      throw new SyntaxSchemaErrorException("List of DIDs must contain at least one DID");
     }
 
-    final var destinations = destinationRepository.findByDIDs(
-      details.getListOfDIDs().getDId().stream().map(UUID::fromString).collect(Collectors.toSet())
-    );
-
-    if (destinations.size() != details.getListOfDIDs().getDId().size()) {
-      throw new IllegalArgumentException("Some of the provided DIDs are not present");
+    final var destinations = destinationRepository.findByDIDs(requestedDIDs);
+    final var foundDIDs = destinations.stream().map(Destination::dID).collect(Collectors.toSet());
+    final var maybeMissingDID = requestedDIDs.stream().filter(foundDIDs::contains).findAny();
+    if (maybeMissingDID.isPresent()) {
+      throw new DIDDoesNotExistException(maybeMissingDID.get());
     }
 
     if (!hasAllWantedDeliveryTypes(details.getDeliveryType(), destinations)) {
-      throw new IllegalArgumentException(
-        "Not all delivery types are present as destinations, expected: " +
-        details.getDeliveryType() +
-        ", actual: " +
-        destinations
-      );
+      throw new InvalidCombinationOfDeliveryTypeAndDestinationsException();
     }
 
     final var xId = UUID.fromString(details.getXId());

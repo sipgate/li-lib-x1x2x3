@@ -1,5 +1,6 @@
 package com.sipgate.li.lib.x1.server.handler.destination;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDAlreadyExistsException;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
@@ -23,7 +24,7 @@ public class CreateDestinationHandler implements X1RequestHandler<CreateDestinat
   }
 
   @Override
-  public CreateDestinationResponse handle(final CreateDestinationRequest request) {
+  public CreateDestinationResponse handle(final CreateDestinationRequest request) throws DIDAlreadyExistsException {
     final var destination = DestinationFactory.create(request.getDestinationDetails());
     destinationListener.onDestinationCreateRequest(destination);
     destinationRepository.insert(destination);

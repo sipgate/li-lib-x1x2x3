@@ -59,7 +59,7 @@ class ModifyDestinationHandlerTest {
       final var response = underTest.handle(request);
 
       // THEN
-      final InOrder order = inOrder(destinationListener, destinationRepository);
+      final var order = inOrder(destinationListener, destinationRepository);
 
       // - Event order is important here: The listener should be notified before and after the repository is updated
       order.verify(destinationListener).onDestinationModifyRequest(destination);

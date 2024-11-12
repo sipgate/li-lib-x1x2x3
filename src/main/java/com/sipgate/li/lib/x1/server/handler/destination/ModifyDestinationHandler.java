@@ -1,5 +1,6 @@
 package com.sipgate.li.lib.x1.server.handler.destination;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
@@ -23,7 +24,7 @@ public class ModifyDestinationHandler implements X1RequestHandler<ModifyDestinat
   }
 
   @Override
-  public ModifyDestinationResponse handle(final ModifyDestinationRequest request) {
+  public ModifyDestinationResponse handle(final ModifyDestinationRequest request) throws DIDDoesNotExistException {
     final var destination = DestinationFactory.create(request.getDestinationDetails());
     destinationListener.onDestinationModifyRequest(destination);
     destinationRepository.update(destination);

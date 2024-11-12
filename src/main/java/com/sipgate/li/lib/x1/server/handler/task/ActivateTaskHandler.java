@@ -1,5 +1,9 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
+import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
+import com.sipgate.li.lib.x1.protocol.error.XIDAlreadyExistsException;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
@@ -26,9 +30,9 @@ public class ActivateTaskHandler implements X1RequestHandler<ActivateTaskRequest
   }
 
   @Override
-  public ActivateTaskResponse handle(final ActivateTaskRequest request) {
+  public ActivateTaskResponse handle(final ActivateTaskRequest request)
+    throws DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, SyntaxSchemaErrorException, XIDAlreadyExistsException {
     final var task = taskFactory.create(request.getTaskDetails());
-
     taskListener.onTaskActivateRequest(task);
     taskRepository.insert(task);
     taskListener.onTaskActivated(task);
