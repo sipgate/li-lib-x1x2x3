@@ -223,9 +223,13 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
   }
 
   public FullHttpResponse handlePost(final String requestXml) throws JAXBException {
+    LOGGER.trace(">>> received request: [[ {} ]]", requestXml);
+
     final var request = converter.parseRequest(requestXml);
     final var responseContainer = handleRequestContainer(request);
     final var responseXml = converter.toXml(responseContainer);
+
+    LOGGER.trace("<<< sending response: [[ {} ]]", requestXml);
 
     final var response = new DefaultFullHttpResponse(
       HTTP_1_1,
