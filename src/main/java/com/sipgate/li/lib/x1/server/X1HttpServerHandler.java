@@ -229,7 +229,7 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     final var responseContainer = handleRequestContainer(request);
     final var responseXml = converter.toXml(responseContainer);
 
-    LOGGER.trace("<<< sending response: [[ {} ]]", requestXml);
+    LOGGER.trace("<<< sending response: [[ {} ]]", responseXml);
 
     final var response = new DefaultFullHttpResponse(
       HTTP_1_1,
