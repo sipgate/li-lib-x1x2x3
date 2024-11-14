@@ -1,9 +1,11 @@
 package com.sipgate.li.lib.x2x3.protocol;
 
+import com.sipgate.li.lib.x2x3.protocol.tlv.SequenceNumberTLV;
 import com.sipgate.li.lib.x2x3.protocol.tlv.TLV;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 public record PduObject(
@@ -69,5 +71,15 @@ public record PduObject(
     outputStream.write(correlationID);
     attributesBytes.writeTo(outputStream);
     outputStream.write(payload);
+  }
+
+  public Optional<Integer> findSequenceNumber() {
+    for (final var tlv : conditionalAttributeFields) {
+      if (tlv.getType() == 8) {
+        final SequenceNumberTLV sequenceNumberTLV = (SequenceNumberTLV) tlv;
+        return Optional.of(sequenceNumberTLV.sequenceNumber());
+      }
+    }
+    return Optional.empty();
   }
 }
