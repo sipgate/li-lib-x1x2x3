@@ -2,7 +2,6 @@ package com.sipgate.li.lib.x1.protocol.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.util.ArrayList;
