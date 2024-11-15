@@ -7,6 +7,9 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.DestinationInUseException;
+import com.sipgate.li.lib.x1.protocol.error.GenericRemoveDestinationFailureException;
 import com.sipgate.li.lib.x1.server.handler.destination.RemoveDestinationHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
@@ -37,7 +40,8 @@ class RemoveDestinationHandlerTest {
   private DestinationListener destinationListener;
 
   @Test
-  void returns_ok_when_removed_correctly() {
+  void returns_ok_when_removed_correctly()
+    throws DIDDoesNotExistException, GenericRemoveDestinationFailureException, DestinationInUseException {
     //GIVEN
     final var request = createRemoveDestinationRequest();
     //WHEN

@@ -2,9 +2,8 @@ package com.sipgate.li.lib.x1.protocol.error;
 
 import java.math.BigInteger;
 
-abstract class X1ErrorException extends Exception {
+public abstract class X1ErrorException extends Exception {
 
-  // TODO: test for unique values
   protected static final BigInteger GENERIC_ERROR = BigInteger.valueOf(1000);
   protected static final BigInteger SYNTAX_SCHEMA_ERROR = BigInteger.valueOf(1010);
   protected static final BigInteger UNSUPPORTED_VERSION = BigInteger.valueOf(1020);

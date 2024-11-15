@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.GenericDeactivateTaskFailureException;
+import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.handler.task.DeactivateTaskHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
@@ -43,7 +45,7 @@ public class DeactivateTaskHandlerTest {
   }
 
   @Test
-  void it_returns_ok_when_removed_correctly() {
+  void it_returns_ok_when_removed_correctly() throws GenericDeactivateTaskFailureException, XIDDoesNotExistException {
     // GIVEN
     final var request = mock(DeactivateTaskRequest.class);
     when(request.getXId()).thenReturn(X_ID.toString());

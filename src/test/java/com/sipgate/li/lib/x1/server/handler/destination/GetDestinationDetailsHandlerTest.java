@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.destination.GetDestinationDetailsHandler;
@@ -30,7 +31,7 @@ class GetDestinationDetailsHandlerTest {
   GetDestinationDetailsHandler underTest;
 
   @Test
-  void it_returns_destination_details() {
+  void it_returns_destination_details() throws DIDDoesNotExistException {
     // GIVEN
     final var destination = new Destination(UUID.randomUUID(), "friendly", DeliveryType.X_2_AND_X_3, "192.0.2.2", 1100);
     when(destinationRepository.findByDID(any())).thenReturn(Optional.of(destination));

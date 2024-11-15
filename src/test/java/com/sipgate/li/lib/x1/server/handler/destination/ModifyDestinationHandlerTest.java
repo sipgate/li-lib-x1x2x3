@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.GenericModifyDestinationFailureException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.destination.ModifyDestinationHandler;
@@ -46,7 +48,7 @@ class ModifyDestinationHandlerTest {
   private DestinationListener destinationListener;
 
   @Test
-  void it_modifies_destination() {
+  void it_modifies_destination() throws DIDDoesNotExistException, GenericModifyDestinationFailureException {
     try (final var factory = Mockito.mockStatic(DestinationFactory.class)) {
       // GIVEN
       final var request = mock(ModifyDestinationRequest.class);

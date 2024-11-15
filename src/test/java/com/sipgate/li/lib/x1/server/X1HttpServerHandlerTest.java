@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.protocol.Converter;
 import com.sipgate.li.lib.x1.protocol.X1Version;
+import com.sipgate.li.lib.x1.protocol.error.X1ErrorException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
@@ -177,7 +178,7 @@ class X1HttpServerHandlerTest {
   @ParameterizedTest
   @MethodSource("provideHandler")
   void it_has_a_case_for_every_implemented_handler(final X1RequestHandler<?, ?> handler)
-    throws JAXBException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
+    throws JAXBException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, X1ErrorException {
     // GIVEN: a request container with a single request
     final var requestMessageType = handler.getRequestClass();
     final var requestMessage = mock(requestMessageType);

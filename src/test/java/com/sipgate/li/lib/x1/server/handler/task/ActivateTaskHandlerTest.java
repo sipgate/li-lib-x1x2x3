@@ -9,6 +9,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.GenericActivateTaskFailureException;
+import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
+import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
+import com.sipgate.li.lib.x1.protocol.error.XIDAlreadyExistsException;
 import com.sipgate.li.lib.x1.server.entity.Task;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
@@ -41,7 +46,8 @@ class ActivateTaskHandlerTest {
   private ActivateTaskHandler underTest;
 
   @Test
-  void it_returns_ok_when_stored_correctly() {
+  void it_returns_ok_when_stored_correctly()
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, GenericActivateTaskFailureException, XIDAlreadyExistsException {
     //GIVEN
     final var request = mock(ActivateTaskRequest.class);
     final var task = mock(Task.class);
@@ -64,7 +70,8 @@ class ActivateTaskHandlerTest {
   }
 
   @Test
-  void it_rejects_invalid_requests() {
+  void it_rejects_invalid_requests()
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException {
     //GIVEN
     final var request = mock(ActivateTaskRequest.class);
     final var taskDetails = mock(TaskDetails.class);
@@ -79,7 +86,8 @@ class ActivateTaskHandlerTest {
   }
 
   @Test
-  void it_does_not_insert_when_listener_throws() {
+  void it_does_not_insert_when_listener_throws()
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException {
     //GIVEN
     final var request = mock(ActivateTaskRequest.class);
     final var task = mock(Task.class);

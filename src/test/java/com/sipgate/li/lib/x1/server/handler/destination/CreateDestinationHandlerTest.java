@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDAlreadyExistsException;
+import com.sipgate.li.lib.x1.protocol.error.GenericCreateDestinationFailureException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.destination.CreateDestinationHandler;
@@ -38,7 +40,7 @@ class CreateDestinationHandlerTest {
   private DestinationListener destinationListener;
 
   @Test
-  void it_creates_destination() {
+  void it_creates_destination() throws DIDAlreadyExistsException, GenericCreateDestinationFailureException {
     try (final var factory = Mockito.mockStatic(DestinationFactory.class)) {
       // GIVEN
       final var request = mock(CreateDestinationRequest.class);

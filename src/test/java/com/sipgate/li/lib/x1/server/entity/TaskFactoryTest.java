@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
+import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +75,8 @@ class TaskFactoryTest {
 
   @ParameterizedTest
   @MethodSource("provideTaskDetails")
-  void it_creates_task_from_task_details(final TaskDetails taskDetails, final Set<Destination> destinations) {
+  void it_creates_task_from_task_details(final TaskDetails taskDetails, final Set<Destination> destinations)
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException {
     // GIVEN
     when(
       destinationRepository.findByDIDs(destinations.stream().map(Destination::dID).collect(Collectors.toSet()))
