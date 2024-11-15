@@ -1,5 +1,6 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
+import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
@@ -18,11 +19,12 @@ public class GetTaskDetailsHandler implements X1RequestHandler<GetTaskDetailsReq
   }
 
   @Override
-  public GetTaskDetailsResponse handle(final GetTaskDetailsRequest request) {
-    final var maybeTask = taskRepository.findByXID(UUID.fromString(request.getXId()));
+  public GetTaskDetailsResponse handle(final GetTaskDetailsRequest request) throws XIDDoesNotExistException {
+    final var xID = UUID.fromString(request.getXId());
+    final var maybeTask = taskRepository.findByXID(xID);
 
     if (maybeTask.isEmpty()) {
-      throw new NoSuchElementException("Task not found: " + request.getXId());
+      throw new XIDDoesNotExistException(xID);
     }
 
     final var task = maybeTask.get();

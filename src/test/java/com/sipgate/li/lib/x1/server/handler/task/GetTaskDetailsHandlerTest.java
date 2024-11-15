@@ -1,16 +1,17 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.Task;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
 import java.math.BigInteger;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -39,7 +40,7 @@ class GetTaskDetailsHandlerTest {
   private GetTaskDetailsHandler underTest;
 
   @Test
-  void returns_task_response_when_modified_correctly() {
+  void returns_task_response_when_modified_correctly() throws XIDDoesNotExistException {
     final var request = createGetTaskDetails();
     final var task = createValidTask();
     when(taskRepository.findByXID(UUID.fromString(request.getXId()))).thenReturn(Optional.of(task));
@@ -69,7 +70,9 @@ class GetTaskDetailsHandlerTest {
     when(taskRepository.findByXID(UUID.fromString(request.getXId()))).thenReturn(Optional.empty());
     //WHEN
     //THEN
-    assertThrows(NoSuchElementException.class, () -> underTest.handle(request));
+    assertThatThrownBy(() -> underTest.handle(request))
+      .isInstanceOf(XIDDoesNotExistException.class)
+      .hasMessage(request.getXId());
   }
 
   @Test
