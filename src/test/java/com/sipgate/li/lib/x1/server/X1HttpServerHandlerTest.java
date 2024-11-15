@@ -1,5 +1,6 @@
 package com.sipgate.li.lib.x1.server;
 
+import static com.sipgate.li.lib.x1.protocol.X1Version.VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -7,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.protocol.Converter;
-import com.sipgate.li.lib.x1.protocol.X1Version;
 import com.sipgate.li.lib.x1.protocol.error.X1ErrorException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
+import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
+import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -120,9 +123,12 @@ class X1HttpServerHandlerTest {
   @Test
   void itCallsPingHandler() throws Exception {
     // GIVEN
+    final var requestXml = loadRequestFromFile("PingRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var startTimeInMillis = Instant.now().toEpochMilli();
 
     // WHEN
-    final var response = postFile("PingRequest_example.xml");
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
 
     // THEN
     assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
@@ -131,18 +137,23 @@ class X1HttpServerHandlerTest {
     final var contentOrError = converter.parseResponse(responseXml);
     assertThat(contentOrError.isRight()).isTrue();
 
-    final var actualContainer = contentOrError.right();
-    assertThat(actualContainer.getX1ResponseMessage()).hasSize(1);
-    final var first = (PingResponse) actualContainer.getX1ResponseMessage().getFirst();
-    assertThat(first.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+    final var responseContainer = contentOrError.right();
+    assertThat(responseContainer.getX1ResponseMessage()).hasSize(1);
+    final var responseMessage = (PingResponse) responseContainer.getX1ResponseMessage().getFirst();
+    assertThat(responseMessage.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+
+    assertCommonFields(request.getX1RequestMessage().getFirst(), responseMessage, startTimeInMillis);
   }
 
   @Test
   void itCallsPingHandlerTwiceOnMultiRequest() throws Exception {
     // GIVEN
+    final var requestXml = loadRequestFromFile("MultiRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var startTimeInMillis = Instant.now().toEpochMilli();
 
     // WHEN
-    final var response = postFile("MultiRequest_example.xml");
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
 
     // THEN
     assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
@@ -155,24 +166,11 @@ class X1HttpServerHandlerTest {
     assertThat(actualContainer.getX1ResponseMessage()).hasSize(2);
     final var first = (PingResponse) actualContainer.getX1ResponseMessage().getFirst();
     assertThat(first.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+    assertCommonFields(request.getX1RequestMessage().getFirst(), first, startTimeInMillis);
 
     final var second = (PingResponse) actualContainer.getX1ResponseMessage().get(1);
     assertThat(second.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
-  }
-
-  @ParameterizedTest
-  @MethodSource("provideHandler")
-  void it_knows_all_handlers(final X1RequestHandler<?, ?> handler) throws IllegalAccessException, NoSuchFieldException {
-    // GIVEN
-    final var requestMessageType = handler.getRequestClass();
-
-    // WHEN X1HttpServerHandler is constructed
-
-    // THEN it knows the handler
-    final var field = underTest.getClass().getDeclaredField("handlers");
-    field.setAccessible(true);
-    final var handlers = (Map<?, ?>) field.get(underTest);
-    assertThat(handlers.get(requestMessageType)).isInstanceOf(handler.getClass());
+    assertCommonFields(request.getX1RequestMessage().get(1), second, startTimeInMillis);
   }
 
   @ParameterizedTest
@@ -182,7 +180,7 @@ class X1HttpServerHandlerTest {
     // GIVEN: a request container with a single request
     final var requestMessageType = handler.getRequestClass();
     final var requestMessage = mock(requestMessageType);
-    when(requestMessage.getVersion()).thenReturn(X1Version.VERSION);
+    when(requestMessage.getVersion()).thenReturn(VERSION);
 
     final var requestContainer = new RequestContainer();
     requestContainer.getX1RequestMessage().add(requestMessage);
@@ -243,12 +241,16 @@ class X1HttpServerHandlerTest {
   }
 
   private FullHttpResponse postFile(final String file) throws IOException {
+    return postBytes(loadRequestFromFile(file).getBytes(StandardCharsets.UTF_8));
+  }
+
+  private String loadRequestFromFile(final String file) throws IOException {
     try (final var requestInputStream = this.getClass().getClassLoader().getResourceAsStream(file)) {
       if (requestInputStream == null) {
         throw new IOException("resource not found: " + file);
       }
 
-      return postBytes(requestInputStream.readAllBytes());
+      return new String(requestInputStream.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 
@@ -263,5 +265,19 @@ class X1HttpServerHandlerTest {
 
     embeddedChannel.writeInbound(fullHttpRequest);
     return embeddedChannel.readOutbound();
+  }
+
+  private static void assertCommonFields(
+    final X1RequestMessage requestMessage,
+    final X1ResponseMessage responseMessage,
+    final long startTimeInMillis
+  ) {
+    assertThat(responseMessage.getAdmfIdentifier()).isEqualTo(requestMessage.getAdmfIdentifier());
+    assertThat(responseMessage.getNeIdentifier()).isEqualTo(requestMessage.getNeIdentifier());
+    assertThat(responseMessage.getX1TransactionId()).isEqualTo(requestMessage.getX1TransactionId());
+    assertThat(responseMessage.getVersion()).isEqualTo(VERSION);
+
+    final var timeinMillis = responseMessage.getMessageTimestamp().toGregorianCalendar().getTimeInMillis();
+    assertThat(timeinMillis).isGreaterThan(startTimeInMillis);
   }
 }
