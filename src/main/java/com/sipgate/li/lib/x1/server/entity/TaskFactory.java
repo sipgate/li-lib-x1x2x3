@@ -69,9 +69,9 @@ public class TaskFactory {
 
     final var destinations = destinationRepository.findByDIDs(requestedDIDs);
     final var foundDIDs = destinations.stream().map(Destination::dID).collect(Collectors.toSet());
-    final var maybeMissingDID = requestedDIDs.stream().filter(foundDIDs::contains).findAny();
-    if (maybeMissingDID.isPresent()) {
-      throw new DIDDoesNotExistException(maybeMissingDID.get());
+    final var missingDIDs = requestedDIDs.stream().filter(foundDIDs::contains).collect(Collectors.toSet());
+    if (!missingDIDs.isEmpty()) {
+      throw new DIDDoesNotExistException(missingDIDs);
     }
 
     if (!hasAllWantedDeliveryTypes(details.getDeliveryType(), destinations)) {
