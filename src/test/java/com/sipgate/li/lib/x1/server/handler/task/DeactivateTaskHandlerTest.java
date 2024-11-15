@@ -2,16 +2,18 @@ package com.sipgate.li.lib.x1.server.handler.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.protocol.error.GenericDeactivateTaskFailureException;
 import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
-import com.sipgate.li.lib.x1.server.handler.task.DeactivateTaskHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
 import java.util.UUID;
@@ -72,10 +74,26 @@ public class DeactivateTaskHandlerTest {
     doThrow(new RuntimeException()).when(taskListener).onTaskDeactivateRequest(X_ID);
 
     //WHEN
-    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(GenericDeactivateTaskFailureException.class);
 
     //THEN
     verifyNoInteractions(taskRepository);
     verifyNoMoreInteractions(taskListener);
+  }
+
+  @Test
+  void it_does_not_call_listener_when_repository_throws_exception() throws XIDDoesNotExistException {
+    // GIVEN
+    final var request = mock(DeactivateTaskRequest.class);
+    when(request.getXId()).thenReturn(X_ID.toString());
+
+    final var exception = new XIDDoesNotExistException(X_ID);
+    doThrow(exception).when(taskRepository).deleteByXID(X_ID);
+
+    // WHEN
+    assertThatThrownBy(() -> underTest.handle(request)).isEqualTo(exception);
+
+    // THEN
+    verify(taskListener, never()).onTaskDeactivated(any());
   }
 }

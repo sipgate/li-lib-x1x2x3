@@ -2,9 +2,12 @@ package com.sipgate.li.lib.x1.server.handler.destination;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -13,7 +16,6 @@ import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.GenericModifyDestinationFailureException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
-import com.sipgate.li.lib.x1.server.handler.destination.ModifyDestinationHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.util.UUID;
@@ -23,7 +25,6 @@ import org.etsi.uri._03221.x1._2017._10.ModifyDestinationRequest;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -53,9 +54,10 @@ class ModifyDestinationHandlerTest {
       // GIVEN
       final var request = mock(ModifyDestinationRequest.class);
       final var destinationDetails = mock(DestinationDetails.class);
+      when(request.getDestinationDetails()).thenReturn(destinationDetails);
+
       final var destination = mock(Destination.class);
       factory.when(() -> DestinationFactory.create(destinationDetails)).thenReturn(destination);
-      when(request.getDestinationDetails()).thenReturn(destinationDetails);
 
       // WHEN
       final var response = underTest.handle(request);
@@ -78,17 +80,41 @@ class ModifyDestinationHandlerTest {
       // GIVEN
       final var request = mock(ModifyDestinationRequest.class);
       final var destinationDetails = mock(DestinationDetails.class);
+      when(request.getDestinationDetails()).thenReturn(destinationDetails);
+
       final var destination = mock(Destination.class);
       factory.when(() -> DestinationFactory.create(destinationDetails)).thenReturn(destination);
-      when(request.getDestinationDetails()).thenReturn(destinationDetails);
       doThrow(new RuntimeException()).when(destinationListener).onDestinationModifyRequest(destination);
 
       // WHEN
-      assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(RuntimeException.class);
+      assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(GenericModifyDestinationFailureException.class);
 
       // THEN
       verifyNoInteractions(destinationRepository);
       verifyNoMoreInteractions(destinationListener);
+    }
+  }
+
+  @Test
+  void it_does_not_call_listener_when_repository_throws() throws DIDDoesNotExistException {
+    try (final var factory = Mockito.mockStatic(DestinationFactory.class)) {
+      // GIVEN
+      final var request = mock(ModifyDestinationRequest.class);
+      final var destinationDetails = mock(DestinationDetails.class);
+      when(request.getDestinationDetails()).thenReturn(destinationDetails);
+
+      final var destination = new Destination(UUID.randomUUID(), null, null, null, 0);
+      factory.when(() -> DestinationFactory.create(destinationDetails)).thenReturn(destination);
+
+      // WHEN
+      final var exception = new DIDDoesNotExistException(destination.dID());
+      doThrow(exception).when(destinationRepository).update(destination);
+
+      // WHEN
+      assertThatThrownBy(() -> underTest.handle(request)).isEqualTo(exception);
+
+      // THEN
+      verify(destinationListener, never()).onDestinationModified(any());
     }
   }
 }

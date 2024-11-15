@@ -2,9 +2,12 @@ package com.sipgate.li.lib.x1.server.handler.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -79,7 +82,7 @@ class ActivateTaskHandlerTest {
     doThrow(new IllegalArgumentException()).when(taskFactory).create(taskDetails);
 
     //WHEN
-    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(GenericActivateTaskFailureException.class);
 
     //THEN
     verifyNoInteractions(taskRepository, taskListener);
@@ -98,10 +101,28 @@ class ActivateTaskHandlerTest {
     doThrow(new RuntimeException()).when(taskListener).onTaskActivateRequest(task);
 
     //WHEN
-    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(GenericActivateTaskFailureException.class);
 
     //THEN
     verifyNoInteractions(taskRepository);
     verifyNoMoreInteractions(taskListener);
+  }
+
+  @Test
+  void it_does_not_throw_when_repository_throws()
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException {
+    //GIVEN
+    final var request = mock(ActivateTaskRequest.class);
+    final var taskDetails = mock(TaskDetails.class);
+    when(request.getTaskDetails()).thenReturn(taskDetails);
+
+    final var exception = new InvalidCombinationOfDeliveryTypeAndDestinationsException();
+    when(taskFactory.create(taskDetails)).thenThrow(exception);
+
+    //WHEN
+    assertThatThrownBy(() -> underTest.handle(request)).isEqualTo(exception);
+
+    //THEN
+    verify(taskListener, never()).onTaskActivated(any());
   }
 }
