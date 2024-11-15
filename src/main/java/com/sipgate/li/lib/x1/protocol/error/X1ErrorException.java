@@ -34,7 +34,7 @@ public abstract class X1ErrorException extends Exception {
   }
 
   protected X1ErrorException(final BigInteger errorCode, final String errorDescription) {
-    super();
+    super(errorDescription);
     this.errorCode = errorCode;
     this.errorDescription = errorDescription;
   }
