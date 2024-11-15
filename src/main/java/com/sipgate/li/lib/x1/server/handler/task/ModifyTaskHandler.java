@@ -1,6 +1,7 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.GenericModifyTaskFailureException;
 import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
@@ -31,16 +32,20 @@ public class ModifyTaskHandler implements X1RequestHandler<ModifyTaskRequest, Mo
 
   @Override
   public ModifyTaskResponse handle(final ModifyTaskRequest request)
-    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, XIDDoesNotExistException {
-    final var task = taskFactory.create(request.getTaskDetails());
+    throws SyntaxSchemaErrorException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, XIDDoesNotExistException, GenericModifyTaskFailureException {
+    try {
+      final var task = taskFactory.create(request.getTaskDetails());
 
-    taskListener.onTaskModifyRequest(task);
-    taskRepository.update(task);
-    taskListener.onTaskModified(task);
+      taskListener.onTaskModifyRequest(task);
+      taskRepository.update(task);
+      taskListener.onTaskModified(task);
 
-    final var resp = new ModifyTaskResponse();
-    resp.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return resp;
+      final var resp = new ModifyTaskResponse();
+      resp.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return resp;
+    } catch (final RuntimeException e) {
+      throw new GenericModifyTaskFailureException(e);
+    }
   }
 
   @Override

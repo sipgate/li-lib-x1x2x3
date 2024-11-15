@@ -1,6 +1,7 @@
 package com.sipgate.li.lib.x1.server.handler.destination;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.GenericModifyDestinationFailureException;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
@@ -24,15 +25,20 @@ public class ModifyDestinationHandler implements X1RequestHandler<ModifyDestinat
   }
 
   @Override
-  public ModifyDestinationResponse handle(final ModifyDestinationRequest request) throws DIDDoesNotExistException {
-    final var destination = DestinationFactory.create(request.getDestinationDetails());
-    destinationListener.onDestinationModifyRequest(destination);
-    destinationRepository.update(destination);
-    destinationListener.onDestinationModified(destination);
+  public ModifyDestinationResponse handle(final ModifyDestinationRequest request)
+    throws DIDDoesNotExistException, GenericModifyDestinationFailureException {
+    try {
+      final var destination = DestinationFactory.create(request.getDestinationDetails());
+      destinationListener.onDestinationModifyRequest(destination);
+      destinationRepository.update(destination);
+      destinationListener.onDestinationModified(destination);
 
-    final var resp = new ModifyDestinationResponse();
-    resp.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return resp;
+      final var resp = new ModifyDestinationResponse();
+      resp.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return resp;
+    } catch (final RuntimeException e) {
+      throw new GenericModifyDestinationFailureException(e);
+    }
   }
 
   @Override

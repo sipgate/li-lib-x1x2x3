@@ -1,6 +1,7 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.GenericActivateTaskFailureException;
 import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.protocol.error.XIDAlreadyExistsException;
@@ -31,15 +32,19 @@ public class ActivateTaskHandler implements X1RequestHandler<ActivateTaskRequest
 
   @Override
   public ActivateTaskResponse handle(final ActivateTaskRequest request)
-    throws DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, SyntaxSchemaErrorException, XIDAlreadyExistsException {
-    final var task = taskFactory.create(request.getTaskDetails());
-    taskListener.onTaskActivateRequest(task);
-    taskRepository.insert(task);
-    taskListener.onTaskActivated(task);
+    throws GenericActivateTaskFailureException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, SyntaxSchemaErrorException, XIDAlreadyExistsException {
+    try {
+      final var task = taskFactory.create(request.getTaskDetails());
+      taskListener.onTaskActivateRequest(task);
+      taskRepository.insert(task);
+      taskListener.onTaskActivated(task);
 
-    final var response = new ActivateTaskResponse();
-    response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return response;
+      final var response = new ActivateTaskResponse();
+      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return response;
+    } catch (final RuntimeException e) {
+      throw new GenericActivateTaskFailureException(e);
+    }
   }
 
   @Override

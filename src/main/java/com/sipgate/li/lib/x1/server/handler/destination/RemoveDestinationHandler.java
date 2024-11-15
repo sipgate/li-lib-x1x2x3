@@ -2,6 +2,7 @@ package com.sipgate.li.lib.x1.server.handler.destination;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.DestinationInUseException;
+import com.sipgate.li.lib.x1.protocol.error.GenericRemoveDestinationFailureException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
@@ -26,15 +27,19 @@ public class RemoveDestinationHandler implements X1RequestHandler<RemoveDestinat
 
   @Override
   public RemoveDestinationResponse handle(final RemoveDestinationRequest request)
-    throws DIDDoesNotExistException, DestinationInUseException {
-    final var dId = UUID.fromString(request.getDId());
-    destinationListener.onDestinationRemoveRequest(dId);
-    destinationRepository.deleteByDID(dId);
-    destinationListener.onDestinationRemoved(dId);
+    throws DIDDoesNotExistException, DestinationInUseException, GenericRemoveDestinationFailureException {
+    try {
+      final var dId = UUID.fromString(request.getDId());
+      destinationListener.onDestinationRemoveRequest(dId);
+      destinationRepository.deleteByDID(dId);
+      destinationListener.onDestinationRemoved(dId);
 
-    final var response = new RemoveDestinationResponse();
-    response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return response;
+      final var response = new RemoveDestinationResponse();
+      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return response;
+    } catch (final RuntimeException e) {
+      throw new GenericRemoveDestinationFailureException(e);
+    }
   }
 
   @Override
