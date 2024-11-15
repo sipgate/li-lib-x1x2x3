@@ -4,12 +4,23 @@ import static com.sipgate.li.lib.x1.protocol.X1Version.VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.protocol.Converter;
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.ErrorResponseFactory;
+import com.sipgate.li.lib.x1.protocol.error.GenericActivateTaskFailureException;
+import com.sipgate.li.lib.x1.protocol.error.GenericErrorException;
+import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
+import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
+import com.sipgate.li.lib.x1.protocol.error.UnsupportedRequestException;
+import com.sipgate.li.lib.x1.protocol.error.UnsupportedVersionException;
 import com.sipgate.li.lib.x1.protocol.error.X1ErrorException;
+import com.sipgate.li.lib.x1.protocol.error.XIDAlreadyExistsException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
+import com.sipgate.li.lib.x1.server.handler.task.ActivateTaskHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
 import io.netty.buffer.Unpooled;
@@ -26,9 +37,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import org.etsi.uri._03221.x1._2017._10.ActivateTaskRequest;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.etsi.uri._03221.x1._2017._10.RequestContainer;
@@ -103,21 +117,136 @@ class X1HttpServerHandlerTest {
   }
 
   @Test
-  void itReturnsOkAndWithTLER_onBadVersionRequest() throws Exception {
+  void itReturnsUnsupportedVersionErrorResponse() throws Exception {
     // GIVEN
+    final var requestXml = loadRequestFromFile("X1HttpServerHandlerTest/BadVersionRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var requestMessage = request.getX1RequestMessage().getFirst();
+    final var startTimeInMillis = Instant.now().toEpochMilli();
 
     // WHEN
-    final var response = postFile("X1HttpServerHandlerTest/BadVersionRequest_example.xml");
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
 
     // THEN
     assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
 
     final var responseXml = response.content().toString(StandardCharsets.UTF_8);
     final var contentOrError = converter.parseResponse(responseXml);
-    assertThat(contentOrError.isLeft()).isTrue();
+    assertThat(contentOrError.isRight()).isTrue();
 
-    final var tler = contentOrError.left();
-    assertThat(tler).isNotNull(); // TODO: fill this with more checks against content, eg IDs.
+    final var responseContainer = contentOrError.right();
+    final var errorResponse = (ErrorResponse) responseContainer.getX1ResponseMessage().getFirst();
+
+    assertErrorReseponse(
+      ErrorResponseFactory.makeErrorResponse(new UnsupportedVersionException(VERSION), requestMessage),
+      errorResponse
+    );
+
+    assertCommonFields(request.getX1RequestMessage().getFirst(), errorResponse, startTimeInMillis);
+  }
+
+  @Test
+  void itReturnsHandlerErrorResponse()
+    throws JAXBException, IOException, GenericActivateTaskFailureException, SyntaxSchemaErrorException, XIDAlreadyExistsException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, NoSuchFieldException, IllegalAccessException {
+    // GIVEN: single activate task request
+    final var requestXml = loadRequestFromFile("ActivateTaskRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var requestMessage = request.getX1RequestMessage().getFirst();
+    final var startTimeInMillis = Instant.now().toEpochMilli();
+
+    // GIVEN: handler throws
+    final var handler = mock(ActivateTaskHandler.class);
+    final var exception = new XIDAlreadyExistsException(UUID.fromString("29f28e1c-f230-486a-a860-f5a784ab9172"));
+    doThrow(exception).when(handler).handle(any());
+
+    // GIVEN: X1HttpServerHandler with mocked handlers
+    setField(underTest, "handlers", Map.of(ActivateTaskRequest.class, handler));
+
+    // WHEN
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
+
+    // THEN
+    assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
+
+    final var responseXml = response.content().toString(StandardCharsets.UTF_8);
+    final var contentOrError = converter.parseResponse(responseXml);
+    assertThat(contentOrError.isRight()).isTrue();
+
+    final var responseContainer = contentOrError.right();
+    final var errorResponse = (ErrorResponse) responseContainer.getX1ResponseMessage().getFirst();
+
+    assertErrorReseponse(ErrorResponseFactory.makeErrorResponse(exception, requestMessage), errorResponse);
+
+    assertCommonFields(request.getX1RequestMessage().getFirst(), errorResponse, startTimeInMillis);
+  }
+
+  @Test
+  void itReturnsGenericErrorResponse()
+    throws JAXBException, IOException, GenericActivateTaskFailureException, SyntaxSchemaErrorException, XIDAlreadyExistsException, DIDDoesNotExistException, InvalidCombinationOfDeliveryTypeAndDestinationsException, NoSuchFieldException, IllegalAccessException {
+    // GIVEN: single activate task request
+    final var requestXml = loadRequestFromFile("ActivateTaskRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var requestMessage = request.getX1RequestMessage().getFirst();
+    final var startTimeInMillis = Instant.now().toEpochMilli();
+
+    // GIVEN: handler throws
+    final var handler = mock(ActivateTaskHandler.class);
+    final var runtimeException = new RuntimeException();
+    final var exception = new GenericErrorException(runtimeException);
+    doThrow(runtimeException).when(handler).handle(any());
+
+    // GIVEN: X1HttpServerHandler with mocked handlers
+    setField(underTest, "handlers", Map.of(ActivateTaskRequest.class, handler));
+
+    // WHEN
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
+
+    // THEN
+    assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
+
+    final var responseXml = response.content().toString(StandardCharsets.UTF_8);
+    final var contentOrError = converter.parseResponse(responseXml);
+    assertThat(contentOrError.isRight()).isTrue();
+
+    final var responseContainer = contentOrError.right();
+    final var errorResponse = (ErrorResponse) responseContainer.getX1ResponseMessage().getFirst();
+
+    assertErrorReseponse(ErrorResponseFactory.makeErrorResponse(exception, requestMessage), errorResponse);
+
+    assertCommonFields(request.getX1RequestMessage().getFirst(), errorResponse, startTimeInMillis);
+  }
+
+  @Test
+  void itReturnsUnnsupportedRequestErrorResponse()
+    throws JAXBException, IOException, NoSuchFieldException, IllegalAccessException {
+    // GIVEN: single activate task request
+    final var requestXml = loadRequestFromFile("ActivateTaskRequest_example.xml");
+    final var request = converter.parseRequest(requestXml);
+    final var requestMessage = request.getX1RequestMessage().getFirst();
+    final var startTimeInMillis = Instant.now().toEpochMilli();
+
+    // GIVEN: X1HttpServerHandler without handlers
+    setField(underTest, "handlers", Map.of());
+
+    // WHEN
+    final var response = postBytes(requestXml.getBytes(StandardCharsets.UTF_8));
+
+    // THEN
+    assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
+
+    final var responseXml = response.content().toString(StandardCharsets.UTF_8);
+    final var contentOrError = converter.parseResponse(responseXml);
+    assertThat(contentOrError.isRight()).isTrue();
+
+    final var responseContainer = contentOrError.right();
+    final var errorResponse = (ErrorResponse) responseContainer.getX1ResponseMessage().getFirst();
+
+    assertErrorReseponse(
+      ErrorResponseFactory.makeErrorResponse(new UnsupportedRequestException(), requestMessage),
+      errorResponse
+    );
+
+    assertCommonFields(request.getX1RequestMessage().getFirst(), errorResponse, startTimeInMillis);
   }
 
   @Test
@@ -265,6 +394,11 @@ class X1HttpServerHandlerTest {
 
     embeddedChannel.writeInbound(fullHttpRequest);
     return embeddedChannel.readOutbound();
+  }
+
+  private void assertErrorReseponse(final ErrorResponse expected, final ErrorResponse actual) {
+    assertThat(actual.getRequestMessageType()).isEqualTo(expected.getRequestMessageType());
+    assertThat(actual.getErrorInformation()).usingRecursiveComparison().isEqualTo(expected.getErrorInformation());
   }
 
   private static void assertCommonFields(

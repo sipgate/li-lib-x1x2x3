@@ -2,15 +2,17 @@ package com.sipgate.li.lib.x1.server.handler.destination;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.DestinationInUseException;
 import com.sipgate.li.lib.x1.protocol.error.GenericRemoveDestinationFailureException;
-import com.sipgate.li.lib.x1.server.handler.destination.RemoveDestinationHandler;
 import com.sipgate.li.lib.x1.server.listener.DestinationListener;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import java.util.UUID;
@@ -63,11 +65,26 @@ class RemoveDestinationHandlerTest {
     doThrow(new RuntimeException()).when(destinationListener).onDestinationRemoveRequest(D_ID);
 
     //WHEN
-    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> underTest.handle(request)).isInstanceOf(GenericRemoveDestinationFailureException.class);
 
     //THEN
     verifyNoInteractions(destinationRepository);
     verifyNoMoreInteractions(destinationListener);
+  }
+
+  @Test
+  void it_does_not_call_listener_when_repository_throws_exception()
+    throws DIDDoesNotExistException, DestinationInUseException {
+    //GIVEN
+    final var request = createRemoveDestinationRequest();
+    final var exception = new DIDDoesNotExistException(UUID.randomUUID());
+    doThrow(exception).when(destinationRepository).deleteByDID(D_ID);
+
+    //WHEN
+    assertThatThrownBy(() -> underTest.handle(request)).isEqualTo(exception);
+
+    //THEN
+    verify(destinationListener, never()).onDestinationRemoved(any());
   }
 
   private RemoveDestinationRequest createRemoveDestinationRequest() {

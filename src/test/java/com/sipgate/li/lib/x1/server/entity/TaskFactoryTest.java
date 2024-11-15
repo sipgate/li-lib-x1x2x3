@@ -1,7 +1,7 @@
 package com.sipgate.li.lib.x1.server.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -9,6 +9,7 @@ import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -132,25 +133,25 @@ class TaskFactoryTest {
     taskDetails.getListOfDIDs().getDId().clear();
 
     //WHEN THEN
-    assertThrows(IllegalArgumentException.class, () -> underTest.create(taskDetails));
+    assertThatThrownBy(() -> underTest.create(taskDetails)).isInstanceOf(SyntaxSchemaErrorException.class);
   }
 
   @Test
   void throws_when_one_dID_is_unknown() {
     //GIVEN
-    final var taskDetails = createTaskDetails();
-    taskDetails
-      .getListOfDIDs()
-      .getDId()
-      .addAll(List.of("64f16d45-cd52-4fbe-9778-9748ad72dc7b", "ad528c71-b674-444c-9e98-9817ffd15862"));
+    final var missingUuid = UUID.fromString("64f16d45-cd52-4fbe-9778-9748ad72dc7b");
+    final var existingUuid = UUID.fromString("ad528c71-b674-444c-9e98-9817ffd15862");
+    final var taskDetails = createTaskDetails(missingUuid, existingUuid);
 
     // only one of the two given destinations is in the database
     when(destinationRepository.findByDIDs(any())).thenReturn(
-      Set.of(new Destination(UUID.fromString("ad528c71-b674-444c-9e98-9817ffd15862"), null, null, null, 0))
+      Set.of(new Destination(existingUuid, null, null, null, 0))
     );
 
     //WHEN THEN
-    assertThrows(IllegalArgumentException.class, () -> underTest.create(taskDetails));
+    assertThatThrownBy(() -> underTest.create(taskDetails))
+      .isInstanceOf(DIDDoesNotExistException.class)
+      .hasMessage(missingUuid.toString());
   }
 
   @ParameterizedTest
@@ -160,7 +161,9 @@ class TaskFactoryTest {
     when(destinationRepository.findByDIDs(any())).thenReturn(destinations);
 
     // WHEN + THEN
-    assertThrows(IllegalArgumentException.class, () -> underTest.create(taskDetails));
+    assertThatThrownBy(() -> underTest.create(taskDetails)).isInstanceOf(
+      InvalidCombinationOfDeliveryTypeAndDestinationsException.class
+    );
   }
 
   private static Stream<Arguments> provideIncompatibleDestinationTypes() {
@@ -168,12 +171,12 @@ class TaskFactoryTest {
       // X2 task but no X2 destination
       Arguments.of(
         createTaskDetails(DeliveryType.X_2_ONLY),
-        Set.of(new Destination(null, null, DeliveryType.X_3_ONLY, null, 0))
+        Set.of(new Destination(D_ID, null, DeliveryType.X_3_ONLY, null, 0))
       ),
       // X3 task but no X3 destination
       Arguments.of(
         createTaskDetails(DeliveryType.X_3_ONLY),
-        Set.of(new Destination(null, null, DeliveryType.X_2_ONLY, null, 0))
+        Set.of(new Destination(D_ID, null, DeliveryType.X_2_ONLY, null, 0))
       ),
       // X2_AND_X3 task but no X3 destination
       Arguments.of(
@@ -216,6 +219,10 @@ class TaskFactoryTest {
 
   private static TaskDetails createTaskDetails() {
     return createTaskDetails(DELIVERY_TYPE);
+  }
+
+  private static TaskDetails createTaskDetails(final UUID... dIDs) {
+    return createTaskDetails(DELIVERY_TYPE, Arrays.stream(dIDs).map(UUID::toString).toArray(String[]::new));
   }
 
   private static TaskDetails createTaskDetails(final DeliveryType deliveryType) {

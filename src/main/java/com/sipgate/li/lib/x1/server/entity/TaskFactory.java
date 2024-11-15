@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.etsi.uri._03221.x1._2017._10.DeliveryType;
 import org.etsi.uri._03221.x1._2017._10.ListOfDids;
@@ -69,7 +70,10 @@ public class TaskFactory {
 
     final var destinations = destinationRepository.findByDIDs(requestedDIDs);
     final var foundDIDs = destinations.stream().map(Destination::dID).collect(Collectors.toSet());
-    final var missingDIDs = requestedDIDs.stream().filter(foundDIDs::contains).collect(Collectors.toSet());
+    final var missingDIDs = requestedDIDs
+      .stream()
+      .filter(Predicate.not(foundDIDs::contains))
+      .collect(Collectors.toSet());
     if (!missingDIDs.isEmpty()) {
       throw new DIDDoesNotExistException(missingDIDs);
     }
