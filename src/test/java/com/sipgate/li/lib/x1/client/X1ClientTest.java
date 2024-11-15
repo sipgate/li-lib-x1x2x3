@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -20,9 +21,11 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import org.assertj.core.api.Condition;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
+import org.etsi.uri._03221.x1._2017._10.RequestMessageType;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -61,11 +64,37 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN
-    final var resp = underTest.request(pingRequest, PingResponse.class);
+    final var maybeResponseMessage = underTest.request(pingRequest, PingResponse.class);
 
     // THEN
-    assertThat(resp).isInstanceOf(PingResponse.class);
-    assertThat(resp.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+    assertThat(maybeResponseMessage.right()).isInstanceOf(PingResponse.class);
+    assertThat(maybeResponseMessage.right().getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+  }
+
+  @Test
+  void it_returns_error_response() throws DatatypeConfigurationException, IOException, InterruptedException {
+    // GIVEN
+    final var pingRequest = createPingRequest();
+
+    final var httpResponse = mock(HttpResponse.class);
+    when(httpResponse.body()).thenReturn(readResource("ErrorResponse_example.xml"));
+
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
+    when(
+      httpClient.send(
+        eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
+        any(HttpResponse.BodyHandler.class)
+      )
+    ).thenReturn(httpResponse);
+
+    // WHEN
+    final var maybeResponseMessage = underTest.request(pingRequest, PingResponse.class);
+
+    // THEN
+    assertThat(maybeResponseMessage.left()).isInstanceOf(ErrorResponse.class);
+    assertThat(maybeResponseMessage.left().getRequestMessageType()).isEqualTo(RequestMessageType.PING);
+    assertThat(maybeResponseMessage.left().getErrorInformation().getErrorCode()).isEqualTo(BigInteger.valueOf(1000));
+    assertThat(maybeResponseMessage.left().getErrorInformation().getErrorDescription()).isEqualTo("generic error");
   }
 
   @Test
@@ -189,8 +218,8 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN
-    final var resp = underTest.request(pingRequest, X1ResponseMessage.class);
-    assertThat(resp).isInstanceOf(ActivateTaskResponse.class);
+    final var maybeResponseMessage = underTest.request(pingRequest, X1ResponseMessage.class);
+    assertThat(maybeResponseMessage.right()).isInstanceOf(ActivateTaskResponse.class);
   }
 
   private static PingRequest createPingRequest() throws DatatypeConfigurationException {
