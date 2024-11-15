@@ -1,7 +1,6 @@
 package com.sipgate.li.lib.x1.client;
 
 import com.sipgate.li.lib.x1.protocol.Converter;
-import com.sipgate.util.Either;
 import jakarta.xml.bind.JAXBException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,10 +25,8 @@ public class X1Client {
     this.converter = new Converter();
   }
 
-  public <R extends X1ResponseMessage> Either<ErrorResponse, R> request(
-    final X1RequestMessage x1Request,
-    final Class<R> responseType
-  ) throws X1ClientException, InterruptedException {
+  public <R extends X1ResponseMessage> R request(final X1RequestMessage x1Request, final Class<R> responseType)
+    throws X1ClientException, InterruptedException {
     try {
       final var x1requestContainer = new RequestContainer();
       x1requestContainer.getX1RequestMessage().add(x1Request);
@@ -41,10 +38,7 @@ public class X1Client {
       final var either = converter.parseResponse(httpResponse.body());
 
       if (either.isLeft()) {
-        throw new X1ClientException(
-          "Request " + x1Request.getX1TransactionId() + " returned TopLevelErrorResponse.",
-          either.left()
-        );
+        throw new TopLevelErrorException(either.left());
       }
 
       if (either.right().getX1ResponseMessage().size() != 1) {
@@ -57,11 +51,11 @@ public class X1Client {
       final var responseMessage = either.right().getX1ResponseMessage().getFirst();
       final var responseMessageType = responseMessage.getClass();
       if (ErrorResponse.class.isAssignableFrom(responseMessageType)) {
-        return Either.left((ErrorResponse) responseMessage);
+        throw new ErrorResponseException((ErrorResponse) responseMessage);
       }
 
       if (responseType.isAssignableFrom(responseMessageType)) {
-        return Either.right(responseType.cast(responseMessage));
+        return responseType.cast(responseMessage);
       }
 
       throw new X1ClientException(
