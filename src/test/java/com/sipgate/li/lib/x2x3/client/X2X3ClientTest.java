@@ -47,12 +47,12 @@ public class X2X3ClientTest {
   void it_encodes_a_pduObject() throws IOException {
     // GIVEN
     final var ipAddress = "wurst";
-    final var port = -1;
+    final var port = 31337;
 
     final var os = new ByteArrayOutputStream();
     final var socketFactory = mock(SocketFactory.class);
     final var socket = mock(Socket.class);
-    when(socketFactory.createSocket(ipAddress, port)).thenReturn(socket);
+    when(socketFactory.createSocket()).thenReturn(socket);
     when(socket.getOutputStream()).thenReturn(os);
 
     final var underTest = new X2X3Client(socketFactory, ipAddress, port);
