@@ -55,6 +55,7 @@ import javax.xml.datatype.DatatypeFactory;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskRequest;
 import org.etsi.uri._03221.x1._2017._10.CreateDestinationRequest;
 import org.etsi.uri._03221.x1._2017._10.DeactivateTaskRequest;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.GetAllDetailsRequest;
 import org.etsi.uri._03221.x1._2017._10.GetDestinationDetailsRequest;
 import org.etsi.uri._03221.x1._2017._10.GetTaskDetailsRequest;
@@ -248,25 +249,31 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
   private ResponseContainer handleRequestContainer(final RequestContainer requestContainer) {
     final var requestMessages = requestContainer.getX1RequestMessage();
+    metricsService.incrementCounter("li_x1_requestContainer", "size", String.valueOf(requestMessages.size()));
+
     if (requestMessages.isEmpty()) {
       throw new IllegalArgumentException("request container must have at least 1 request message");
     }
 
     final var responseContainer = new ResponseContainer();
     final var responseMessages = responseContainer.getX1ResponseMessage();
-    requestMessages.stream().map(this::handleRequestMessage).forEach(responseMessages::add);
+
+    requestMessages
+      .stream()
+      .map(requestMessage ->
+        metricsService.recordTime(
+          "li_x1_handleRequestMessage",
+          () -> handleRequestMessage(requestMessage),
+          "type",
+          requestMessage.getClass().getSimpleName()
+        )
+      )
+      .forEach(responseMessages::add);
     return responseContainer;
   }
 
   private X1ResponseMessage handleRequestMessage(final X1RequestMessage requestMessage) {
-    final var requestMessageClassName = requestMessage.getClass().getSimpleName();
-    metricsService.incrementCounter(
-      "li_x1_requestMessage",
-      "type",
-      requestMessageClassName,
-      "version",
-      Objects.requireNonNullElse(requestMessage.getVersion(), "null")
-    );
+    countRequestMessage(requestMessage);
 
     final var responseMessage = X1Version.isCompatible(requestMessage.getVersion())
       ? callHandler(requestMessage)
@@ -280,7 +287,41 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     final var gcal = new GregorianCalendar();
     gcal.setTimeInMillis(Instant.now().toEpochMilli());
     responseMessage.setMessageTimestamp(datatypeFactory.newXMLGregorianCalendar(gcal));
+
+    countResponseMessage(responseMessage);
     return responseMessage;
+  }
+
+  private void countRequestMessage(final X1RequestMessage requestMessage) {
+    final var requestMessageClassName = requestMessage.getClass().getSimpleName();
+    metricsService.incrementCounter(
+      "li_x1_requestMessage",
+      "type",
+      requestMessageClassName,
+      "version",
+      Objects.requireNonNullElse(requestMessage.getVersion(), "null")
+    );
+  }
+
+  private void countResponseMessage(final X1ResponseMessage responseMessage) {
+    metricsService.incrementCounter("li_x1_responseMessage", "type", responseMessage.getClass().getSimpleName());
+    if (responseMessage instanceof final ErrorResponse errorResponse) {
+      countErrorResponse(errorResponse);
+    }
+  }
+
+  private void countErrorResponse(final ErrorResponse errorResponse) {
+    try {
+      metricsService.incrementCounter(
+        "li_x1_errorResponse",
+        "request",
+        errorResponse.getRequestMessageType().value(),
+        "code",
+        errorResponse.getErrorInformation().getErrorCode().toString()
+      );
+    } catch (final RuntimeException e) {
+      LOGGER.error("Exception caught while incrementing counter (illegal ErrorResponse?)", e);
+    }
   }
 
   private X1ResponseMessage callHandler(final X1RequestMessage requestMessage) {
