@@ -38,7 +38,7 @@ public class ErrorResponseFactory {
   private ErrorResponseFactory() {}
 
   public static ErrorResponse makeErrorResponse(
-    final X1ErrorException exception,
+    final ErrorResponseException exception,
     final X1RequestMessage requestMessage
   ) {
     final var errorInformation = new ErrorInformation();

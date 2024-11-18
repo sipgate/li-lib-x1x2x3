@@ -8,10 +8,10 @@ import com.sipgate.li.lib.metrics.MetricsService;
 import com.sipgate.li.lib.metrics.NoopMetricsService;
 import com.sipgate.li.lib.x1.protocol.Converter;
 import com.sipgate.li.lib.x1.protocol.X1Version;
+import com.sipgate.li.lib.x1.protocol.error.ErrorResponseException;
 import com.sipgate.li.lib.x1.protocol.error.GenericErrorException;
 import com.sipgate.li.lib.x1.protocol.error.UnsupportedRequestException;
 import com.sipgate.li.lib.x1.protocol.error.UnsupportedVersionException;
-import com.sipgate.li.lib.x1.protocol.error.X1ErrorException;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.handler.destination.CreateDestinationHandler;
@@ -292,7 +292,7 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
       }
 
       return handler.handle(requestMessage);
-    } catch (final X1ErrorException e) {
+    } catch (final ErrorResponseException e) {
       return makeErrorResponse(e, requestMessage);
     } catch (final Exception e) {
       return makeErrorResponse(new GenericErrorException(e), requestMessage);

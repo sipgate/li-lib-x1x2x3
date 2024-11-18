@@ -1,6 +1,6 @@
 package com.sipgate.li.lib.x1.client;
 
-import static com.sipgate.li.lib.x1.protocol.error.X1ErrorException.GENERIC_ERROR;
+import static com.sipgate.li.lib.x1.protocol.error.ErrorResponseException.GENERIC_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;

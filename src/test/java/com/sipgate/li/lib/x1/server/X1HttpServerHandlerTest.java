@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.protocol.Converter;
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
+import com.sipgate.li.lib.x1.protocol.error.ErrorResponseException;
 import com.sipgate.li.lib.x1.protocol.error.ErrorResponseFactory;
 import com.sipgate.li.lib.x1.protocol.error.GenericActivateTaskFailureException;
 import com.sipgate.li.lib.x1.protocol.error.GenericErrorException;
@@ -17,7 +18,6 @@ import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndD
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.protocol.error.UnsupportedRequestException;
 import com.sipgate.li.lib.x1.protocol.error.UnsupportedVersionException;
-import com.sipgate.li.lib.x1.protocol.error.X1ErrorException;
 import com.sipgate.li.lib.x1.protocol.error.XIDAlreadyExistsException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.handler.task.ActivateTaskHandler;
@@ -305,7 +305,7 @@ class X1HttpServerHandlerTest {
   @ParameterizedTest
   @MethodSource("provideHandler")
   void it_has_a_case_for_every_implemented_handler(final X1RequestHandler<?, ?> handler)
-    throws JAXBException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, X1ErrorException {
+    throws JAXBException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, ErrorResponseException {
     // GIVEN: a request container with a single request
     final var requestMessageType = handler.getRequestClass();
     final var requestMessage = mock(requestMessageType);

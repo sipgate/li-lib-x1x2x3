@@ -4,11 +4,11 @@ import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class GenericException extends X1ErrorException {
+abstract class GenericBaseException extends ErrorResponseException {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GenericException.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GenericBaseException.class);
 
-  protected GenericException(final BigInteger errorCode, final Exception e) {
+  protected GenericBaseException(final BigInteger errorCode, final Exception e) {
     // don't expose possibly confidential information from generic exception
     super(errorCode);
     // but write everything to the log so developers can debug

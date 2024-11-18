@@ -9,12 +9,12 @@ import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.reflections.ReflectionUtils;
 
-class X1ErrorExceptionTest {
+class ErrorResponseExceptionTest {
 
   @Test
   void itHasUniqueErrorCodes() throws IllegalAccessException {
     final var fields = ReflectionUtils.getFields(
-      X1ErrorException.class,
+      ErrorResponseException.class,
       field -> field.getType() == BigInteger.class,
       field -> Modifier.isStatic(field.getModifiers()),
       field -> Modifier.isFinal(field.getModifiers())

@@ -20,7 +20,7 @@ class ErrorResponseFactoryTest {
 
     final var subTypes = reflections.getSubTypesOf(X1RequestMessage.class);
 
-    final var exception = mock(X1ErrorException.class);
+    final var exception = mock(ErrorResponseException.class);
     final var allRequestMessageTypes = subTypes
       .stream()
       .map(type -> {
@@ -37,7 +37,7 @@ class ErrorResponseFactoryTest {
   @Test
   void itDoesNotSetRequestMessageTypeIfUnknown() {
     // GIVEN
-    final var exception = mock(X1ErrorException.class);
+    final var exception = mock(ErrorResponseException.class);
     final var requestMessage = new UnkownRequestMessage();
 
     // WHEN

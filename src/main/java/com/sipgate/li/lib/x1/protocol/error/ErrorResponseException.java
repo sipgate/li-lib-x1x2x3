@@ -2,7 +2,7 @@ package com.sipgate.li.lib.x1.protocol.error;
 
 import java.math.BigInteger;
 
-public abstract class X1ErrorException extends Exception {
+public abstract class ErrorResponseException extends Exception {
 
   public static final BigInteger GENERIC_ERROR = BigInteger.valueOf(1000);
   public static final BigInteger SYNTAX_SCHEMA_ERROR = BigInteger.valueOf(1010);
@@ -29,11 +29,11 @@ public abstract class X1ErrorException extends Exception {
   private final BigInteger errorCode;
   private final String errorDescription;
 
-  protected X1ErrorException(final BigInteger errorCode) {
+  protected ErrorResponseException(final BigInteger errorCode) {
     this(errorCode, null);
   }
 
-  protected X1ErrorException(final BigInteger errorCode, final String errorDescription) {
+  protected ErrorResponseException(final BigInteger errorCode, final String errorDescription) {
     super(errorDescription);
     this.errorCode = errorCode;
     this.errorDescription = errorDescription;
