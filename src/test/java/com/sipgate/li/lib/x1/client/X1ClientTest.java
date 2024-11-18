@@ -90,9 +90,9 @@ class X1ClientTest {
 
     // WHEN + THEN
     assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class))
-      .isInstanceOf(ErrorResponseException.class)
+      .isInstanceOf(ErrorResponseClientException.class)
       .satisfies(e -> {
-        final var errorResponse = ((ErrorResponseException) e).getErrorResponse();
+        final var errorResponse = ((ErrorResponseClientException) e).getErrorResponse();
         assertThat(errorResponse).isInstanceOf(ErrorResponse.class);
         assertThat(errorResponse.getRequestMessageType()).isEqualTo(RequestMessageType.PING);
         assertThat(errorResponse.getErrorInformation().getErrorCode()).isEqualTo(GENERIC_ERROR);
@@ -178,7 +178,7 @@ class X1ClientTest {
 
     // WHEN + THEN
     assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class)).isInstanceOf(
-      TopLevelErrorException.class
+      TopLevelErrorClientException.class
     );
   }
 

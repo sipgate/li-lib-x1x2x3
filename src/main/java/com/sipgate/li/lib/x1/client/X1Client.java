@@ -38,7 +38,7 @@ public class X1Client {
       final var either = converter.parseResponse(httpResponse.body());
 
       if (either.isLeft()) {
-        throw new TopLevelErrorException(either.left());
+        throw new TopLevelErrorClientException(either.left());
       }
 
       if (either.right().getX1ResponseMessage().size() != 1) {
@@ -51,7 +51,7 @@ public class X1Client {
       final var responseMessage = either.right().getX1ResponseMessage().getFirst();
       final var responseMessageType = responseMessage.getClass();
       if (ErrorResponse.class.isAssignableFrom(responseMessageType)) {
-        throw new ErrorResponseException((ErrorResponse) responseMessage);
+        throw new ErrorResponseClientException((ErrorResponse) responseMessage);
       }
 
       if (responseType.isAssignableFrom(responseMessageType)) {
