@@ -24,7 +24,7 @@ public class X2X3Client implements AutoCloseable {
     LOGGER.info("Connected to {}:{}", ipAddress, port);
   }
 
-  X2X3Client(final SocketFactory socketFactory, final String ipAddress, final int port) throws IOException {
+  public X2X3Client(final SocketFactory socketFactory, final String ipAddress, final int port) throws IOException {
     this(socketFactory, ipAddress, port, 5000);
   }
 
