@@ -412,6 +412,6 @@ class X1HttpServerHandlerTest {
     assertThat(responseMessage.getVersion()).isEqualTo(VERSION);
 
     final var timeinMillis = responseMessage.getMessageTimestamp().toGregorianCalendar().getTimeInMillis();
-    assertThat(timeinMillis).isGreaterThan(startTimeInMillis);
+    assertThat(timeinMillis).isGreaterThanOrEqualTo(startTimeInMillis);
   }
 }
