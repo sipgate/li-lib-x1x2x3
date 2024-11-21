@@ -115,7 +115,7 @@ class X2X3DecoderTest {
 
   private byte[] getPduBytesFromPcapFile(final String pcapFilename) throws IOException {
     final var inputStream = getClass().getClassLoader().getResourceAsStream(pcapFilename);
-    final var skipped = inputStream.skip(106); // TODO: do we want to just skip PCAP header or do we want to get away with it beforehand?
+    final var skipped = inputStream.skip(106);
     assert skipped == 106;
     final var data = inputStream.readAllBytes();
     return data;
