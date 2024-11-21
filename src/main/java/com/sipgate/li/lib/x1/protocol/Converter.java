@@ -64,7 +64,6 @@ public class Converter {
     return writer.toString();
   }
 
-  // TODO: test
   public String toXml(final ResponseContainer response) throws JAXBException {
     final var marshaller = context.createMarshaller();
     final var writer = new StringWriter();
@@ -72,7 +71,6 @@ public class Converter {
     return writer.toString();
   }
 
-  // TODO: test
   public String toXml(final TopLevelErrorResponse err) throws JAXBException {
     final var marshaller = context.createMarshaller();
     final var writer = new StringWriter();

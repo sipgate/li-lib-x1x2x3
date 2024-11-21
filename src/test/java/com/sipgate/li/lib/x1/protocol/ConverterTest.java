@@ -27,6 +27,7 @@ import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -149,6 +150,64 @@ class ConverterTest {
     assertThat(list.size()).isEqualTo(2);
     assertThat(list.get(0)).isInstanceOf(PingRequest.class);
     assertThat(list.get(1)).isInstanceOf(PingRequest.class);
+  }
+
+  @Nested
+  class ToXml {
+
+    @Test
+    void it_serializes_response_container_to_xml() throws DatatypeConfigurationException, JAXBException, IOException {
+      // GIVEN
+      final var calendar = DatatypeFactory.newInstance()
+        .newXMLGregorianCalendar(BigInteger.valueOf(2017L), 10, 6, 18, 46, 21, BigDecimal.valueOf(401571, 6), 0);
+
+      final var response = new ActivateTaskResponse();
+      response.setAdmfIdentifier("admfID");
+      response.setNeIdentifier("neID");
+      response.setMessageTimestamp(calendar);
+      response.setVersion("v1.6.1");
+      response.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+
+      final var container = new ResponseContainer();
+      container.getX1ResponseMessage().add(response);
+      container.getX1ResponseMessage().add(response);
+
+      // WHEN
+      final var actual = underTest.toXml(container);
+
+      final var expected = readResource("ConverterTest/ActivateTaskResponse_example.xml").replaceAll(
+        "\n|\r|(    )",
+        ""
+      );
+
+      // THEN
+      assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void it_serializes_top_level_error_response() throws IOException, JAXBException, DatatypeConfigurationException {
+      // GIVEN
+      final var calendar = DatatypeFactory.newInstance()
+        .newXMLGregorianCalendar(BigInteger.valueOf(2017L), 10, 6, 18, 46, 21, BigDecimal.valueOf(401571, 6), 0);
+
+      final var response = new TopLevelErrorResponse();
+      response.setAdmfIdentifier("admfID");
+      response.setNeIdentifier("neID");
+      response.setMessageTimestamp(calendar);
+      response.setVersion("v1.6.1");
+
+      // WHEN
+      final var actual = underTest.toXml(response);
+
+      final var expected = readResource("ConverterTest/TopLevelErrorResponse_example.xml").replaceAll(
+        "\n|\r|(    )",
+        ""
+      );
+
+      // THEN
+      assertThat(actual).isEqualTo(expected);
+    }
   }
 
   private String readResource(final String name) throws IOException {
