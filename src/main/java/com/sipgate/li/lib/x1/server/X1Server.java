@@ -18,34 +18,42 @@ public class X1Server extends NettyChildHandler<X1Server> {
 
   private static final int MAX_CONTENT_LENGTH_BYTES = 1024 * 1024; // 1 MiB
 
-  private final X1HttpServerHandler x1HttpServerHandler;
+  private final X1NetworkElementHandler x1NetworkElementHandler;
 
   /**
    * @param sslContext SSLContext or null to disable SSL
-   * @param x1HttpServerHandler The handler to use for incoming HTTP requests
+   * @param x1NetworkElementHandler The handler to use for incoming HTTP requests
    */
-  public X1Server(final SSLContext sslContext, final X1HttpServerHandler x1HttpServerHandler) {
+  public X1Server(final SSLContext sslContext, final X1NetworkElementHandler x1NetworkElementHandler) {
     super(sslContext);
-    this.x1HttpServerHandler = x1HttpServerHandler;
+    this.x1NetworkElementHandler = x1NetworkElementHandler;
   }
 
   /**
    * Creates a new X1Server instance
    *
-   * @param sslContext SSLContext or null to disable SSL
+   * @param sslContext            SSLContext or null to disable SSL
    * @param destinationRepository The repository to use for destination management
-   * @param taskRepository The repository to use for task management
+   * @param taskRepository        The repository to use for task management
+   * @param neIdentifier          The name of this network element for X1
    * @return A new X1Server instance
    */
-  public static X1Server create(
+  public static X1Server createNetworkElement(
     final SSLContext sslContext,
     final DestinationRepository destinationRepository,
-    final TaskRepository taskRepository
+    final TaskRepository taskRepository,
+    final String neIdentifier
   ) {
     try {
       return new X1Server(
         sslContext,
-        new X1HttpServerHandler(new Converter(), destinationRepository, taskRepository, DatatypeFactory.newInstance())
+        new X1NetworkElementHandler(
+          new Converter(),
+          destinationRepository,
+          taskRepository,
+          DatatypeFactory.newInstance(),
+          neIdentifier
+        )
       );
     } catch (final Exception e) {
       throw new RuntimeException(e);
@@ -53,17 +61,17 @@ public class X1Server extends NettyChildHandler<X1Server> {
   }
 
   public X1Server setTaskListener(final TaskListener taskListener) {
-    x1HttpServerHandler.setTaskListener(taskListener);
+    x1NetworkElementHandler.setTaskListener(taskListener);
     return this;
   }
 
   public X1Server setDestinationListener(final DestinationListener destinationListener) {
-    x1HttpServerHandler.setDestinationListener(destinationListener);
+    x1NetworkElementHandler.setDestinationListener(destinationListener);
     return this;
   }
 
   public X1Server setMetricsService(final MetricsService metricsService) {
-    x1HttpServerHandler.setMetricsService(metricsService);
+    x1NetworkElementHandler.setMetricsService(metricsService);
     return this;
   }
 
@@ -75,6 +83,6 @@ public class X1Server extends NettyChildHandler<X1Server> {
       .addLast(new HttpRequestDecoder())
       .addLast(new HttpResponseEncoder())
       .addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH_BYTES))
-      .addLast(x1HttpServerHandler);
+      .addLast(x1NetworkElementHandler);
   }
 }

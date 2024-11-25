@@ -44,13 +44,18 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.ssl.SslHandler;
 import jakarta.xml.bind.JAXBException;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.xml.datatype.DatatypeFactory;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskRequest;
 import org.etsi.uri._03221.x1._2017._10.CreateDestinationRequest;
@@ -74,9 +79,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class X1NetworkElementHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(X1HttpServerHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(X1NetworkElementHandler.class);
 
   private final Map<
     Class<? extends X1RequestMessage>,
@@ -87,17 +92,20 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
   private final DatatypeFactory datatypeFactory;
   private final DelegatingTaskListener delegatingTaskListener = new DelegatingTaskListener();
   private final DelegatingDestinationListener delegatingDestinationListener = new DelegatingDestinationListener();
+  private final String neIdentifier;
 
   private MetricsService metricsService = new NoopMetricsService();
 
-  public X1HttpServerHandler(
+  public X1NetworkElementHandler(
     final Converter converter,
     final DestinationRepository destinationRepository,
     final TaskRepository taskRepository,
-    final DatatypeFactory datatypeFactory
+    final DatatypeFactory datatypeFactory,
+    final String neIdentifier
   ) {
     this.converter = converter;
     this.datatypeFactory = datatypeFactory;
+    this.neIdentifier = neIdentifier;
 
     final var taskFactory = new TaskFactory(destinationRepository);
     this.handlers.put(PingRequest.class, new PingHandler());
@@ -132,17 +140,17 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
       );
   }
 
-  public X1HttpServerHandler setTaskListener(final TaskListener delegatingTaskListener) {
+  public X1NetworkElementHandler setTaskListener(final TaskListener delegatingTaskListener) {
     this.delegatingTaskListener.setDelegate(delegatingTaskListener);
     return this;
   }
 
-  public X1HttpServerHandler setDestinationListener(final DestinationListener delegatingDestinationListener) {
+  public X1NetworkElementHandler setDestinationListener(final DestinationListener delegatingDestinationListener) {
     this.delegatingDestinationListener.setDelegate(delegatingDestinationListener);
     return this;
   }
 
-  public X1HttpServerHandler setMetricsService(final MetricsService metricsService) {
+  public X1NetworkElementHandler setMetricsService(final MetricsService metricsService) {
     this.metricsService = metricsService;
     return this;
   }
@@ -177,13 +185,10 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
     final var tler = new TopLevelErrorResponse();
 
-    // TODO
-    // If the X1 Request could not be parsed
-    // then the response shall be constructed with an ADMF and NE Identifier
-    // (extracting the identifier of the Requester from the X.509 certificate if necessary)
+    final var sslHandler = channelHandlerContext.pipeline().get(SslHandler.class);
+    tler.setAdmfIdentifier(extractAdmfIdentifier(sslHandler));
+    tler.setNeIdentifier(neIdentifier);
 
-    tler.setAdmfIdentifier("todo");
-    tler.setNeIdentifier("todo");
     // TODO
     final var calendar = new GregorianCalendar();
     calendar.setTimeInMillis(Instant.now().toEpochMilli());
@@ -202,6 +207,28 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     // Don't handle keep alive here because there was an error and we can't recover from it.
     HttpUtil.setKeepAlive(response, false);
     channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+  }
+
+  private static String extractAdmfIdentifier(final SslHandler sslHandler) {
+    try {
+      if (sslHandler == null) {
+        return "without-tls-i-cannot-figure-out-who-you-are";
+      }
+      final var certs = sslHandler.engine().getSession().getPeerCertificates();
+      final var admfCert = certs[0];
+      if (admfCert instanceof final X509Certificate admfX509cert) {
+        final var ldapName = new LdapName(admfX509cert.getSubjectX500Principal().getName());
+        for (final var rdn : ldapName.getRdns()) {
+          if ("CN".equalsIgnoreCase(rdn.getType())) {
+            return rdn.getValue().toString();
+          }
+        }
+      }
+      return "could-not-extract-your-admf-identifier-from-cert";
+    } catch (final Exception exc) {
+      LOGGER.error("Error extracting ADMF identifier", exc);
+      return "error-extracting-admf-identifier";
+    }
   }
 
   private FullHttpResponse handleHttpRequest(final FullHttpRequest fullHttpRequest) throws JAXBException {

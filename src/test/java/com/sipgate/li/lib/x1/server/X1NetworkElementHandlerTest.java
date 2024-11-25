@@ -47,6 +47,7 @@ import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.ResponseContainer;
+import org.etsi.uri._03221.x1._2017._10.TopLevelErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,9 +63,11 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
 @ExtendWith(MockitoExtension.class)
-class X1HttpServerHandlerTest {
+class X1NetworkElementHandlerTest {
 
-  private X1HttpServerHandler underTest;
+  private static final String NE_IDENTIFIER = "i-am-a-network-element";
+
+  private X1NetworkElementHandler underTest;
 
   private Converter converter;
 
@@ -79,7 +82,13 @@ class X1HttpServerHandlerTest {
     converter = new Converter();
     final var datatypeFactory = DatatypeFactory.newInstance();
 
-    underTest = new X1HttpServerHandler(converter, destinationRepository, taskRepository, datatypeFactory);
+    underTest = new X1NetworkElementHandler(
+      converter,
+      destinationRepository,
+      taskRepository,
+      datatypeFactory,
+      NE_IDENTIFIER
+    );
   }
 
   @Test
@@ -92,10 +101,7 @@ class X1HttpServerHandlerTest {
 
     final var responseXml = response.content().toString(StandardCharsets.UTF_8);
     final var contentOrError = converter.parseResponse(responseXml);
-    assertThat(contentOrError.isLeft()).isTrue();
-
-    final var tler = contentOrError.left();
-    assertThat(tler).isNotNull(); // TODO: fill this with more checks against content, eg IDs.
+    assertTLER(contentOrError.left());
   }
 
   @Test
@@ -110,10 +116,7 @@ class X1HttpServerHandlerTest {
 
     final var responseXml = response.content().toString(StandardCharsets.UTF_8);
     final var contentOrError = converter.parseResponse(responseXml);
-    assertThat(contentOrError.isLeft()).isTrue();
-
-    final var tler = contentOrError.left();
-    assertThat(tler).isNotNull(); // TODO: fill this with more checks against content, eg IDs.
+    assertTLER(contentOrError.left());
   }
 
   @Test
@@ -413,5 +416,12 @@ class X1HttpServerHandlerTest {
 
     final var timeinMillis = responseMessage.getMessageTimestamp().toGregorianCalendar().getTimeInMillis();
     assertThat(timeinMillis).isGreaterThanOrEqualTo(startTimeInMillis);
+  }
+
+  private void assertTLER(final TopLevelErrorResponse tler) {
+    assertThat(tler).isNotNull();
+    assertThat(tler.getNeIdentifier()).isEqualTo(NE_IDENTIFIER);
+    // This is the case when there is no SSL. For SSL, we use an E2E test.
+    assertThat(tler.getAdmfIdentifier()).isEqualTo("without-tls-i-cannot-figure-out-who-you-are");
   }
 }
