@@ -2,6 +2,40 @@ package com.sipgate.li.lib.x1.protocol.error;
 
 import java.math.BigInteger;
 
+/*
+
+================================================================================
+X1 Exception Hierarchy
+================================================================================
+
+X1 Server Exceptions
+---------------------
+The X1 Server exceptions are organized under the primary category:
+
+- ErrorResponseException
+  Represents business-related exceptions occurring in the X1 Server.
+
+  Subcategories:
+  1. GenericBaseException
+     General-purpose exceptions that are not highly specific.
+
+     - Generic*XYZ*Exception:
+       Specific to a topic but does not describe precise causes.
+       Indicates "something went wrong in a specific area" without exact details.
+       Example: GenericCreateDestinationFailureException
+
+     - GenericErrorException:
+       Non-specific errors originating from standard exceptions.
+       Indicates "something went wrong" but provides no detail about "where" or "what."
+
+  2. *SPECIFIC*Exception
+     Highly specific exceptions, often providing helpful details such as IDs or
+     exact causes. These indicate both "where" and "what" went wrong.
+     Example: InvalidCombinationOfDeliveryTypeAndDestinationsException
+
+For client exceptions see X1ClientException.
+
+*/
 public abstract class ErrorResponseException extends Exception {
 
   // We've only implemented the exceptions that our implementation uses. Feel free to add more if required.
