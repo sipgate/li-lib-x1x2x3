@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<X1TopLevelErrorResponse
+     xmlns="http://uri.etsi.org/03221/X1/2017/10"
+     xmlns:ns2="http://uri.etsi.org/03280/common/2017/07"
+     xmlns:ns3="http://uri.etsi.org/03221/X1/2017/10/HashedID">
+    <admfIdentifier>admfID</admfIdentifier>
+    <neIdentifier>neID</neIdentifier>
+    <messageTimestamp>2017-10-06T18:46:21.401571Z</messageTimestamp>
+    <version>v1.6.1</version>
+</X1TopLevelErrorResponse>

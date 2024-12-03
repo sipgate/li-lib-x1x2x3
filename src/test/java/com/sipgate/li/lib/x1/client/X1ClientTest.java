@@ -1,10 +1,13 @@
 package com.sipgate.li.lib.x1.client;
 
+import static com.sipgate.li.lib.x1.protocol.error.ErrorResponseException.GENERIC_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
@@ -18,11 +21,12 @@ import java.util.GregorianCalendar;
 import java.util.Objects;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import org.assertj.core.api.Condition;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskResponse;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
+import org.etsi.uri._03221.x1._2017._10.RequestMessageType;
 import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,11 +66,39 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN
-    final var resp = underTest.request(pingRequest, PingResponse.class);
+    final var responseMessage = underTest.request(pingRequest, PingResponse.class);
 
     // THEN
-    assertThat(resp).isInstanceOf(PingResponse.class);
-    assertThat(resp.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+    assertThat(responseMessage).isInstanceOf(PingResponse.class);
+    assertThat(responseMessage.getOK()).isEqualTo(OK.ACKNOWLEDGED_AND_COMPLETED);
+  }
+
+  @Test
+  void it_throws_error_response() throws DatatypeConfigurationException, IOException, InterruptedException {
+    // GIVEN
+    final var pingRequest = createPingRequest();
+
+    final var httpResponse = mock(HttpResponse.class);
+    when(httpResponse.body()).thenReturn(readResource("ErrorResponse_example.xml"));
+
+    final var bodyPublisher = HttpRequest.BodyPublishers.ofString(readResource("PingRequest_example.xml"));
+    when(
+      httpClient.send(
+        eq(HttpRequest.newBuilder(target).POST(bodyPublisher).build()),
+        any(HttpResponse.BodyHandler.class)
+      )
+    ).thenReturn(httpResponse);
+
+    // WHEN + THEN
+    assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class))
+      .isInstanceOf(ErrorResponseClientException.class)
+      .satisfies(e -> {
+        final var errorResponse = ((ErrorResponseClientException) e).getErrorResponse();
+        assertThat(errorResponse).isInstanceOf(ErrorResponse.class);
+        assertThat(errorResponse.getRequestMessageType()).isEqualTo(RequestMessageType.PING);
+        assertThat(errorResponse.getErrorInformation().getErrorCode()).isEqualTo(GENERIC_ERROR);
+        assertThat(errorResponse.getErrorInformation().getErrorDescription()).isEqualTo("generic error");
+      });
   }
 
   @Test
@@ -146,11 +178,9 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN + THEN
-    assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class))
-      .isInstanceOf(X1ClientException.class)
-      .has(
-        new Condition<>(e -> ((X1ClientException) e).getTopLevelErrorResponse() != null, "toplevel error response set!")
-      );
+    assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class)).isInstanceOf(
+      TopLevelErrorClientException.class
+    );
   }
 
   @Test
@@ -190,8 +220,8 @@ class X1ClientTest {
     ).thenReturn(httpResponse);
 
     // WHEN
-    final var resp = underTest.request(pingRequest, X1ResponseMessage.class);
-    assertThat(resp).isInstanceOf(ActivateTaskResponse.class);
+    final var responseMessage = underTest.request(pingRequest, X1ResponseMessage.class);
+    assertThat(responseMessage).isInstanceOf(ActivateTaskResponse.class);
   }
 
   private static PingRequest createPingRequest() throws DatatypeConfigurationException {

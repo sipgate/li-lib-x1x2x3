@@ -1,5 +1,7 @@
 package com.sipgate.li.lib.x1.server.handler.task;
 
+import com.sipgate.li.lib.x1.protocol.error.GenericDeactivateTaskFailureException;
+import com.sipgate.li.lib.x1.protocol.error.XIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.listener.TaskListener;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
@@ -20,16 +22,21 @@ public class DeactivateTaskHandler implements X1RequestHandler<DeactivateTaskReq
   }
 
   @Override
-  public DeactivateTaskResponse handle(final DeactivateTaskRequest request) {
-    final var response = new DeactivateTaskResponse();
+  public DeactivateTaskResponse handle(final DeactivateTaskRequest request)
+    throws XIDDoesNotExistException, GenericDeactivateTaskFailureException {
+    try {
+      final var response = new DeactivateTaskResponse();
 
-    final var xId = UUID.fromString(request.getXId());
-    taskListener.onTaskDeactivateRequest(xId);
-    taskRepository.deleteByXID(xId);
-    taskListener.onTaskDeactivated(xId);
+      final var xId = UUID.fromString(request.getXId());
+      taskListener.onTaskDeactivateRequest(xId);
+      taskRepository.deleteByXID(xId);
+      taskListener.onTaskDeactivated(xId);
 
-    response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return response;
+      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return response;
+    } catch (final RuntimeException e) {
+      throw new GenericDeactivateTaskFailureException(e);
+    }
   }
 
   @Override

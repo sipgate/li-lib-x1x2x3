@@ -6,10 +6,10 @@ import static org.mockito.Mockito.when;
 
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.Task;
-import com.sipgate.li.lib.x1.server.handler.status.ListAllDetailsHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.etsi.uri._03221.x1._2017._10.ListAllDetailsResponse;
 import org.etsi.uri._03221.x1._2017._10.ListOfDids;
@@ -46,11 +46,11 @@ class ListAllDetailsHandlerTest {
     when(taskRepository.getAllTasks()).thenReturn(tasksList);
 
     // only the UUID is relevant for the return value that is under test
-    final var destinationsList = List.of(
+    final var destinations = Set.of(
       new Destination(UUID.randomUUID(), null, null, null, 0),
       new Destination(UUID.randomUUID(), null, null, null, 0)
     );
-    when(destinationRepository.getAllDestinations()).thenReturn(destinationsList);
+    when(destinationRepository.getAllDestinations()).thenReturn(destinations);
 
     // WHEN
     final var actual = underTest.handle(null);
@@ -60,10 +60,7 @@ class ListAllDetailsHandlerTest {
     expected.setListOfXIDs(new ListOfXids());
     expected.getListOfXIDs().getXId().addAll(tasksList.stream().map(Task::xID).map(UUID::toString).toList());
     expected.setListOfDIDs(new ListOfDids());
-    expected
-      .getListOfDIDs()
-      .getDId()
-      .addAll(destinationsList.stream().map(Destination::dID).map(UUID::toString).toList());
+    expected.getListOfDIDs().getDId().addAll(destinations.stream().map(Destination::dID).map(UUID::toString).toList());
 
     assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }

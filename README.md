@@ -4,11 +4,15 @@
 
 In order to collect Metrics, implement the interface `MetricsService` and set it on the `X1Server`.
 
-| Metric name            | Type    | Tags              | Description                                                                                  |
-| ---------------------- | ------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| `li_x1_exception`      | Counter | `type`            | Number of requests that failed because of a Java exception (`type` is the simple class name) |
-| `li_x1_requestError`   | Counter | `type`            | Number of requests that caused a TopLevelError (currently: `type`=`unknown_message_type`)    |
-| `li_x1_requestMessage` | Counter | `type`, `version` | Number of received X1 request messages, SimpleClassName and version in RequestMessage xml    |
+| Metric name                  | Type    | Tags              | Description                                                                                  |
+| ---------------------------- | ------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| `li_x1_errorResponse`        | Counter | `request`, `code` | Number of returned X1 error responses                                                        |
+| `li_x1_exception`            | Counter | `type`            | Number of requests that failed because of a Java exception (`type` is the simple class name) |
+| `li_x1_handleRequestMessage` | Timer   | `type`            | Execution time of `handleRequestMessage`, type = SimpleClassName                             |
+| `li_x1_requestContainer`     | Counter | `size`            | Number of X1 request container and their size                                                |
+| `li_x1_requestError`         | Counter | `type`            | Number of requests that caused a TopLevelError (currently: `type`=`unknown_message_type`)    |
+| `li_x1_requestMessage`       | Counter | `type`, `version` | Number of received X1 request messages, SimpleClassName and version in RequestMessage xml    |
+| `li_x1_responseMessage`      | Counter | `type`            | Number of returned X1 response messages, type = SimpleClassName                              |
 
 ## Local development
 

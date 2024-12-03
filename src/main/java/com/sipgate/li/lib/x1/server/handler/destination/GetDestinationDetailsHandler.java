@@ -1,9 +1,9 @@
 package com.sipgate.li.lib.x1.server.handler.destination;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.etsi.uri._03221.x1._2017._10.GetDestinationDetailsRequest;
 import org.etsi.uri._03221.x1._2017._10.GetDestinationDetailsResponse;
@@ -19,11 +19,13 @@ public class GetDestinationDetailsHandler
   }
 
   @Override
-  public GetDestinationDetailsResponse handle(final GetDestinationDetailsRequest request) {
-    final var maybeDestination = destinationRepository.findByDID(UUID.fromString(request.getDId()));
+  public GetDestinationDetailsResponse handle(final GetDestinationDetailsRequest request)
+    throws DIDDoesNotExistException {
+    final var dID = UUID.fromString(request.getDId());
+    final var maybeDestination = destinationRepository.findByDID(dID);
 
     if (maybeDestination.isEmpty()) {
-      throw new NoSuchElementException("Destination not found: " + request.getDId());
+      throw new DIDDoesNotExistException(dID);
     }
 
     final var response = new GetDestinationDetailsResponse();

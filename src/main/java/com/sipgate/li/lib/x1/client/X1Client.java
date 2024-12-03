@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.RequestContainer;
 import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
@@ -36,10 +37,7 @@ public class X1Client {
       final var either = converter.parseResponse(httpResponse.body());
 
       if (either.isLeft()) {
-        throw new X1ClientException(
-          "Request " + x1Request.getX1TransactionId() + " returned TopLevelErrorResponse.",
-          either.left()
-        );
+        throw new TopLevelErrorClientException(either.left());
       }
 
       if (either.right().getX1ResponseMessage().size() != 1) {
@@ -49,20 +47,28 @@ public class X1Client {
         );
       }
 
-      final var x1Response = either.right().getX1ResponseMessage().getFirst();
-      if (!responseType.isAssignableFrom(x1Response.getClass())) {
-        throw new X1ClientException(
-          String.format(
-            "%s did not respond with %s, received %s",
-            x1Request.getClass().getSimpleName(),
-            responseType.getSimpleName(),
-            x1Response.getClass().getSimpleName()
-          )
-        );
+      final var responseMessage = either.right().getX1ResponseMessage().getFirst();
+      final var responseMessageType = responseMessage.getClass();
+      if (ErrorResponse.class.isAssignableFrom(responseMessageType)) {
+        throw new ErrorResponseClientException((ErrorResponse) responseMessage);
       }
 
-      return responseType.cast(x1Response);
-    } catch (final InterruptedException | X1ClientException e) {
+      if (responseType.isAssignableFrom(responseMessageType)) {
+        return responseType.cast(responseMessage);
+      }
+
+      throw new X1ClientException(
+        String.format(
+          "%s did not respond with %s, received %s",
+          x1Request.getClass().getSimpleName(),
+          responseType.getSimpleName(),
+          responseMessageType.getSimpleName()
+        )
+      );
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw e;
+    } catch (final X1ClientException e) {
       throw e;
     } catch (final Exception e) {
       throw new X1ClientException("Failed to send request", e);

@@ -4,6 +4,7 @@ import com.sipgate.li.lib.x2x3.protocol.PduObject;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import javax.net.SocketFactory;
 import org.slf4j.Logger;
@@ -15,9 +16,16 @@ public class X2X3Client implements AutoCloseable {
 
   private final Socket socket;
 
-  public X2X3Client(final SocketFactory socketFactory, final String ipAddress, final int port) throws IOException {
+  public X2X3Client(final SocketFactory socketFactory, final String ipAddress, final int port, final int timeoutMillis)
+    throws IOException {
     LOGGER.info("Connecting to {}:{}", ipAddress, port);
-    this.socket = socketFactory.createSocket(ipAddress, port);
+    this.socket = socketFactory.createSocket();
+    this.socket.connect(new InetSocketAddress(ipAddress, port), timeoutMillis);
+    LOGGER.info("Connected to {}:{}", ipAddress, port);
+  }
+
+  public X2X3Client(final SocketFactory socketFactory, final String ipAddress, final int port) throws IOException {
+    this(socketFactory, ipAddress, port, 5000);
   }
 
   public void send(final PduObject pduObject) throws IOException {

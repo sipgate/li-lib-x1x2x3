@@ -1,11 +1,18 @@
 package com.sipgate.li.lib.x1.server;
 
+import static com.sipgate.li.lib.x1.protocol.X1Version.VERSION;
+import static com.sipgate.li.lib.x1.protocol.error.ErrorResponseFactory.makeErrorResponse;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import com.sipgate.li.lib.metrics.MetricsService;
 import com.sipgate.li.lib.metrics.NoopMetricsService;
 import com.sipgate.li.lib.x1.protocol.Converter;
 import com.sipgate.li.lib.x1.protocol.X1Version;
+import com.sipgate.li.lib.x1.protocol.error.ErrorResponseException;
+import com.sipgate.li.lib.x1.protocol.error.GenericErrorException;
+import com.sipgate.li.lib.x1.protocol.error.UnsupportedRequestException;
+import com.sipgate.li.lib.x1.protocol.error.UnsupportedVersionException;
+import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.handler.X1RequestHandler;
 import com.sipgate.li.lib.x1.server.handler.destination.CreateDestinationHandler;
 import com.sipgate.li.lib.x1.server.handler.destination.GetDestinationDetailsHandler;
@@ -37,21 +44,23 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.ssl.SslHandler;
 import jakarta.xml.bind.JAXBException;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Supplier;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.xml.datatype.DatatypeFactory;
 import org.etsi.uri._03221.x1._2017._10.ActivateTaskRequest;
 import org.etsi.uri._03221.x1._2017._10.CreateDestinationRequest;
 import org.etsi.uri._03221.x1._2017._10.DeactivateTaskRequest;
+import org.etsi.uri._03221.x1._2017._10.ErrorResponse;
 import org.etsi.uri._03221.x1._2017._10.GetAllDetailsRequest;
 import org.etsi.uri._03221.x1._2017._10.GetDestinationDetailsRequest;
 import org.etsi.uri._03221.x1._2017._10.GetTaskDetailsRequest;
@@ -70,40 +79,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class X1NetworkElementHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(X1HttpServerHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(X1NetworkElementHandler.class);
 
-  private final Map<Class<? extends X1RequestMessage>, X1RequestHandler<?, ?>> handlers = new HashMap<>();
+  private final Map<
+    Class<? extends X1RequestMessage>,
+    X1RequestHandler<? extends X1RequestMessage, ? extends X1ResponseMessage>
+  > handlers = new HashMap<>();
 
   private final Converter converter;
   private final DatatypeFactory datatypeFactory;
   private final DelegatingTaskListener delegatingTaskListener = new DelegatingTaskListener();
   private final DelegatingDestinationListener delegatingDestinationListener = new DelegatingDestinationListener();
+  private final String neIdentifier;
 
   private MetricsService metricsService = new NoopMetricsService();
 
-  public X1HttpServerHandler(
+  public X1NetworkElementHandler(
     final Converter converter,
-    final DeliveryTypeCompatibleValidator validator,
     final DestinationRepository destinationRepository,
     final TaskRepository taskRepository,
-    final DatatypeFactory datatypeFactory
+    final DatatypeFactory datatypeFactory,
+    final String neIdentifier
   ) {
     this.converter = converter;
     this.datatypeFactory = datatypeFactory;
+    this.neIdentifier = neIdentifier;
 
+    final var taskFactory = new TaskFactory(destinationRepository);
     this.handlers.put(PingRequest.class, new PingHandler());
     this.handlers.put(KeepaliveRequest.class, new KeepaliveHandler());
     this.handlers.put(
         ActivateTaskRequest.class,
-        new ActivateTaskHandler(taskRepository, validator, delegatingTaskListener)
+        new ActivateTaskHandler(taskRepository, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(DeactivateTaskRequest.class, new DeactivateTaskHandler(taskRepository, delegatingTaskListener));
     this.handlers.put(ListAllDetailsRequest.class, new ListAllDetailsHandler(taskRepository, destinationRepository));
     this.handlers.put(
         ModifyTaskRequest.class,
-        new ModifyTaskHandler(taskRepository, validator, delegatingTaskListener)
+        new ModifyTaskHandler(taskRepository, delegatingTaskListener, taskFactory)
       );
     this.handlers.put(GetTaskDetailsRequest.class, new GetTaskDetailsHandler(taskRepository));
     this.handlers.put(
@@ -119,20 +134,23 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
         RemoveDestinationRequest.class,
         new RemoveDestinationHandler(destinationRepository, delegatingDestinationListener)
       );
-    this.handlers.put(GetAllDetailsRequest.class, new GetAllDetailsHandler(taskRepository, destinationRepository));
+    this.handlers.put(
+        GetAllDetailsRequest.class,
+        new GetAllDetailsHandler(taskRepository, destinationRepository, taskFactory)
+      );
   }
 
-  public X1HttpServerHandler setTaskListener(final TaskListener delegatingTaskListener) {
+  public X1NetworkElementHandler setTaskListener(final TaskListener delegatingTaskListener) {
     this.delegatingTaskListener.setDelegate(delegatingTaskListener);
     return this;
   }
 
-  public X1HttpServerHandler setDestinationListener(final DestinationListener delegatingDestinationListener) {
+  public X1NetworkElementHandler setDestinationListener(final DestinationListener delegatingDestinationListener) {
     this.delegatingDestinationListener.setDelegate(delegatingDestinationListener);
     return this;
   }
 
-  public X1HttpServerHandler setMetricsService(final MetricsService metricsService) {
+  public X1NetworkElementHandler setMetricsService(final MetricsService metricsService) {
     this.metricsService = metricsService;
     return this;
   }
@@ -167,18 +185,15 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
     final var tler = new TopLevelErrorResponse();
 
-    // TODO
-    // If the X1 Request could not be parsed
-    // then the response shall be constructed with an ADMF and NE Identifier
-    // (extracting the identifier of the Requester from the X.509 certificate if necessary)
+    final var sslHandler = channelHandlerContext.pipeline().get(SslHandler.class);
+    tler.setAdmfIdentifier(extractAdmfIdentifier(sslHandler));
+    tler.setNeIdentifier(neIdentifier);
 
-    tler.setAdmfIdentifier("todo");
-    tler.setNeIdentifier("todo");
     // TODO
     final var calendar = new GregorianCalendar();
     calendar.setTimeInMillis(Instant.now().toEpochMilli());
     tler.setMessageTimestamp(datatypeFactory.newXMLGregorianCalendar(calendar));
-    tler.setVersion(X1Version.VERSION);
+    tler.setVersion(VERSION);
 
     final var xml = converter.toXml(tler);
     final var response = new DefaultFullHttpResponse(
@@ -192,6 +207,28 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     // Don't handle keep alive here because there was an error and we can't recover from it.
     HttpUtil.setKeepAlive(response, false);
     channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+  }
+
+  private static String extractAdmfIdentifier(final SslHandler sslHandler) {
+    try {
+      if (sslHandler == null) {
+        return "without-tls-i-cannot-figure-out-who-you-are";
+      }
+      final var certs = sslHandler.engine().getSession().getPeerCertificates();
+      final var admfCert = certs[0];
+      if (admfCert instanceof final X509Certificate admfX509cert) {
+        final var ldapName = new LdapName(admfX509cert.getSubjectX500Principal().getName());
+        for (final var rdn : ldapName.getRdns()) {
+          if ("CN".equalsIgnoreCase(rdn.getType())) {
+            return rdn.getValue().toString();
+          }
+        }
+      }
+      return "could-not-extract-your-admf-identifier-from-cert";
+    } catch (final Exception exc) {
+      LOGGER.error("Error extracting ADMF identifier", exc);
+      return "error-extracting-admf-identifier";
+    }
   }
 
   private FullHttpResponse handleHttpRequest(final FullHttpRequest fullHttpRequest) throws JAXBException {
@@ -219,9 +256,13 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
   }
 
   public FullHttpResponse handlePost(final String requestXml) throws JAXBException {
+    LOGGER.trace(">>> received request: [[ {} ]]", requestXml);
+
     final var request = converter.parseRequest(requestXml);
     final var responseContainer = handleRequestContainer(request);
     final var responseXml = converter.toXml(responseContainer);
+
+    LOGGER.trace("<<< sending response: [[ {} ]]", responseXml);
 
     final var response = new DefaultFullHttpResponse(
       HTTP_1_1,
@@ -233,62 +274,102 @@ public class X1HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReq
     return response;
   }
 
-  final ResponseContainer handleRequestContainer(final RequestContainer requestContainer) {
+  private ResponseContainer handleRequestContainer(final RequestContainer requestContainer) {
     final var requestMessages = requestContainer.getX1RequestMessage();
+    metricsService.incrementCounter("li_x1_requestContainer", "size", String.valueOf(requestMessages.size()));
+
     if (requestMessages.isEmpty()) {
       throw new IllegalArgumentException("request container must have at least 1 request message");
     }
 
-    final List<X1Job> jobs = new ArrayList<>();
-    for (final var requestMessage : requestMessages) {
-      final var requestMessageClassName = requestMessage.getClass().getSimpleName();
-      metricsService.incrementCounter(
-        "li_x1_requestMessage",
-        "type",
-        requestMessageClassName,
-        "version",
-        Objects.requireNonNullElse(requestMessage.getVersion(), "null")
-      );
-
-      if (!X1Version.isCompatible(requestMessage.getVersion())) {
-        throw new IllegalArgumentException("version mismatch, got " + requestMessage.getVersion());
-      }
-
-      final Supplier<X1ResponseMessage> handler =
-        switch (requestMessage) {
-          case final PingRequest r -> () -> handle(PingHandler.class, r);
-          case final KeepaliveRequest r -> () -> handle(KeepaliveHandler.class, r);
-          case final ActivateTaskRequest r -> () -> handle(ActivateTaskHandler.class, r);
-          case final DeactivateTaskRequest r -> () -> handle(DeactivateTaskHandler.class, r);
-          case final ListAllDetailsRequest r -> () -> handle(ListAllDetailsHandler.class, r);
-          case final ModifyTaskRequest r -> () -> handle(ModifyTaskHandler.class, r);
-          case final GetTaskDetailsRequest r -> () -> handle(GetTaskDetailsHandler.class, r);
-          case final CreateDestinationRequest r -> () -> handle(CreateDestinationHandler.class, r);
-          case final GetDestinationDetailsRequest r -> () -> handle(GetDestinationDetailsHandler.class, r);
-          case final ModifyDestinationRequest r -> () -> handle(ModifyDestinationHandler.class, r);
-          case final RemoveDestinationRequest r -> () -> handle(RemoveDestinationHandler.class, r);
-          case final GetAllDetailsRequest r -> () -> handle(GetAllDetailsHandler.class, r);
-          default -> {
-            // If any of the x1RequestMessages are not matching, we will not execute any of the
-            // requests in the container, but respond with a top level error.
-            metricsService.incrementCounter("li_x1_requestError", "type", "unknown_message_type");
-            throw new NoSuchElementException("no handler known for " + requestMessageClassName);
-          }
-        };
-
-      jobs.add(new X1Job(requestMessage, handler));
-    }
-
     final var responseContainer = new ResponseContainer();
-    jobs.stream().map(X1Job::act).forEach(response -> responseContainer.getX1ResponseMessage().add(response));
+    final var responseMessages = responseContainer.getX1ResponseMessage();
+
+    requestMessages
+      .stream()
+      .map(requestMessage ->
+        metricsService.recordTime(
+          "li_x1_handleRequestMessage",
+          () -> handleRequestMessage(requestMessage),
+          "type",
+          requestMessage.getClass().getSimpleName()
+        )
+      )
+      .forEach(responseMessages::add);
     return responseContainer;
   }
 
-  private <REQ extends X1RequestMessage> X1ResponseMessage handle(
-    final Class<? extends X1RequestHandler<REQ, ? extends X1ResponseMessage>> handlerClass,
-    final REQ requestMessage
+  private X1ResponseMessage handleRequestMessage(final X1RequestMessage requestMessage) {
+    countRequestMessage(requestMessage);
+
+    final var responseMessage = X1Version.isCompatible(requestMessage.getVersion())
+      ? callHandler(requestMessage)
+      : makeErrorResponse(new UnsupportedVersionException(VERSION), requestMessage);
+
+    responseMessage.setAdmfIdentifier(requestMessage.getAdmfIdentifier());
+    responseMessage.setNeIdentifier(requestMessage.getNeIdentifier());
+    responseMessage.setVersion(VERSION);
+    responseMessage.setX1TransactionId(requestMessage.getX1TransactionId());
+
+    final var gcal = new GregorianCalendar();
+    gcal.setTimeInMillis(Instant.now().toEpochMilli());
+    responseMessage.setMessageTimestamp(datatypeFactory.newXMLGregorianCalendar(gcal));
+
+    countResponseMessage(responseMessage);
+    return responseMessage;
+  }
+
+  private void countRequestMessage(final X1RequestMessage requestMessage) {
+    final var requestMessageClassName = requestMessage.getClass().getSimpleName();
+    metricsService.incrementCounter(
+      "li_x1_requestMessage",
+      "type",
+      requestMessageClassName,
+      "version",
+      Objects.requireNonNullElse(requestMessage.getVersion(), "null")
+    );
+  }
+
+  private void countResponseMessage(final X1ResponseMessage responseMessage) {
+    metricsService.incrementCounter("li_x1_responseMessage", "type", responseMessage.getClass().getSimpleName());
+    if (responseMessage instanceof final ErrorResponse errorResponse) {
+      countErrorResponse(errorResponse);
+    }
+  }
+
+  private void countErrorResponse(final ErrorResponse errorResponse) {
+    try {
+      metricsService.incrementCounter(
+        "li_x1_errorResponse",
+        "request",
+        errorResponse.getRequestMessageType().value(),
+        "code",
+        errorResponse.getErrorInformation().getErrorCode().toString()
+      );
+    } catch (final RuntimeException e) {
+      LOGGER.error("Exception caught while incrementing counter (illegal ErrorResponse?)", e);
+    }
+  }
+
+  private X1ResponseMessage callHandler(final X1RequestMessage requestMessage) {
+    try {
+      final var handler = getHandler(requestMessage);
+      if (handler == null) {
+        metricsService.incrementCounter("li_x1_requestError", "type", "unknown_message_type");
+        return makeErrorResponse(new UnsupportedRequestException(), requestMessage);
+      }
+
+      return handler.handle(requestMessage);
+    } catch (final ErrorResponseException e) {
+      return makeErrorResponse(e, requestMessage);
+    } catch (final Exception e) {
+      return makeErrorResponse(new GenericErrorException(e), requestMessage);
+    }
+  }
+
+  private <REQ extends X1RequestMessage, RES extends X1ResponseMessage> X1RequestHandler<REQ, RES> getHandler(
+    final REQ requestType
   ) {
-    final var handler = handlerClass.cast(handlers.get(requestMessage.getClass()));
-    return handler.handle(requestMessage);
+    return (X1RequestHandler<REQ, RES>) handlers.get(requestType.getClass());
   }
 }

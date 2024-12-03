@@ -1,15 +1,14 @@
 package com.sipgate.li.lib.x1.server.handler.destination;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;
-import com.sipgate.li.lib.x1.server.handler.destination.GetDestinationDetailsHandler;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import org.etsi.uri._03221.x1._2017._10.DeliveryType;
@@ -30,7 +29,7 @@ class GetDestinationDetailsHandlerTest {
   GetDestinationDetailsHandler underTest;
 
   @Test
-  void it_returns_destination_details() {
+  void it_returns_destination_details() throws DIDDoesNotExistException {
     // GIVEN
     final var destination = new Destination(UUID.randomUUID(), "friendly", DeliveryType.X_2_AND_X_3, "192.0.2.2", 1100);
     when(destinationRepository.findByDID(any())).thenReturn(Optional.of(destination));
@@ -52,10 +51,13 @@ class GetDestinationDetailsHandlerTest {
     // GIVEN
     when(destinationRepository.findByDID(any())).thenReturn(Optional.empty());
 
-    // WHEN
     final var request = new GetDestinationDetailsRequest();
-    request.setDId(UUID.randomUUID().toString());
+    final var dID = UUID.randomUUID();
+    request.setDId(dID.toString());
 
-    assertThrows(NoSuchElementException.class, () -> underTest.handle(request));
+    // WHEN
+    assertThatThrownBy(() -> underTest.handle(request))
+      .isInstanceOf(DIDDoesNotExistException.class)
+      .hasMessage(dID.toString());
   }
 }
