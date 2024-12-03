@@ -28,31 +28,31 @@ public class TaskFactory {
   }
 
   public static TaskResponseDetails create(final Task task) {
-    final var targetIdentifier = new TargetIdentifier();
-    targetIdentifier.setE164Number(task.e164Number());
-
-    final var listOfTargetIdentifiers = new ListOfTargetIdentifiers();
-    listOfTargetIdentifiers.getTargetIdentifier().add(targetIdentifier);
-
-    final var taskDetails = new TaskDetails();
-    taskDetails.setXId(task.xID().toString());
-    taskDetails.setTargetIdentifiers(listOfTargetIdentifiers);
-    taskDetails.setDeliveryType(task.deliveryType());
-
-    final var listOfDIDs = new ListOfDids();
-    task.destinations().stream().map(Destination::dID).map(UUID::toString).forEach(listOfDIDs.getDId()::add);
-    taskDetails.setListOfDIDs(listOfDIDs);
-
-    final var taskStatus = new TaskStatus();
-    taskStatus.setProvisioningStatus(task.provisioningStatus());
-    taskStatus.setNumberOfModifications(BigInteger.valueOf(task.numberOfModifications()));
-    taskStatus.setListOfFaults(new ListOfFaults());
-
-    final var taskResponseDetails = new TaskResponseDetails();
-    taskResponseDetails.setTaskDetails(taskDetails);
-    taskResponseDetails.setTaskStatus(taskStatus);
-
-    return taskResponseDetails;
+    return TaskResponseDetails.builder()
+      .withTaskDetails(
+        TaskDetails.builder()
+          .withXId(task.xID().toString())
+          .withTargetIdentifiers(
+            ListOfTargetIdentifiers.builder()
+              .withTargetIdentifier(TargetIdentifier.builder().withE164Number(task.e164Number()).build())
+              .build()
+          )
+          .withDeliveryType(task.deliveryType())
+          .withListOfDIDs(
+            ListOfDids.builder()
+              .addDId(task.destinations().stream().map(Destination::dID).map(UUID::toString).findFirst().orElseThrow())
+              .build()
+          )
+          .build()
+      )
+      .withTaskStatus(
+        TaskStatus.builder()
+          .withProvisioningStatus(task.provisioningStatus())
+          .withNumberOfModifications(BigInteger.valueOf(task.numberOfModifications()))
+          .withListOfFaults(ListOfFaults.builder().build())
+          .build()
+      )
+      .build();
   }
 
   public Task create(final TaskDetails details)

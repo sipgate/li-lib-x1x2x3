@@ -34,9 +34,7 @@ public class RemoveDestinationHandler implements X1RequestHandler<RemoveDestinat
       destinationRepository.deleteByDID(dId);
       destinationListener.onDestinationRemoved(dId);
 
-      final var response = new RemoveDestinationResponse();
-      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-      return response;
+      return RemoveDestinationResponse.builder().withOK(OK.ACKNOWLEDGED_AND_COMPLETED).build();
     } catch (final RuntimeException e) {
       throw new GenericRemoveDestinationFailureException(e);
     }

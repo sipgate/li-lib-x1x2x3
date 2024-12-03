@@ -41,14 +41,14 @@ public class ErrorResponseFactory {
     final ErrorResponseException exception,
     final X1RequestMessage requestMessage
   ) {
-    final var errorInformation = new ErrorInformation();
-    errorInformation.setErrorCode(exception.getErrorCode());
-    errorInformation.setErrorDescription(exception.getErrorDescription());
-
-    final var errorResponse = new ErrorResponse();
-    errorResponse.setErrorInformation(errorInformation);
-    getRequestMessageType(requestMessage).ifPresent(errorResponse::setRequestMessageType);
-    return errorResponse;
+    return ErrorResponse.builder()
+      .withErrorInformation(
+        ErrorInformation.builder()
+          .withErrorCode(exception.getErrorCode())
+          .withErrorDescription(exception.getErrorDescription())
+          .build()
+      )
+      .build();
   }
 
   private static Optional<RequestMessageType> getRequestMessageType(final X1RequestMessage requestMessage) {

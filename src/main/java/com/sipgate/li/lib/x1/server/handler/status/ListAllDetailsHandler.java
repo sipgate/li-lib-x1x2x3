@@ -24,24 +24,20 @@ public class ListAllDetailsHandler implements X1RequestHandler<ListAllDetailsReq
 
   @Override
   public ListAllDetailsResponse handle(final ListAllDetailsRequest request) {
-    final var result = new ListAllDetailsResponse();
-
-    final var tasksList = taskRepository.getAllTasks().stream().map(Task::xID).map(UUID::toString).toList();
-
-    result.setListOfXIDs(new ListOfXids());
-    result.getListOfXIDs().getXId().addAll(tasksList);
-
-    final var destinationsList = destinationRepository
-      .getAllDestinations()
-      .stream()
-      .map(Destination::dID)
-      .map(UUID::toString)
-      .toList();
-
-    result.setListOfDIDs(new ListOfDids());
-    result.getListOfDIDs().getDId().addAll(destinationsList);
-
-    return result;
+    return ListAllDetailsResponse.builder()
+      .withListOfXIDs(
+        ListOfXids.builder()
+          .withXId(taskRepository.getAllTasks().stream().map(Task::xID).map(UUID::toString).toList())
+          .build()
+      )
+      .withListOfDIDs(
+        ListOfDids.builder()
+          .withDId(
+            destinationRepository.getAllDestinations().stream().map(Destination::dID).map(UUID::toString).toList()
+          )
+          .build()
+      )
+      .build();
   }
 
   @Override

@@ -14,32 +14,31 @@ public class DestinationFactory {
   private DestinationFactory() {}
 
   public static DestinationResponseDetails create(final Destination destination) {
-    final var destinationDetails = new DestinationDetails();
-    destinationDetails.setDId(destination.dID().toString());
-    destinationDetails.setFriendlyName(destination.friendlyName());
-    destinationDetails.setDeliveryType(destination.deliveryType());
-
-    final var ipAddress = new IPAddress();
-    if (destination.deliveryAddress().contains(":")) {
-      ipAddress.setIPv6Address(destination.deliveryAddress());
-    } else {
-      ipAddress.setIPv4Address(destination.deliveryAddress());
-    }
-
-    final var port = new Port();
-    port.setTCPPort(destination.deliveryPort());
-
-    final var ipAddressPort = new IPAddressPort();
-    ipAddressPort.setAddress(ipAddress);
-    ipAddressPort.setPort(port);
-
-    final var deliveryAddress = new DeliveryAddress();
-    deliveryAddress.setIpAddressAndPort(ipAddressPort);
-    destinationDetails.setDeliveryAddress(deliveryAddress);
-
-    final var destinationResponseDetails = new DestinationResponseDetails();
-    destinationResponseDetails.setDestinationDetails(destinationDetails);
-    return destinationResponseDetails;
+    final var isV4 = destination.deliveryAddress().contains(":");
+    return DestinationResponseDetails.builder()
+      .withDestinationDetails(
+        DestinationDetails.builder()
+          .withDId(destination.dID().toString())
+          .withFriendlyName(destination.friendlyName())
+          .withDeliveryType(destination.deliveryType())
+          .withDeliveryAddress(
+            DeliveryAddress.builder()
+              .withIpAddressAndPort(
+                IPAddressPort.builder()
+                  .withAddress(
+                    IPAddress.builder()
+                      .withIPv4Address(isV4 ? destination.deliveryAddress() : null)
+                      .withIPv6Address(isV4 ? null : destination.deliveryAddress())
+                      .build()
+                  )
+                  .withPort(Port.builder().withTCPPort(destination.deliveryPort()).build())
+                  .build()
+              )
+              .build()
+          )
+          .build()
+      )
+      .build();
   }
 
   public static Destination create(final DestinationDetails destinationDetails) {

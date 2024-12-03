@@ -28,10 +28,9 @@ public class GetDestinationDetailsHandler
       throw new DIDDoesNotExistException(dID);
     }
 
-    final var response = new GetDestinationDetailsResponse();
-    response.setDestinationResponseDetails(DestinationFactory.create(maybeDestination.get()));
-
-    return response;
+    return GetDestinationDetailsResponse.builder()
+      .withDestinationResponseDetails(DestinationFactory.create(maybeDestination.get()))
+      .build();
   }
 
   @Override

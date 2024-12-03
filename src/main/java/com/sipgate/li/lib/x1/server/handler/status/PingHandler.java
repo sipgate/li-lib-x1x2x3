@@ -9,9 +9,7 @@ public class PingHandler implements X1RequestHandler<PingRequest, PingResponse> 
 
   @Override
   public PingResponse handle(final PingRequest request) {
-    final var result = new PingResponse();
-    result.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-    return result;
+    return PingResponse.builder().withOK(OK.ACKNOWLEDGED_AND_COMPLETED).build();
   }
 
   @Override
