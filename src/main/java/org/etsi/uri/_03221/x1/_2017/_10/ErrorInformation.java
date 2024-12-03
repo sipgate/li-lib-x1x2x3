@@ -14,10 +14,12 @@ import com.kscs.util.jaxb.PropertyTreeUse;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
-import java.math.BigInteger;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.Map;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for ErrorInformation complex type.
@@ -43,8 +45,10 @@ import java.util.Map;
 @XmlType(name = "ErrorInformation", propOrder = { "errorCode", "errorDescription" })
 public class ErrorInformation implements Copyable, PartialCopyable {
 
-  @XmlElement(required = true)
-  protected BigInteger errorCode;
+  @XmlElement(required = true, type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer errorCode;
 
   @XmlElement(required = true)
   protected String errorDescription;
@@ -107,10 +111,10 @@ public class ErrorInformation implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getErrorCode() {
+  public Integer getErrorCode() {
     return errorCode;
   }
 
@@ -119,10 +123,10 @@ public class ErrorInformation implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setErrorCode(BigInteger value) {
+  public void setErrorCode(Integer value) {
     this.errorCode = value;
   }
 
@@ -305,7 +309,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
 
     protected final _B _parentBuilder;
     protected final ErrorInformation _storedValue;
-    private BigInteger errorCode;
+    private Integer errorCode;
     private String errorDescription;
 
     public Builder(final _B _parentBuilder, final ErrorInformation _other, final boolean _copy) {
@@ -375,7 +379,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
      * @param errorCode
      *     New value of the "errorCode" property.
      */
-    public ErrorInformation.Builder<_B> withErrorCode(final BigInteger errorCode) {
+    public ErrorInformation.Builder<_B> withErrorCode(final Integer errorCode) {
       this.errorCode = errorCode;
       return this;
     }

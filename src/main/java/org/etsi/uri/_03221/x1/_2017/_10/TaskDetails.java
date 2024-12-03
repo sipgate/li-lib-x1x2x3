@@ -18,12 +18,12 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for TaskDetails complex type.
@@ -90,8 +90,10 @@ public class TaskDetails implements Copyable, PartialCopyable {
 
   protected ListOfMediationDetails listOfMediationDetails;
 
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "nonNegativeInteger")
-  protected BigInteger correlationID;
+  protected Integer correlationID;
 
   protected Boolean implicitDeactivationAllowed;
 
@@ -402,10 +404,10 @@ public class TaskDetails implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getCorrelationID() {
+  public Integer getCorrelationID() {
     return correlationID;
   }
 
@@ -414,10 +416,10 @@ public class TaskDetails implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setCorrelationID(BigInteger value) {
+  public void setCorrelationID(Integer value) {
     this.correlationID = value;
   }
 
@@ -946,7 +948,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
     private DeliveryType deliveryType;
     private ListOfDids.Builder<TaskDetails.Builder<_B>> listOfDIDs;
     private ListOfMediationDetails.Builder<TaskDetails.Builder<_B>> listOfMediationDetails;
-    private BigInteger correlationID;
+    private Integer correlationID;
     private Boolean implicitDeactivationAllowed;
     private String productID;
     private ListOfServiceTypes.Builder<TaskDetails.Builder<_B>> listOfServiceTypes;
@@ -1292,7 +1294,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
      * @param correlationID
      *     New value of the "correlationID" property.
      */
-    public TaskDetails.Builder<_B> withCorrelationID(final BigInteger correlationID) {
+    public TaskDetails.Builder<_B> withCorrelationID(final Integer correlationID) {
       this.correlationID = correlationID;
       return this;
     }

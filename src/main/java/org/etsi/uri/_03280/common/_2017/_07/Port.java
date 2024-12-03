@@ -16,8 +16,10 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.Map;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for Port complex type.
@@ -43,11 +45,13 @@ import java.util.Map;
 @XmlType(name = "Port", propOrder = { "tcpPort", "udpPort" })
 public class Port implements Copyable, PartialCopyable {
 
-  @XmlElement(name = "TCPPort")
+  @XmlElement(name = "TCPPort", type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
   protected Integer tcpPort;
 
-  @XmlElement(name = "UDPPort")
+  @XmlElement(name = "UDPPort", type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
   protected Integer udpPort;
 
@@ -104,7 +108,7 @@ public class Port implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public Integer getTCPPort() {
@@ -116,7 +120,7 @@ public class Port implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public void setTCPPort(Integer value) {
@@ -128,7 +132,7 @@ public class Port implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public Integer getUDPPort() {
@@ -140,7 +144,7 @@ public class Port implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public void setUDPPort(Integer value) {

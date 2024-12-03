@@ -16,13 +16,14 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
-import java.math.BigInteger;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for ReportNEIssueRequest complex type.
@@ -60,7 +61,10 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
   @XmlElement(required = true)
   protected String description;
 
-  protected BigInteger issueCode;
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer issueCode;
 
   @XmlElement(name = "nEIssueExtensions")
   protected List<NEIssueExtensions> neIssueExtensions;
@@ -208,10 +212,10 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getIssueCode() {
+  public Integer getIssueCode() {
     return issueCode;
   }
 
@@ -220,10 +224,10 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setIssueCode(BigInteger value) {
+  public void setIssueCode(Integer value) {
     this.issueCode = value;
   }
 
@@ -509,7 +513,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
 
     private TypeOfNeIssueMessage typeOfNeIssueMessage;
     private String description;
-    private BigInteger issueCode;
+    private Integer issueCode;
     private List<NEIssueExtensions.Builder<ReportNEIssueRequest.Builder<_B>>> neIssueExtensions;
 
     public Builder(final _B _parentBuilder, final ReportNEIssueRequest _other, final boolean _copy) {
@@ -628,7 +632,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
      * @param issueCode
      *     New value of the "issueCode" property.
      */
-    public ReportNEIssueRequest.Builder<_B> withIssueCode(final BigInteger issueCode) {
+    public ReportNEIssueRequest.Builder<_B> withIssueCode(final Integer issueCode) {
       this.issueCode = issueCode;
       return this;
     }

@@ -16,13 +16,14 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
-import java.math.BigInteger;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for TaskStatus complex type.
@@ -76,13 +77,24 @@ public class TaskStatus implements Copyable, PartialCopyable {
   @XmlSchemaType(name = "dateTime")
   protected XMLGregorianCalendar timeOfLastIntercept;
 
-  protected BigInteger amountOfX2Data;
-  protected BigInteger amountOfX3Data;
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer amountOfX2Data;
+
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer amountOfX3Data;
 
   @XmlSchemaType(name = "dateTime")
   protected XMLGregorianCalendar timeOfLastModification;
 
-  protected BigInteger numberOfModifications;
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer numberOfModifications;
+
   protected List<TaskStatusExtensions> taskStatusExtensions;
 
   /**
@@ -297,10 +309,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getAmountOfX2Data() {
+  public Integer getAmountOfX2Data() {
     return amountOfX2Data;
   }
 
@@ -309,10 +321,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setAmountOfX2Data(BigInteger value) {
+  public void setAmountOfX2Data(Integer value) {
     this.amountOfX2Data = value;
   }
 
@@ -321,10 +333,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getAmountOfX3Data() {
+  public Integer getAmountOfX3Data() {
     return amountOfX3Data;
   }
 
@@ -333,10 +345,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setAmountOfX3Data(BigInteger value) {
+  public void setAmountOfX3Data(Integer value) {
     this.amountOfX3Data = value;
   }
 
@@ -369,10 +381,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getNumberOfModifications() {
+  public Integer getNumberOfModifications() {
     return numberOfModifications;
   }
 
@@ -381,10 +393,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setNumberOfModifications(BigInteger value) {
+  public void setNumberOfModifications(Integer value) {
     this.numberOfModifications = value;
   }
 
@@ -743,10 +755,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
     private ProvisioningStatus provisioningStatus;
     private ListOfFaults.Builder<TaskStatus.Builder<_B>> listOfFaults;
     private XMLGregorianCalendar timeOfLastIntercept;
-    private BigInteger amountOfX2Data;
-    private BigInteger amountOfX3Data;
+    private Integer amountOfX2Data;
+    private Integer amountOfX3Data;
     private XMLGregorianCalendar timeOfLastModification;
-    private BigInteger numberOfModifications;
+    private Integer numberOfModifications;
     private List<TaskStatusExtensions.Builder<TaskStatus.Builder<_B>>> taskStatusExtensions;
 
     public Builder(final _B _parentBuilder, final TaskStatus _other, final boolean _copy) {
@@ -969,7 +981,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param amountOfX2Data
      *     New value of the "amountOfX2Data" property.
      */
-    public TaskStatus.Builder<_B> withAmountOfX2Data(final BigInteger amountOfX2Data) {
+    public TaskStatus.Builder<_B> withAmountOfX2Data(final Integer amountOfX2Data) {
       this.amountOfX2Data = amountOfX2Data;
       return this;
     }
@@ -980,7 +992,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param amountOfX3Data
      *     New value of the "amountOfX3Data" property.
      */
-    public TaskStatus.Builder<_B> withAmountOfX3Data(final BigInteger amountOfX3Data) {
+    public TaskStatus.Builder<_B> withAmountOfX3Data(final Integer amountOfX3Data) {
       this.amountOfX3Data = amountOfX3Data;
       return this;
     }
@@ -1004,7 +1016,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param numberOfModifications
      *     New value of the "numberOfModifications" property.
      */
-    public TaskStatus.Builder<_B> withNumberOfModifications(final BigInteger numberOfModifications) {
+    public TaskStatus.Builder<_B> withNumberOfModifications(final Integer numberOfModifications) {
       this.numberOfModifications = numberOfModifications;
       return this;
     }

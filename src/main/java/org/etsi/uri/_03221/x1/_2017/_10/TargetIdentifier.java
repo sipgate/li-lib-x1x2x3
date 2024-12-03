@@ -25,6 +25,7 @@ import org.etsi.uri._03221.x1._2017._10.hashedid.HashedIdentifier;
 import org.etsi.uri._03280.common._2017._07.IPCIDR;
 import org.etsi.uri._03280.common._2017._07.TCPPortRange;
 import org.etsi.uri._03280.common._2017._07.UDPPortRange;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for TargetIdentifier complex type.
@@ -156,11 +157,15 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
   @XmlSchemaType(name = "token")
   protected String ipv6Cidr;
 
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
   protected Integer tcpPort;
 
   protected TCPPortRange tcpPortRange;
 
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
   protected Integer udpPort;
 
@@ -184,11 +189,15 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
   @XmlSchemaType(name = "hexBinary")
   protected byte[] radiusAttribute;
 
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Long gtpuTunnelId;
+  protected Integer gtpuTunnelId;
 
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Long gtpcTunnelId;
+  protected Integer gtpcTunnelId;
 
   @XmlSchemaType(name = "string")
   protected CallPartyRole callPartyRole;
@@ -818,7 +827,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public Integer getTcpPort() {
@@ -830,7 +839,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public void setTcpPort(Integer value) {
@@ -866,7 +875,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public Integer getUdpPort() {
@@ -878,7 +887,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Integer }
+   *     {@link String }
    *
    */
   public void setUdpPort(Integer value) {
@@ -1130,10 +1139,10 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Long }
+   *     {@link String }
    *
    */
-  public Long getGtpuTunnelId() {
+  public Integer getGtpuTunnelId() {
     return gtpuTunnelId;
   }
 
@@ -1142,10 +1151,10 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Long }
+   *     {@link String }
    *
    */
-  public void setGtpuTunnelId(Long value) {
+  public void setGtpuTunnelId(Integer value) {
     this.gtpuTunnelId = value;
   }
 
@@ -1154,10 +1163,10 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @return
    *     possible object is
-   *     {@link Long }
+   *     {@link String }
    *
    */
-  public Long getGtpcTunnelId() {
+  public Integer getGtpcTunnelId() {
     return gtpcTunnelId;
   }
 
@@ -1166,10 +1175,10 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
    *
    * @param value
    *     allowed object is
-   *     {@link Long }
+   *     {@link String }
    *
    */
-  public void setGtpcTunnelId(Long value) {
+  public void setGtpcTunnelId(Integer value) {
     this.gtpcTunnelId = value;
   }
 
@@ -2359,8 +2368,8 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
     private String impi;
     private String nai;
     private byte[] radiusAttribute;
-    private Long gtpuTunnelId;
-    private Long gtpcTunnelId;
+    private Integer gtpuTunnelId;
+    private Integer gtpcTunnelId;
     private CallPartyRole callPartyRole;
     private NonLocalIdentifier nonLocalIdentifier;
     private String supiimsi;
@@ -3118,7 +3127,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
      * @param gtpuTunnelId
      *     New value of the "gtpuTunnelId" property.
      */
-    public TargetIdentifier.Builder<_B> withGtpuTunnelId(final Long gtpuTunnelId) {
+    public TargetIdentifier.Builder<_B> withGtpuTunnelId(final Integer gtpuTunnelId) {
       this.gtpuTunnelId = gtpuTunnelId;
       return this;
     }
@@ -3129,7 +3138,7 @@ public class TargetIdentifier implements Copyable, PartialCopyable {
      * @param gtpcTunnelId
      *     New value of the "gtpcTunnelId" property.
      */
-    public TargetIdentifier.Builder<_B> withGtpcTunnelId(final Long gtpcTunnelId) {
+    public TargetIdentifier.Builder<_B> withGtpcTunnelId(final Integer gtpcTunnelId) {
       this.gtpcTunnelId = gtpcTunnelId;
       return this;
     }

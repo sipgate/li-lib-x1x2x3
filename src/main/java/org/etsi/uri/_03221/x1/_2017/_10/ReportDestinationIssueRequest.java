@@ -18,10 +18,10 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for ReportDestinationIssueRequest complex type.
@@ -61,7 +61,11 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
   @XmlSchemaType(name = "string")
   protected TaskReportType destinationReportType;
 
-  protected BigInteger destinationIssueErrorCode;
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer destinationIssueErrorCode;
+
   protected String destinationIssueDetails;
 
   /**
@@ -192,10 +196,10 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getDestinationIssueErrorCode() {
+  public Integer getDestinationIssueErrorCode() {
     return destinationIssueErrorCode;
   }
 
@@ -204,10 +208,10 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setDestinationIssueErrorCode(BigInteger value) {
+  public void setDestinationIssueErrorCode(Integer value) {
     this.destinationIssueErrorCode = value;
   }
 
@@ -476,7 +480,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
 
     private String dId;
     private TaskReportType destinationReportType;
-    private BigInteger destinationIssueErrorCode;
+    private Integer destinationIssueErrorCode;
     private String destinationIssueDetails;
 
     public Builder(final _B _parentBuilder, final ReportDestinationIssueRequest _other, final boolean _copy) {
@@ -577,7 +581,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
      *     New value of the "destinationIssueErrorCode" property.
      */
     public ReportDestinationIssueRequest.Builder<_B> withDestinationIssueErrorCode(
-      final BigInteger destinationIssueErrorCode
+      final Integer destinationIssueErrorCode
     ) {
       this.destinationIssueErrorCode = destinationIssueErrorCode;
       return this;

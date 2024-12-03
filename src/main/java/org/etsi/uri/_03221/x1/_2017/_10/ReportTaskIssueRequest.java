@@ -18,13 +18,13 @@ import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.w3._2001.xmlschema.Adapter1;
 
 /**
  * <p>Java class for ReportTaskIssueRequest complex type.
@@ -65,7 +65,11 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
   @XmlSchemaType(name = "string")
   protected TaskReportType taskReportType;
 
-  protected BigInteger taskIssueErrorCode;
+  @XmlElement(type = String.class)
+  @XmlJavaTypeAdapter(Adapter1.class)
+  @XmlSchemaType(name = "integer")
+  protected Integer taskIssueErrorCode;
+
   protected String taskIssueDetails;
   protected List<TaskIssueExtensions> taskIssueExtensions;
 
@@ -223,10 +227,10 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
    *
    * @return
    *     possible object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public BigInteger getTaskIssueErrorCode() {
+  public Integer getTaskIssueErrorCode() {
     return taskIssueErrorCode;
   }
 
@@ -235,10 +239,10 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
    *
    * @param value
    *     allowed object is
-   *     {@link BigInteger }
+   *     {@link String }
    *
    */
-  public void setTaskIssueErrorCode(BigInteger value) {
+  public void setTaskIssueErrorCode(Integer value) {
     this.taskIssueErrorCode = value;
   }
 
@@ -571,7 +575,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
 
     private String xId;
     private TaskReportType taskReportType;
-    private BigInteger taskIssueErrorCode;
+    private Integer taskIssueErrorCode;
     private String taskIssueDetails;
     private List<TaskIssueExtensions.Builder<ReportTaskIssueRequest.Builder<_B>>> taskIssueExtensions;
 
@@ -703,7 +707,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
      * @param taskIssueErrorCode
      *     New value of the "taskIssueErrorCode" property.
      */
-    public ReportTaskIssueRequest.Builder<_B> withTaskIssueErrorCode(final BigInteger taskIssueErrorCode) {
+    public ReportTaskIssueRequest.Builder<_B> withTaskIssueErrorCode(final Integer taskIssueErrorCode) {
       this.taskIssueErrorCode = taskIssueErrorCode;
       return this;
     }
