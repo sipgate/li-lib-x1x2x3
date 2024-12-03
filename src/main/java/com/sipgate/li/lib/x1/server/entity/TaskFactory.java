@@ -4,7 +4,6 @@ import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
-import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -48,7 +47,7 @@ public class TaskFactory {
       .withTaskStatus(
         TaskStatus.builder()
           .withProvisioningStatus(task.provisioningStatus())
-          .withNumberOfModifications(BigInteger.valueOf(task.numberOfModifications()))
+          .withNumberOfModifications(task.numberOfModifications())
           .withListOfFaults(ListOfFaults.builder().build())
           .build()
       )
