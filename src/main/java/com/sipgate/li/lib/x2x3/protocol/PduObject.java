@@ -101,8 +101,8 @@ public record PduObject(
       } catch (final IOException e) {
         sb.append("???)");
       }
-      sb.append(" payload:0x");
     }
+    sb.append(" payload:0x");
     for (final var b : payload) {
       sb.append(String.format("%02x", b));
     }
