@@ -33,7 +33,9 @@ public class ModifyDestinationHandler implements X1RequestHandler<ModifyDestinat
       destinationRepository.update(destination);
       destinationListener.onDestinationModified(destination);
 
-      return ModifyDestinationResponse.builder().withOK(OK.ACKNOWLEDGED_AND_COMPLETED).build();
+      final var resp = new ModifyDestinationResponse();
+      resp.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+      return resp;
     } catch (final RuntimeException e) {
       throw new GenericModifyDestinationFailureException(e);
     }

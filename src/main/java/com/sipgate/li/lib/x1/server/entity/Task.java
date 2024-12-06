@@ -11,7 +11,7 @@ public record Task(
   String e164Number,
   DeliveryType deliveryType,
   ProvisioningStatus provisioningStatus,
-  long numberOfModifications
+  int numberOfModifications
 ) {
   public Task(
     final UUID xID,

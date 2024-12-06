@@ -49,32 +49,35 @@ class ConverterTest {
     final var actual = underTest.parseRequest(xml);
 
     // THEN
+    final var activateTaskRequest = new ActivateTaskRequest();
+    activateTaskRequest.setAdmfIdentifier("admfID");
+    activateTaskRequest.setNeIdentifier("neID");
     final var calendar = DatatypeFactory.newInstance()
       .newXMLGregorianCalendar(BigInteger.valueOf(2017L), 10, 6, 18, 46, 21, BigDecimal.valueOf(247432, 6), 0);
 
-    final var expected = RequestContainer.builder()
-      .withX1RequestMessage(
-        ActivateTaskRequest.builder()
-          .withAdmfIdentifier("admfID")
-          .withNeIdentifier("neID")
-          .withMessageTimestamp(calendar)
-          .withVersion("v1.6.1")
-          .withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f")
-          .withTaskDetails(
-            TaskDetails.builder()
-              .withXId("29f28e1c-f230-486a-a860-f5a784ab9172")
-              .withTargetIdentifiers(
-                ListOfTargetIdentifiers.builder()
-                  .withTargetIdentifier(TargetIdentifier.builder().withE164Number("447700900000").build())
-                  .build()
-              )
-              .withDeliveryType(DeliveryType.X_2_AND_X_3)
-              .withListOfDIDs(ListOfDids.builder().addDId("19867c20-8c94-473e-b9cd-8b72b7b05fd4").build())
-              .build()
-          )
-          .build()
-      )
-      .build();
+    activateTaskRequest.setMessageTimestamp(calendar);
+    activateTaskRequest.setVersion("v1.6.1");
+    activateTaskRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+
+    final var details = new TaskDetails();
+    details.setXId("29f28e1c-f230-486a-a860-f5a784ab9172");
+
+    final var listOfTargetIdentifiers = new ListOfTargetIdentifiers();
+    final var targetIdentifier = new TargetIdentifier();
+    targetIdentifier.setE164Number("447700900000");
+    listOfTargetIdentifiers.getTargetIdentifier().add((targetIdentifier));
+    details.setTargetIdentifiers(listOfTargetIdentifiers);
+
+    details.setDeliveryType(DeliveryType.X_2_AND_X_3);
+
+    final var listOfDids = new ListOfDids();
+    listOfDids.getDId().add("19867c20-8c94-473e-b9cd-8b72b7b05fd4");
+    details.setListOfDIDs(listOfDids);
+
+    activateTaskRequest.setTaskDetails(details);
+
+    final var expected = new RequestContainer();
+    expected.getX1RequestMessage().add(activateTaskRequest);
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
@@ -88,18 +91,19 @@ class ConverterTest {
     final var actual = underTest.parseResponse(xml).right();
 
     // THEN
+    final var response = new ActivateTaskResponse();
+    response.setAdmfIdentifier("admfID");
+    response.setNeIdentifier("neID");
     final var calendar = DatatypeFactory.newInstance()
       .newXMLGregorianCalendar(BigInteger.valueOf(2017L), 10, 6, 18, 46, 21, BigDecimal.valueOf(401571, 6), 0);
-    final var response = ActivateTaskResponse.builder()
-      .withAdmfIdentifier("admfID")
-      .withNeIdentifier("neID")
-      .withMessageTimestamp(calendar)
-      .withVersion("v1.6.1")
-      .withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f")
-      .withOK(OK.ACKNOWLEDGED_AND_COMPLETED)
-      .build();
 
-    final var expected = ResponseContainer.builder().withX1ResponseMessage(response).build();
+    response.setMessageTimestamp(calendar);
+    response.setVersion("v1.6.1");
+    response.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+    response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+
+    final var expected = new ResponseContainer();
+    expected.getX1ResponseMessage().add(response);
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }
 
@@ -112,15 +116,14 @@ class ConverterTest {
     final var actual = underTest.parseResponse(xml).left();
 
     // THEN
+    final var expected = new TopLevelErrorResponse();
+    expected.setAdmfIdentifier("admfID");
+    expected.setNeIdentifier("neID");
     final var calendar = DatatypeFactory.newInstance()
       .newXMLGregorianCalendar(BigInteger.valueOf(2017L), 10, 6, 18, 46, 21, BigDecimal.valueOf(401571, 6), 0);
 
-    final var expected = TopLevelErrorResponse.builder()
-      .withAdmfIdentifier("admfID")
-      .withNeIdentifier("neID")
-      .withMessageTimestamp(calendar)
-      .withVersion("v1.6.1")
-      .build();
+    expected.setMessageTimestamp(calendar);
+    expected.setVersion("v1.6.1");
 
     assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
   }

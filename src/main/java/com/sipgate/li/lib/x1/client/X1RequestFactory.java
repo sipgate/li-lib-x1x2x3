@@ -20,8 +20,6 @@ public class X1RequestFactory {
     this.admfId = admfId;
   }
 
-  /** @Deprecated consider using the builder. */
-  @Deprecated
   public <T extends X1RequestMessage> T create(final Class<T> tClass) {
     try {
       final var request = tClass.getDeclaredConstructor().newInstance();
@@ -38,23 +36,6 @@ public class X1RequestFactory {
       return request;
     } catch (final Exception e) {
       throw new IllegalArgumentException("Could not create X1RequestMessage", e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public <P, B extends X1RequestMessage.Builder<P>> B builder(final B builder) {
-    try {
-      final var gregorianCalendar = new GregorianCalendar();
-      gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
-      final var b = builder
-        .withAdmfIdentifier(admfId)
-        .withNeIdentifier(neId)
-        .withX1TransactionId(UUID.randomUUID().toString())
-        .withVersion(X1_VERSION_STRING)
-        .withMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar));
-      return (B) b; // cast up to derived builder
-    } catch (final Exception e) {
-      throw new IllegalArgumentException("Could not create X1RequestMessage.Builder", e);
     }
   }
 }

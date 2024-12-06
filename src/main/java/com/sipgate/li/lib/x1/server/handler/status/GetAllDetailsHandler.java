@@ -32,22 +32,27 @@ public class GetAllDetailsHandler implements X1RequestHandler<GetAllDetailsReque
 
   @Override
   public GetAllDetailsResponse handle(final GetAllDetailsRequest request) {
-    return GetAllDetailsResponse.builder()
-      .withNeStatusDetails(NeStatusDetails.builder().withNeStatus(NeStatus.OK).build())
-      .withListOfTaskResponseDetails(
-        ListOfTaskResponseDetails.builder()
-          .withTaskResponseDetails(taskRepository.getAllTasks().stream().map(TaskFactory::create).toList())
-          .build()
-      )
-      .withListOfGenericObjectResponseDetails(new ListOfGenericObjectResponseDetails())
-      .withListOfDestinationResponseDetails(
-        ListOfDestinationResponseDetails.builder()
-          .withDestinationResponseDetails(
-            destinationRepository.getAllDestinations().stream().map(DestinationFactory::create).toList()
-          )
-          .build()
-      )
-      .build();
+    final var taskResponseDetailsList = taskRepository.getAllTasks().stream().map(TaskFactory::create).toList();
+    final var listOfTaskResponseDetails = new ListOfTaskResponseDetails();
+    listOfTaskResponseDetails.getTaskResponseDetails().addAll(taskResponseDetailsList);
+
+    final var destinationResponseDetailsList = destinationRepository
+      .getAllDestinations()
+      .stream()
+      .map(DestinationFactory::create)
+      .toList();
+    final var listOfDestinationResponseDetails = new ListOfDestinationResponseDetails();
+    listOfDestinationResponseDetails.getDestinationResponseDetails().addAll(destinationResponseDetailsList);
+
+    final var neStatusDetails = new NeStatusDetails();
+    neStatusDetails.setNeStatus(NeStatus.OK);
+
+    final var response = new GetAllDetailsResponse();
+    response.setNeStatusDetails(neStatusDetails);
+    response.setListOfTaskResponseDetails(listOfTaskResponseDetails);
+    response.setListOfGenericObjectResponseDetails(new ListOfGenericObjectResponseDetails());
+    response.setListOfDestinationResponseDetails(listOfDestinationResponseDetails);
+    return response;
   }
 
   @Override

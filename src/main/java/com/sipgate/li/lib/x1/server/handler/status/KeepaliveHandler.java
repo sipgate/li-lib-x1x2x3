@@ -9,7 +9,9 @@ public class KeepaliveHandler implements X1RequestHandler<KeepaliveRequest, Keep
 
   @Override
   public KeepaliveResponse handle(final KeepaliveRequest request) {
-    return KeepaliveResponse.builder().withOK(OK.ACKNOWLEDGED_AND_COMPLETED).build();
+    final var result = new KeepaliveResponse();
+    result.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
+    return result;
   }
 
   /** this will be used as a key in the map of handlers in X1Server */

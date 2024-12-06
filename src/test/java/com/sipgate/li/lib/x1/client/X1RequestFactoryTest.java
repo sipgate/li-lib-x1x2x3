@@ -23,7 +23,7 @@ class X1RequestFactoryTest {
     final var factory = new X1RequestFactory(DatatypeFactory.newInstance(), NE_ID, ADMF_ID);
 
     // WHEN
-    final var request = factory.builder(ActivateTaskRequest.builder()).build();
+    final var request = factory.create(ActivateTaskRequest.class);
 
     // THEN
     assertThat(request.getAdmfIdentifier()).isEqualTo(ADMF_ID);

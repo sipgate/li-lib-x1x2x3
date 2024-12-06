@@ -28,7 +28,8 @@ public class X1Client {
   public <R extends X1ResponseMessage> R request(final X1RequestMessage x1Request, final Class<R> responseType)
     throws X1ClientException, InterruptedException {
     try {
-      final var x1requestContainer = RequestContainer.builder().withX1RequestMessage(x1Request).build();
+      final var x1requestContainer = new RequestContainer();
+      x1requestContainer.getX1RequestMessage().add(x1Request);
 
       final var body = converter.toXml(x1requestContainer);
       final var httpRequest = HttpRequest.newBuilder(target).POST(HttpRequest.BodyPublishers.ofString(body)).build();

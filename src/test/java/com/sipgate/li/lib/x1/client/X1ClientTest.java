@@ -27,7 +27,6 @@ import org.etsi.uri._03221.x1._2017._10.OK;
 import org.etsi.uri._03221.x1._2017._10.PingRequest;
 import org.etsi.uri._03221.x1._2017._10.PingResponse;
 import org.etsi.uri._03221.x1._2017._10.RequestMessageType;
-import org.etsi.uri._03221.x1._2017._10.X1RequestMessage;
 import org.etsi.uri._03221.x1._2017._10.X1ResponseMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -226,8 +225,11 @@ class X1ClientTest {
 
   private static PingRequest createPingRequest() throws DatatypeConfigurationException {
     final var dataTypeFactory = DatatypeFactory.newInstance();
-    final var factory = new X1RequestFactory(dataTypeFactory, "NE", "ADMF");
-    return factory.builder(PingRequest.builder()).withX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f").build();
+    final var pingRequest = new X1RequestFactory(dataTypeFactory, "NE", "ADMF").create(PingRequest.class);
+
+    pingRequest.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(new GregorianCalendar()));
+    pingRequest.setX1TransactionId("3741800e-971b-4aa9-85f4-466d2b1adc7f");
+    return pingRequest;
   }
 
   private String readResource(final String name) throws IOException {

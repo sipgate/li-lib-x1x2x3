@@ -41,47 +41,48 @@ public class ErrorResponseFactory {
     final ErrorResponseException exception,
     final X1RequestMessage requestMessage
   ) {
-    return ErrorResponse.builder()
-      .withErrorInformation(
-        ErrorInformation.builder()
-          .withErrorCode(exception.getErrorCode())
-          .withErrorDescription(exception.getErrorDescription())
-          .build()
-      )
-      .withRequestMessageType(getRequestMessageType(requestMessage))
-      .build();
+    final var errorInformation = new ErrorInformation();
+    errorInformation.setErrorCode(exception.getErrorCode());
+    errorInformation.setErrorDescription(exception.getErrorDescription());
+
+    final var errorResponse = new ErrorResponse();
+    errorResponse.setErrorInformation(errorInformation);
+    getRequestMessageType(requestMessage).ifPresent(errorResponse::setRequestMessageType);
+    return errorResponse;
   }
 
-  private static RequestMessageType getRequestMessageType(final X1RequestMessage requestMessage) {
+  private static Optional<RequestMessageType> getRequestMessageType(final X1RequestMessage requestMessage) {
     return switch (requestMessage) {
-      case final ActivateTaskRequest ignore -> RequestMessageType.ACTIVATE_TASK;
-      case final ModifyTaskRequest ignore -> RequestMessageType.MODIFY_TASK;
-      case final DeactivateTaskRequest ignore -> RequestMessageType.DEACTIVATE_TASK;
-      case final DeactivateAllTasksRequest ignore -> RequestMessageType.DEACTIVATE_ALL_TASKS;
-      case final GetTaskDetailsRequest ignore -> RequestMessageType.GET_TASK_DETAILS;
-      case final CreateDestinationRequest ignore -> RequestMessageType.CREATE_DESTINATION;
-      case final ModifyDestinationRequest ignore -> RequestMessageType.MODIFY_DESTINATION;
-      case final RemoveDestinationRequest ignore -> RequestMessageType.REMOVE_DESTINATION;
-      case final RemoveAllDestinationsRequest ignore -> RequestMessageType.REMOVE_ALL_DESTINATIONS;
-      case final GetDestinationDetailsRequest ignore -> RequestMessageType.GET_DESTINATION_DETAILS;
-      case final GetNEStatusRequest ignore -> RequestMessageType.GET_NE_STATUS;
-      case final GetAllDetailsRequest ignore -> RequestMessageType.GET_ALL_DETAILS;
-      case final GetAllTaskDetailsRequest ignore -> RequestMessageType.GET_ALL_TASK_DETAILS;
-      case final GetAllDestinationDetailsRequest ignore -> RequestMessageType.GET_ALL_DESTINATION_DETAILS;
-      case final GetAllGenericObjectDetailsRequest ignore -> RequestMessageType.GET_ALL_GENERIC_OBJECT_DETAILS;
-      case final ListAllDetailsRequest ignore -> RequestMessageType.LIST_ALL_DETAILS;
-      case final ReportTaskIssueRequest ignore -> RequestMessageType.REPORT_TASK_ISSUE;
-      case final ReportDestinationIssueRequest ignore -> RequestMessageType.REPORT_DESTINATION_ISSUE;
-      case final ReportNEIssueRequest ignore -> RequestMessageType.REPORT_NE_ISSUE;
-      case final PingRequest ignore -> RequestMessageType.PING;
-      case final KeepaliveRequest ignore -> RequestMessageType.KEEPALIVE;
-      case final CreateObjectRequest ignore -> RequestMessageType.CREATE_OBJECT;
-      case final ModifyObjectRequest ignore -> RequestMessageType.MODIFY_OBJECT;
-      case final GetObjectRequest ignore -> RequestMessageType.GET_OBJECT;
-      case final DeleteObjectRequest ignore -> RequestMessageType.DELETE_OBJECT;
-      case final ListObjectsOfTypeRequest ignore -> RequestMessageType.LIST_OBJECTS_OF_TYPE;
-      case final DeleteAllObjectsRequest ignore -> RequestMessageType.DELETE_ALL_OBJECTS;
-      default -> null;
+      case final ActivateTaskRequest ignore -> Optional.of(RequestMessageType.ACTIVATE_TASK);
+      case final ModifyTaskRequest ignore -> Optional.of(RequestMessageType.MODIFY_TASK);
+      case final DeactivateTaskRequest ignore -> Optional.of(RequestMessageType.DEACTIVATE_TASK);
+      case final DeactivateAllTasksRequest ignore -> Optional.of(RequestMessageType.DEACTIVATE_ALL_TASKS);
+      case final GetTaskDetailsRequest ignore -> Optional.of(RequestMessageType.GET_TASK_DETAILS);
+      case final CreateDestinationRequest ignore -> Optional.of(RequestMessageType.CREATE_DESTINATION);
+      case final ModifyDestinationRequest ignore -> Optional.of(RequestMessageType.MODIFY_DESTINATION);
+      case final RemoveDestinationRequest ignore -> Optional.of(RequestMessageType.REMOVE_DESTINATION);
+      case final RemoveAllDestinationsRequest ignore -> Optional.of(RequestMessageType.REMOVE_ALL_DESTINATIONS);
+      case final GetDestinationDetailsRequest ignore -> Optional.of(RequestMessageType.GET_DESTINATION_DETAILS);
+      case final GetNEStatusRequest ignore -> Optional.of(RequestMessageType.GET_NE_STATUS);
+      case final GetAllDetailsRequest ignore -> Optional.of(RequestMessageType.GET_ALL_DETAILS);
+      case final GetAllTaskDetailsRequest ignore -> Optional.of(RequestMessageType.GET_ALL_TASK_DETAILS);
+      case final GetAllDestinationDetailsRequest ignore -> Optional.of(RequestMessageType.GET_ALL_DESTINATION_DETAILS);
+      case final GetAllGenericObjectDetailsRequest ignore -> Optional.of(
+        RequestMessageType.GET_ALL_GENERIC_OBJECT_DETAILS
+      );
+      case final ListAllDetailsRequest ignore -> Optional.of(RequestMessageType.LIST_ALL_DETAILS);
+      case final ReportTaskIssueRequest ignore -> Optional.of(RequestMessageType.REPORT_TASK_ISSUE);
+      case final ReportDestinationIssueRequest ignore -> Optional.of(RequestMessageType.REPORT_DESTINATION_ISSUE);
+      case final ReportNEIssueRequest ignore -> Optional.of(RequestMessageType.REPORT_NE_ISSUE);
+      case final PingRequest ignore -> Optional.of(RequestMessageType.PING);
+      case final KeepaliveRequest ignore -> Optional.of(RequestMessageType.KEEPALIVE);
+      case final CreateObjectRequest ignore -> Optional.of(RequestMessageType.CREATE_OBJECT);
+      case final ModifyObjectRequest ignore -> Optional.of(RequestMessageType.MODIFY_OBJECT);
+      case final GetObjectRequest ignore -> Optional.of(RequestMessageType.GET_OBJECT);
+      case final DeleteObjectRequest ignore -> Optional.of(RequestMessageType.DELETE_OBJECT);
+      case final ListObjectsOfTypeRequest ignore -> Optional.of(RequestMessageType.LIST_OBJECTS_OF_TYPE);
+      case final DeleteAllObjectsRequest ignore -> Optional.of(RequestMessageType.DELETE_ALL_OBJECTS);
+      default -> Optional.empty();
     };
   }
 }

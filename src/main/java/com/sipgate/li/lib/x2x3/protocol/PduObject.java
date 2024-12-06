@@ -70,4 +70,51 @@ public record PduObject(
     attributesBytes.writeTo(outputStream);
     outputStream.write(payload);
   }
+
+  public String debugToString() {
+    final var sb = new StringBuilder();
+    sb.append(
+      String.format(
+        "[PDU ver:%d.%d t:%s hlen:%s plen:%d fmt:%s dir:%s xid:%s cid:",
+        majorVersion,
+        minorVersion,
+        pduType,
+        "?",
+        payload.length,
+        payloadFormat,
+        payloadDirection,
+        xid
+      )
+    );
+    for (final var b : correlationID) {
+      sb.append(String.format("%02x", b));
+    }
+    for (final var tlv : conditionalAttributeFields) {
+      sb.append(String.format(" tlv(%s/0x", tlv.getType()));
+      try {
+        final var contentBytes = new ByteArrayOutputStream();
+        tlv.writeValueTo(new DataOutputStream(contentBytes));
+        for (final var b : contentBytes.toByteArray()) {
+          sb.append(String.format("%02x", b));
+        }
+        sb.append(")");
+      } catch (final IOException e) {
+        sb.append("???)");
+      }
+    }
+    sb.append(" payload:");
+    if (PduType.X2_PDU.equals(pduType)) {
+      final var begin = new String(payload, 0, Math.min(20, payload.length));
+      sb.append("(").append(begin).append("...)");
+      for (final var b : payload) {
+        sb.append(String.format("%02x", b));
+      }
+    }
+    sb.append("0x");
+    for (final var b : payload) {
+      sb.append(String.format("%02x", b));
+    }
+    sb.append(")]");
+    return sb.toString();
+  }
 }

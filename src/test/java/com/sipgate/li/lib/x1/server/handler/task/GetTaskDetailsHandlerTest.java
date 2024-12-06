@@ -11,6 +11,7 @@ import com.sipgate.li.lib.x1.server.entity.Destination;
 import com.sipgate.li.lib.x1.server.entity.Task;
 import com.sipgate.li.lib.x1.server.entity.TaskFactory;
 import com.sipgate.li.lib.x1.server.repository.TaskRepository;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -49,7 +50,7 @@ class GetTaskDetailsHandlerTest {
 
     // THEN
     final var status = new TaskStatus();
-    status.setNumberOfModifications(task.numberOfModifications());
+    status.setNumberOfModifications(BigInteger.valueOf(task.numberOfModifications()));
     status.setProvisioningStatus(task.provisioningStatus());
     status.setListOfFaults(new ListOfFaults());
 
