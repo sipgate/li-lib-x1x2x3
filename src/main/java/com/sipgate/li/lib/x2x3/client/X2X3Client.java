@@ -30,6 +30,7 @@ public class X2X3Client implements AutoCloseable {
 
   public void send(final PduObject pduObject) throws IOException {
     LOGGER.debug("Sending PDU: {}", pduObject);
+    PduLogger.handlePduLogging(pduObject);
     final var outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     pduObject.writeTo(outputStream);
     outputStream.flush();
@@ -39,5 +40,16 @@ public class X2X3Client implements AutoCloseable {
   public void close() throws Exception {
     LOGGER.debug("Closing socket {}:{}", socket.getInetAddress(), socket.getPort());
     socket.close();
+  }
+}
+
+class PduLogger {
+
+  public static final Logger PDU_LOGGER = LoggerFactory.getLogger(PduLogger.class);
+
+  public static void handlePduLogging(final PduObject pduObject) {
+    if (PDU_LOGGER.isTraceEnabled()) {
+      PDU_LOGGER.debug(pduObject.debugToString());
+    }
   }
 }
