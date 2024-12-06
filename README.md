@@ -28,12 +28,11 @@ In order to collect Metrics, implement the interface `MetricsService` and set it
 3. Extract all XSD files into [generate/src/main/resources](generate/src/main/resources)
 4. Check the catalog file [generate/src/main/resources/ts_103.cat](generate/src/main/resources/ts_103.cat) for the correct schema location patches
    - look for the `<xs:import>` tags and check the filenames against the catalog
-5. Generate the Java source files from the XSDs with `mvn clean verify`
-6. Copy the generated Java files from `generate/target/generated-sources/xjc` to the `src/main/java` folder
-   - look for the `org.etsi` package for the main classes
-   - as well as the `com.kscs.util` package for the utilities from the rich-contract plugin
-
-For your convenience we added a `Makefile` to do that for you (except the download part):
+5. Now, you can run `make` in `generate` or:
+   1. enerate the Java source files from the XSDs with `mvn clean verify`
+   2. Copy the generated Java files from `generate/target/generated-sources/xjc` to the `src/main/java` folder
+      - look for the `org.etsi` package for the main classes
+      - as well as the `com.kscs.util` package for the utilities from the rich-contract plugin
 
 ```bash
 cd generate
