@@ -33,9 +33,7 @@ public class CreateDestinationHandler implements X1RequestHandler<CreateDestinat
       destinationRepository.insert(destination);
       destinationListener.onDestinationCreated(destination);
 
-      final var response = new CreateDestinationResponse();
-      response.setOK(OK.ACKNOWLEDGED_AND_COMPLETED);
-      return response;
+      return CreateDestinationResponse.builder().withOK(OK.ACKNOWLEDGED_AND_COMPLETED).build();
     } catch (final RuntimeException e) {
       throw new GenericCreateDestinationFailureException(e);
     }

@@ -8,5 +8,5 @@ public record Destination(
   String friendlyName,
   DeliveryType deliveryType,
   String deliveryAddress,
-  int deliveryPort
+  long deliveryPort
 ) {}

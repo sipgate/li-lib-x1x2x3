@@ -17,7 +17,7 @@ public class CreateDestinationRequestFixture {
     address.setIPv4Address("1.2.3.4");
 
     final var port = new Port();
-    port.setTCPPort(31337);
+    port.setTCPPort(31337L);
 
     final var ipAddressAndPort = new IPAddressPort();
     ipAddressAndPort.setAddress(address);

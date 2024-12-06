@@ -116,7 +116,7 @@ class DestinationFactoryTest {
     // outside: address.setIPv4Address("1.2.3.4");
     ipAddressPort.setAddress(address);
     final var port = new Port();
-    port.setTCPPort(1234);
+    port.setTCPPort(1234L);
     ipAddressPort.setPort(port);
     deliveryAddress.setIpAddressAndPort(ipAddressPort);
     destinationDetails.setDeliveryAddress(deliveryAddress);

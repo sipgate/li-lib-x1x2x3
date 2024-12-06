@@ -4,7 +4,6 @@ import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;
 import com.sipgate.li.lib.x1.protocol.error.InvalidCombinationOfDeliveryTypeAndDestinationsException;
 import com.sipgate.li.lib.x1.protocol.error.SyntaxSchemaErrorException;
 import com.sipgate.li.lib.x1.server.repository.DestinationRepository;
-import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -28,31 +27,31 @@ public class TaskFactory {
   }
 
   public static TaskResponseDetails create(final Task task) {
-    final var targetIdentifier = new TargetIdentifier();
-    targetIdentifier.setE164Number(task.e164Number());
-
-    final var listOfTargetIdentifiers = new ListOfTargetIdentifiers();
-    listOfTargetIdentifiers.getTargetIdentifier().add(targetIdentifier);
-
-    final var taskDetails = new TaskDetails();
-    taskDetails.setXId(task.xID().toString());
-    taskDetails.setTargetIdentifiers(listOfTargetIdentifiers);
-    taskDetails.setDeliveryType(task.deliveryType());
-
-    final var listOfDIDs = new ListOfDids();
-    task.destinations().stream().map(Destination::dID).map(UUID::toString).forEach(listOfDIDs.getDId()::add);
-    taskDetails.setListOfDIDs(listOfDIDs);
-
-    final var taskStatus = new TaskStatus();
-    taskStatus.setProvisioningStatus(task.provisioningStatus());
-    taskStatus.setNumberOfModifications(BigInteger.valueOf(task.numberOfModifications()));
-    taskStatus.setListOfFaults(new ListOfFaults());
-
-    final var taskResponseDetails = new TaskResponseDetails();
-    taskResponseDetails.setTaskDetails(taskDetails);
-    taskResponseDetails.setTaskStatus(taskStatus);
-
-    return taskResponseDetails;
+    return TaskResponseDetails.builder()
+      .withTaskDetails(
+        TaskDetails.builder()
+          .withXId(task.xID().toString())
+          .withTargetIdentifiers(
+            ListOfTargetIdentifiers.builder()
+              .withTargetIdentifier(TargetIdentifier.builder().withE164Number(task.e164Number()).build())
+              .build()
+          )
+          .withDeliveryType(task.deliveryType())
+          .withListOfDIDs(
+            ListOfDids.builder()
+              .addDId(task.destinations().stream().map(Destination::dID).map(UUID::toString).toArray(String[]::new))
+              .build()
+          )
+          .build()
+      )
+      .withTaskStatus(
+        TaskStatus.builder()
+          .withProvisioningStatus(task.provisioningStatus())
+          .withNumberOfModifications(task.numberOfModifications())
+          .withListOfFaults(ListOfFaults.builder().build())
+          .build()
+      )
+      .build();
   }
 
   public Task create(final TaskDetails details)
