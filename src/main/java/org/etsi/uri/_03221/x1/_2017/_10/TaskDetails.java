@@ -93,7 +93,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "nonNegativeInteger")
-  protected Integer correlationID;
+  protected Long correlationID;
 
   protected Boolean implicitDeactivationAllowed;
 
@@ -407,7 +407,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public Integer getCorrelationID() {
+  public Long getCorrelationID() {
     return correlationID;
   }
 
@@ -419,7 +419,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public void setCorrelationID(Integer value) {
+  public void setCorrelationID(Long value) {
     this.correlationID = value;
   }
 
@@ -948,7 +948,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
     private DeliveryType deliveryType;
     private ListOfDids.Builder<TaskDetails.Builder<_B>> listOfDIDs;
     private ListOfMediationDetails.Builder<TaskDetails.Builder<_B>> listOfMediationDetails;
-    private Integer correlationID;
+    private Long correlationID;
     private Boolean implicitDeactivationAllowed;
     private String productID;
     private ListOfServiceTypes.Builder<TaskDetails.Builder<_B>> listOfServiceTypes;
@@ -1294,7 +1294,7 @@ public class TaskDetails implements Copyable, PartialCopyable {
      * @param correlationID
      *     New value of the "correlationID" property.
      */
-    public TaskDetails.Builder<_B> withCorrelationID(final Integer correlationID) {
+    public TaskDetails.Builder<_B> withCorrelationID(final Long correlationID) {
       this.correlationID = correlationID;
       return this;
     }

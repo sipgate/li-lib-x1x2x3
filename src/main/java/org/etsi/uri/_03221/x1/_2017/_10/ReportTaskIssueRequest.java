@@ -68,7 +68,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer taskIssueErrorCode;
+  protected Long taskIssueErrorCode;
 
   protected String taskIssueDetails;
   protected List<TaskIssueExtensions> taskIssueExtensions;
@@ -230,7 +230,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
    *     {@link String }
    *
    */
-  public Integer getTaskIssueErrorCode() {
+  public Long getTaskIssueErrorCode() {
     return taskIssueErrorCode;
   }
 
@@ -242,7 +242,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
    *     {@link String }
    *
    */
-  public void setTaskIssueErrorCode(Integer value) {
+  public void setTaskIssueErrorCode(Long value) {
     this.taskIssueErrorCode = value;
   }
 
@@ -575,7 +575,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
 
     private String xId;
     private TaskReportType taskReportType;
-    private Integer taskIssueErrorCode;
+    private Long taskIssueErrorCode;
     private String taskIssueDetails;
     private List<TaskIssueExtensions.Builder<ReportTaskIssueRequest.Builder<_B>>> taskIssueExtensions;
 
@@ -707,7 +707,7 @@ public class ReportTaskIssueRequest extends X1RequestMessage implements Copyable
      * @param taskIssueErrorCode
      *     New value of the "taskIssueErrorCode" property.
      */
-    public ReportTaskIssueRequest.Builder<_B> withTaskIssueErrorCode(final Integer taskIssueErrorCode) {
+    public ReportTaskIssueRequest.Builder<_B> withTaskIssueErrorCode(final Long taskIssueErrorCode) {
       this.taskIssueErrorCode = taskIssueErrorCode;
       return this;
     }

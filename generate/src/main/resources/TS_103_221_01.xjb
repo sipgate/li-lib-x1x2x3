@@ -4,7 +4,7 @@
         <javaType xmlType="xs:integer" name="java.math.BigInteger"/>
     -->
     <!-- customized: -->
-        <javaType xmlType="xs:integer" name="java.lang.Integer"/>
+        <javaType xmlType="xs:integer" name="java.lang.Long"/>
     <!-- -->
     </globalBindings>
 </bindings>

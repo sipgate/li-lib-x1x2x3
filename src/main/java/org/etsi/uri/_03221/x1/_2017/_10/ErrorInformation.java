@@ -48,7 +48,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
   @XmlElement(required = true, type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer errorCode;
+  protected Long errorCode;
 
   @XmlElement(required = true)
   protected String errorDescription;
@@ -114,7 +114,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public Integer getErrorCode() {
+  public Long getErrorCode() {
     return errorCode;
   }
 
@@ -126,7 +126,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public void setErrorCode(Integer value) {
+  public void setErrorCode(Long value) {
     this.errorCode = value;
   }
 
@@ -309,7 +309,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
 
     protected final _B _parentBuilder;
     protected final ErrorInformation _storedValue;
-    private Integer errorCode;
+    private Long errorCode;
     private String errorDescription;
 
     public Builder(final _B _parentBuilder, final ErrorInformation _other, final boolean _copy) {
@@ -379,7 +379,7 @@ public class ErrorInformation implements Copyable, PartialCopyable {
      * @param errorCode
      *     New value of the "errorCode" property.
      */
-    public ErrorInformation.Builder<_B> withErrorCode(final Integer errorCode) {
+    public ErrorInformation.Builder<_B> withErrorCode(final Long errorCode) {
       this.errorCode = errorCode;
       return this;
     }

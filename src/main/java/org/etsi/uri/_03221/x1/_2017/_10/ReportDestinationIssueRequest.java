@@ -64,7 +64,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer destinationIssueErrorCode;
+  protected Long destinationIssueErrorCode;
 
   protected String destinationIssueDetails;
 
@@ -199,7 +199,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
    *     {@link String }
    *
    */
-  public Integer getDestinationIssueErrorCode() {
+  public Long getDestinationIssueErrorCode() {
     return destinationIssueErrorCode;
   }
 
@@ -211,7 +211,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
    *     {@link String }
    *
    */
-  public void setDestinationIssueErrorCode(Integer value) {
+  public void setDestinationIssueErrorCode(Long value) {
     this.destinationIssueErrorCode = value;
   }
 
@@ -480,7 +480,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
 
     private String dId;
     private TaskReportType destinationReportType;
-    private Integer destinationIssueErrorCode;
+    private Long destinationIssueErrorCode;
     private String destinationIssueDetails;
 
     public Builder(final _B _parentBuilder, final ReportDestinationIssueRequest _other, final boolean _copy) {
@@ -581,7 +581,7 @@ public class ReportDestinationIssueRequest extends X1RequestMessage implements C
      *     New value of the "destinationIssueErrorCode" property.
      */
     public ReportDestinationIssueRequest.Builder<_B> withDestinationIssueErrorCode(
-      final Integer destinationIssueErrorCode
+      final Long destinationIssueErrorCode
     ) {
       this.destinationIssueErrorCode = destinationIssueErrorCode;
       return this;

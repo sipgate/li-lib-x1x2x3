@@ -39,7 +39,7 @@ public class TaskFactory {
           .withDeliveryType(task.deliveryType())
           .withListOfDIDs(
             ListOfDids.builder()
-              .addDId(task.destinations().stream().map(Destination::dID).map(UUID::toString).findFirst().orElseThrow())
+              .addDId(task.destinations().stream().map(Destination::dID).map(UUID::toString).toArray(String[]::new))
               .build()
           )
           .build()

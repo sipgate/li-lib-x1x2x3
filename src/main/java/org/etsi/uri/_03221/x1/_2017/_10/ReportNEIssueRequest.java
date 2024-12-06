@@ -64,7 +64,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer issueCode;
+  protected Long issueCode;
 
   @XmlElement(name = "nEIssueExtensions")
   protected List<NEIssueExtensions> neIssueExtensions;
@@ -215,7 +215,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
    *     {@link String }
    *
    */
-  public Integer getIssueCode() {
+  public Long getIssueCode() {
     return issueCode;
   }
 
@@ -227,7 +227,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
    *     {@link String }
    *
    */
-  public void setIssueCode(Integer value) {
+  public void setIssueCode(Long value) {
     this.issueCode = value;
   }
 
@@ -513,7 +513,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
 
     private TypeOfNeIssueMessage typeOfNeIssueMessage;
     private String description;
-    private Integer issueCode;
+    private Long issueCode;
     private List<NEIssueExtensions.Builder<ReportNEIssueRequest.Builder<_B>>> neIssueExtensions;
 
     public Builder(final _B _parentBuilder, final ReportNEIssueRequest _other, final boolean _copy) {
@@ -632,7 +632,7 @@ public class ReportNEIssueRequest extends X1RequestMessage implements Copyable, 
      * @param issueCode
      *     New value of the "issueCode" property.
      */
-    public ReportNEIssueRequest.Builder<_B> withIssueCode(final Integer issueCode) {
+    public ReportNEIssueRequest.Builder<_B> withIssueCode(final Long issueCode) {
       this.issueCode = issueCode;
       return this;
     }

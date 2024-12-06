@@ -38,77 +38,77 @@ public abstract class ErrorResponseException extends Exception {
 
   // We've only implemented the exceptions that our implementation uses. Feel free to add more if required.
   // Check for the suggested details in ETSI TS 103 221-1, Table 46: Error codes
-  public static final Integer GENERIC_ERROR = 1000;
-  public static final Integer SYNTAX_SCHEMA_ERROR = 1010;
-  public static final Integer UNSUPPORTED_VERSION = 1020;
-  public static final Integer ADMF_IDENTIFIER_DOES_NOT_MATCH_CERTIFICATE_DETAILS = 1030;
-  public static final Integer UNEXPECTED_ADMF_IDENTIFIER = 1040;
-  public static final Integer NE_IDENTIFIER_DOES_NOT_MATCH_CERTIFICATE_DETAILS = 1050;
-  public static final Integer UNEXPECTED_NE_IDENTIFIER = 1060;
-  public static final Integer KEEPALIVE_NOT_SUPPORTED = 1070;
-  public static final Integer UNSUPPORTED_REQUEST = 1080;
+  public static final long GENERIC_ERROR = 1000L;
+  public static final long SYNTAX_SCHEMA_ERROR = 1010L;
+  public static final long UNSUPPORTED_VERSION = 1020L;
+  public static final long ADMF_IDENTIFIER_DOES_NOT_MATCH_CERTIFICATE_DETAILS = 1030L;
+  public static final long UNEXPECTED_ADMF_IDENTIFIER = 1040L;
+  public static final long NE_IDENTIFIER_DOES_NOT_MATCH_CERTIFICATE_DETAILS = 1050L;
+  public static final long UNEXPECTED_NE_IDENTIFIER = 1060L;
+  public static final long KEEPALIVE_NOT_SUPPORTED = 1070L;
+  public static final long UNSUPPORTED_REQUEST = 1080L;
 
-  public static final Integer XID_ALREADY_EXISTS = 2010;
-  public static final Integer XID_DOES_NOT_EXIST = 2020;
-  public static final Integer DID_ALREADY_EXISTS = 2030;
-  public static final Integer DID_DOES_NOT_EXIST = 2040;
-  public static final Integer GENERICOBJECTID_ALREADY_EXISTS = 2050;
-  public static final Integer GENERICOBJECTID_DOES_NOT_EXIST = 2060;
+  public static final long XID_ALREADY_EXISTS = 2010L;
+  public static final long XID_DOES_NOT_EXIST = 2020L;
+  public static final long DID_ALREADY_EXISTS = 2030L;
+  public static final long DID_DOES_NOT_EXIST = 2040L;
+  public static final long GENERICOBJECTID_ALREADY_EXISTS = 2050L;
+  public static final long GENERICOBJECTID_DOES_NOT_EXIST = 2060L;
 
-  public static final Integer GENERIC_ACTIVATETASK_FAILURE = 3000;
-  public static final Integer GENERIC_MODIFYTASK_FAILURE = 3001;
-  public static final Integer UNSUPPORTED_TARGETIDENTIFIER_TYPE = 3010;
-  public static final Integer UNSUPPORTED_COMBINATION_OF_TARGETIDENTIFIERS = 3020;
-  public static final Integer MULTIPLE_DESTINATIONS_NOT_SUPPORTED = 3030;
-  public static final Integer INVALID_COMBINATION_OF_DELIVERYTYPE_AND_DESTINATIONS = 3040;
+  public static final long GENERIC_ACTIVATETASK_FAILURE = 3000L;
+  public static final long GENERIC_MODIFYTASK_FAILURE = 3001L;
+  public static final long UNSUPPORTED_TARGETIDENTIFIER_TYPE = 3010L;
+  public static final long UNSUPPORTED_COMBINATION_OF_TARGETIDENTIFIERS = 3020L;
+  public static final long MULTIPLE_DESTINATIONS_NOT_SUPPORTED = 3030L;
+  public static final long INVALID_COMBINATION_OF_DELIVERYTYPE_AND_DESTINATIONS = 3040L;
 
-  public static final Integer UNSUPPORTED_SERVICETYPE = 3050;
+  public static final long UNSUPPORTED_SERVICETYPE = 3050L;
 
-  public static final Integer GENERIC_DEACTIVATETASK_FAILURE = 4000;
+  public static final long GENERIC_DEACTIVATETASK_FAILURE = 4000L;
 
-  public static final Integer GENERIC_DEACTIVEALLTASKS_FAILURE = 5000;
-  public static final Integer DEACTIVATEALLTASKS_NOT_ENABLED = 5010;
+  public static final long GENERIC_DEACTIVEALLTASKS_FAILURE = 5000L;
+  public static final long DEACTIVATEALLTASKS_NOT_ENABLED = 5010L;
 
-  public static final Integer GENERIC_CREATEDESTINATION_FAILURE = 6000;
-  public static final Integer GENERIC_MODIFYDESTINATION_FAILURE = 6001;
-  public static final Integer UNSUPPORTED_DELIVERYADDRESS_TYPE = 6020;
+  public static final long GENERIC_CREATEDESTINATION_FAILURE = 6000L;
+  public static final long GENERIC_MODIFYDESTINATION_FAILURE = 6001L;
+  public static final long UNSUPPORTED_DELIVERYADDRESS_TYPE = 6020L;
 
-  public static final Integer GENERIC_REMOVEDESTINATION_FAILURE = 7000;
-  public static final Integer DESTINATION_IN_USE = 7010;
+  public static final long GENERIC_REMOVEDESTINATION_FAILURE = 7000L;
+  public static final long DESTINATION_IN_USE = 7010L;
 
-  public static final Integer GENERIC_REMOVEALLDESTINATIONS_FAILURE = 8000;
-  public static final Integer DESTINATIONS_IN_USE = 8010;
-  public static final Integer REMOVEALLDESTINATIONS_NOT_ENABLED = 8020;
+  public static final long GENERIC_REMOVEALLDESTINATIONS_FAILURE = 8000L;
+  public static final long DESTINATIONS_IN_USE = 8010L;
+  public static final long REMOVEALLDESTINATIONS_NOT_ENABLED = 8020L;
 
-  public static final Integer GENERIC_CREATEOBJECT_FAILURE = 8500;
-  public static final Integer GENERIC_MODIFYOBJECT_FAILURE = 8510;
-  public static final Integer GENERIC_DELETEOBJECT_FAILURE = 8530;
-  public static final Integer GENERIC_DELETEALLOBJECTS_FAILURE = 8540;
-  public static final Integer DELETEALLOBJECTS_NOT_ENABLED = 8550;
+  public static final long GENERIC_CREATEOBJECT_FAILURE = 8500L;
+  public static final long GENERIC_MODIFYOBJECT_FAILURE = 8510L;
+  public static final long GENERIC_DELETEOBJECT_FAILURE = 8530L;
+  public static final long GENERIC_DELETEALLOBJECTS_FAILURE = 8540L;
+  public static final long DELETEALLOBJECTS_NOT_ENABLED = 8550L;
 
-  public static final Integer ERROR_CLEARED = 9000;
-  public static final Integer GENERIC_WARNING = 9010;
-  public static final Integer GENERIC_NON_TERMINATING_FAULT = 9020;
-  public static final Integer TERMINATING_FAULT = 9030;
-  public static final Integer REQUEST_ACTIONED = 9040;
-  public static final Integer KEEPALIVES_NOT_RECEIVED = 9050;
+  public static final long ERROR_CLEARED = 9000L;
+  public static final long GENERIC_WARNING = 9010L;
+  public static final long GENERIC_NON_TERMINATING_FAULT = 9020L;
+  public static final long TERMINATING_FAULT = 9030L;
+  public static final long REQUEST_ACTIONED = 9040L;
+  public static final long KEEPALIVES_NOT_RECEIVED = 9050L;
 
-  public static final Integer DATABASE_CLEARED = 10000;
+  public static final long DATABASE_CLEARED = 10000L;
 
-  private final Integer errorCode;
+  private final long errorCode;
   private final String errorDescription;
 
-  protected ErrorResponseException(final Integer errorCode) {
+  protected ErrorResponseException(final long errorCode) {
     this(errorCode, null);
   }
 
-  protected ErrorResponseException(final Integer errorCode, final String errorDescription) {
+  protected ErrorResponseException(final long errorCode, final String errorDescription) {
     super(errorDescription);
     this.errorCode = errorCode;
     this.errorDescription = errorDescription;
   }
 
-  public Integer getErrorCode() {
+  public long getErrorCode() {
     return errorCode;
   }
 

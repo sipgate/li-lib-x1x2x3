@@ -14,7 +14,7 @@ public class DestinationFactory {
   private DestinationFactory() {}
 
   public static DestinationResponseDetails create(final Destination destination) {
-    final var isV4 = destination.deliveryAddress().contains(":");
+    final var isV6 = destination.deliveryAddress().contains(":");
     return DestinationResponseDetails.builder()
       .withDestinationDetails(
         DestinationDetails.builder()
@@ -27,8 +27,8 @@ public class DestinationFactory {
                 IPAddressPort.builder()
                   .withAddress(
                     IPAddress.builder()
-                      .withIPv4Address(isV4 ? destination.deliveryAddress() : null)
-                      .withIPv6Address(isV4 ? null : destination.deliveryAddress())
+                      .withIPv4Address(isV6 ? null : destination.deliveryAddress())
+                      .withIPv6Address(isV6 ? destination.deliveryAddress() : null)
                       .build()
                   )
                   .withPort(Port.builder().withTCPPort(destination.deliveryPort()).build())
@@ -61,7 +61,7 @@ public class DestinationFactory {
     return address.getIPv4Address();
   }
 
-  private static int getPort(final DestinationDetails destinationDetails) {
+  private static long getPort(final DestinationDetails destinationDetails) {
     return Objects.requireNonNull(
       destinationDetails.getDeliveryAddress().getIpAddressAndPort().getPort().getTCPPort(),
       "TCP port must be set."

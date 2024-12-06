@@ -80,12 +80,12 @@ public class TaskStatus implements Copyable, PartialCopyable {
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer amountOfX2Data;
+  protected Long amountOfX2Data;
 
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer amountOfX3Data;
+  protected Long amountOfX3Data;
 
   @XmlSchemaType(name = "dateTime")
   protected XMLGregorianCalendar timeOfLastModification;
@@ -93,7 +93,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
   @XmlElement(type = String.class)
   @XmlJavaTypeAdapter(Adapter1.class)
   @XmlSchemaType(name = "integer")
-  protected Integer numberOfModifications;
+  protected Long numberOfModifications;
 
   protected List<TaskStatusExtensions> taskStatusExtensions;
 
@@ -312,7 +312,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public Integer getAmountOfX2Data() {
+  public Long getAmountOfX2Data() {
     return amountOfX2Data;
   }
 
@@ -324,7 +324,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public void setAmountOfX2Data(Integer value) {
+  public void setAmountOfX2Data(Long value) {
     this.amountOfX2Data = value;
   }
 
@@ -336,7 +336,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public Integer getAmountOfX3Data() {
+  public Long getAmountOfX3Data() {
     return amountOfX3Data;
   }
 
@@ -348,7 +348,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public void setAmountOfX3Data(Integer value) {
+  public void setAmountOfX3Data(Long value) {
     this.amountOfX3Data = value;
   }
 
@@ -384,7 +384,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public Integer getNumberOfModifications() {
+  public Long getNumberOfModifications() {
     return numberOfModifications;
   }
 
@@ -396,7 +396,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
    *     {@link String }
    *
    */
-  public void setNumberOfModifications(Integer value) {
+  public void setNumberOfModifications(Long value) {
     this.numberOfModifications = value;
   }
 
@@ -755,10 +755,10 @@ public class TaskStatus implements Copyable, PartialCopyable {
     private ProvisioningStatus provisioningStatus;
     private ListOfFaults.Builder<TaskStatus.Builder<_B>> listOfFaults;
     private XMLGregorianCalendar timeOfLastIntercept;
-    private Integer amountOfX2Data;
-    private Integer amountOfX3Data;
+    private Long amountOfX2Data;
+    private Long amountOfX3Data;
     private XMLGregorianCalendar timeOfLastModification;
-    private Integer numberOfModifications;
+    private Long numberOfModifications;
     private List<TaskStatusExtensions.Builder<TaskStatus.Builder<_B>>> taskStatusExtensions;
 
     public Builder(final _B _parentBuilder, final TaskStatus _other, final boolean _copy) {
@@ -981,7 +981,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param amountOfX2Data
      *     New value of the "amountOfX2Data" property.
      */
-    public TaskStatus.Builder<_B> withAmountOfX2Data(final Integer amountOfX2Data) {
+    public TaskStatus.Builder<_B> withAmountOfX2Data(final Long amountOfX2Data) {
       this.amountOfX2Data = amountOfX2Data;
       return this;
     }
@@ -992,7 +992,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param amountOfX3Data
      *     New value of the "amountOfX3Data" property.
      */
-    public TaskStatus.Builder<_B> withAmountOfX3Data(final Integer amountOfX3Data) {
+    public TaskStatus.Builder<_B> withAmountOfX3Data(final Long amountOfX3Data) {
       this.amountOfX3Data = amountOfX3Data;
       return this;
     }
@@ -1016,7 +1016,7 @@ public class TaskStatus implements Copyable, PartialCopyable {
      * @param numberOfModifications
      *     New value of the "numberOfModifications" property.
      */
-    public TaskStatus.Builder<_B> withNumberOfModifications(final Integer numberOfModifications) {
+    public TaskStatus.Builder<_B> withNumberOfModifications(final Long numberOfModifications) {
       this.numberOfModifications = numberOfModifications;
       return this;
     }
