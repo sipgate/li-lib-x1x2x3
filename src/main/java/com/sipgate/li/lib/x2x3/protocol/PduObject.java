@@ -104,7 +104,7 @@ public record PduObject(
     }
     sb.append(" payload:");
     if (PduType.X2_PDU.equals(pduType)) {
-      final var begin = new String(payload, 0, Math.min(20, payload.length));
+      final var begin = new String(payload, 0, Math.min(20, payload.length)).replace("\n", "\\n");
       sb.append("(").append(begin).append("...)");
       for (final var b : payload) {
         sb.append(String.format("%02x", b));
