@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x1.server.entity;
 
 import com.sipgate.li.lib.x1.protocol.error.DIDDoesNotExistException;

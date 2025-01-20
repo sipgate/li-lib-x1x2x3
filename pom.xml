@@ -7,6 +7,19 @@
 	<version>0.8.0-SNAPSHOT</version>
 	<name>lib</name>
 	<description>X1/X2/X3 library for Java based on ETSI TS 103 221</description>
+	<url>https://github.com/sipgate/li-lib-x1x2x3</url>
+
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>https://opensource.org/license/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>https://github.com/sipgate/li-lib-x1x2x3</url>
+	</scm>
 
 	<properties>
 		<maven.compiler.release>21</maven.compiler.release>

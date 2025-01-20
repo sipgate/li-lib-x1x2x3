@@ -1,8 +1,10 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.netty;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.ssl.OptionalSslHandler;
 import io.netty.handler.ssl.SslHandler;
 import java.net.InetSocketAddress;
 import java.util.Optional;

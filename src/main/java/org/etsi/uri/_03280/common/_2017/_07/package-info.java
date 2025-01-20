@@ -8,4 +8,7 @@
   namespace = "http://uri.etsi.org/03280/common/2017/07",
   elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED
 )
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package org.etsi.uri._03280.common._2017._07;

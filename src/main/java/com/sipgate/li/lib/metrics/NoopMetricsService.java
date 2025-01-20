@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.metrics;
 
 import java.util.function.Supplier;

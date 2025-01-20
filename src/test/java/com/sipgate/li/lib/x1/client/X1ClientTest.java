@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x1.client;
 
 import static com.sipgate.li.lib.x1.protocol.error.ErrorResponseException.GENERIC_ERROR;

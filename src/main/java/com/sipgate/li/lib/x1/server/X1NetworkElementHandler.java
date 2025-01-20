@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x1.server;
 
 import static com.sipgate.li.lib.x1.protocol.X1Version.VERSION;

@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x2x3.protocol;
 
 import com.sipgate.li.lib.x2x3.protocol.tlv.TLV;

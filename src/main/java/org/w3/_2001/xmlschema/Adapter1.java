@@ -4,6 +4,9 @@
 // Any modifications to this file will be lost upon recompilation of the source schema.
 //
 
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package org.w3._2001.xmlschema;
 
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;

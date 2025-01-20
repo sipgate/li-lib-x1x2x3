@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x1.server.handler.status;
 
 import com.sipgate.li.lib.x1.server.entity.DestinationFactory;

@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.netty;
 
 import io.netty.bootstrap.ServerBootstrap;

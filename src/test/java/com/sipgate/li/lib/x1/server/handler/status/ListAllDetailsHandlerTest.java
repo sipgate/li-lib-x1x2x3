@@ -1,3 +1,6 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package com.sipgate.li.lib.x1.server.handler.status;
 
 import static org.assertj.core.api.Assertions.assertThat;

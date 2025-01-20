@@ -8,4 +8,7 @@
   namespace = "http://uri.etsi.org/03221/X1/2017/10/HashedID",
   elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED
 )
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package org.etsi.uri._03221.x1._2017._10.hashedid;

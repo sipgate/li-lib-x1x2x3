@@ -4,6 +4,9 @@
 // Any modifications to this file will be lost upon recompilation of the source schema.
 //
 
+/*
+ * SPDX-License-Identifier: MIT
+ */
 package org.etsi.uri._03280.common._2017._07;
 
 import jakarta.xml.bind.annotation.XmlRegistry;
