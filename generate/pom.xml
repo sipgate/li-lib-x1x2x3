@@ -19,7 +19,7 @@
     <java.version>21</java.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-      <jaxb-rich-contract-plugin.version>4.2.0.0</jaxb-rich-contract-plugin.version>
+      <jaxb-rich-contract-plugin.version>4.2.1.2</jaxb-rich-contract-plugin.version>
   </properties>
 
   <dependencies>
