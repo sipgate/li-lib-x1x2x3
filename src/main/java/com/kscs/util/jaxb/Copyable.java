@@ -1,8 +1,4 @@
 /*
- * SPDX-License-Identifier: MIT
- */
-
-/*
  * MIT License
  *
  * Copyright (c) 2014 Klemm Software Consulting, Mirko Klemm

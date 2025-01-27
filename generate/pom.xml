@@ -85,7 +85,7 @@
 						-->
 
 						<arg>-Xcopy</arg>
-						<arg>-copy.partial=y</arg>
+						<arg>-copy.partial=n</arg>
 						<arg>-copy.generateTools=y</arg>
 						<arg>-copy.constructor=y</arg>
 						<arg>-copy.narrow=n</arg>

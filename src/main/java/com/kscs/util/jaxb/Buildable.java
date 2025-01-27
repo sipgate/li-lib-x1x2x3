@@ -1,8 +1,4 @@
 /*
- * SPDX-License-Identifier: MIT
- */
-
-/*
  * MIT License
  *
  * Copyright (c) 2014 Klemm Software Consulting, Mirko Klemm
@@ -25,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package com.kscs.util.jaxb;
 
 /**

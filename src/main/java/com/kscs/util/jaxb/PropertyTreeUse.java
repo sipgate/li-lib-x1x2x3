@@ -1,7 +1,3 @@
-/*
- * SPDX-License-Identifier: MIT
- */
-
 package com.kscs.util.jaxb;
 
 /**
