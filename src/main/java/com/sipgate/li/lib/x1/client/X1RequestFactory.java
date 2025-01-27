@@ -23,27 +23,6 @@ public class X1RequestFactory {
     this.admfId = admfId;
   }
 
-  /** @Deprecated consider using the builder. */
-  @Deprecated
-  public <T extends X1RequestMessage> T create(final Class<T> tClass) {
-    try {
-      final var request = tClass.getDeclaredConstructor().newInstance();
-
-      request.setAdmfIdentifier(admfId);
-      request.setNeIdentifier(neId);
-      request.setX1TransactionId(UUID.randomUUID().toString());
-      request.setVersion(X1_VERSION_STRING);
-
-      final var gregorianCalendar = new GregorianCalendar();
-      gregorianCalendar.setTimeInMillis(Instant.now().toEpochMilli());
-      request.setMessageTimestamp(dataTypeFactory.newXMLGregorianCalendar(gregorianCalendar));
-
-      return request;
-    } catch (final Exception e) {
-      throw new IllegalArgumentException("Could not create X1RequestMessage", e);
-    }
-  }
-
   @SuppressWarnings("unchecked")
   public <P, B extends X1RequestMessage.Builder<P>> B builder(final B builder) {
     try {
