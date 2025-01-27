@@ -9,6 +9,15 @@
 	<description>X1/X2/X3 library for Java based on ETSI TS 103 221</description>
 	<url>https://github.com/sipgate/li-lib-x1x2x3</url>
 
+	<developers>
+		<developer>
+			<name>alleswirdbesser</name>
+			<email>alleswirdbesser@sipgate.de</email>
+			<organization>sipgate GmbH</organization>
+			<organizationUrl>https://github.com/sipgate</organizationUrl>
+		</developer>
+	</developers>
+
 	<licenses>
 		<license>
 			<name>MIT</name>
@@ -158,6 +167,23 @@
 				<extensions>true</extensions>
 				<configuration>
 					<publishingServerId>central</publishingServerId>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>3.2.7</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<keyname>13378F6D3CFF3396CADEB46C2180058504E34528</keyname>
 				</configuration>
 			</plugin>
 		</plugins>
