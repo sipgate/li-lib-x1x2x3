@@ -28,6 +28,8 @@
 
 	<scm>
 		<url>https://github.com/sipgate/li-lib-x1x2x3</url>
+		<developerConnection>scm:git:git@github.com:sipgate/li-lib-x1x2x3.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 
 	<profiles>
