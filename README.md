@@ -1,5 +1,35 @@
 # Java Library for ETSI TS 103 221 Lawful Interception
 
+This is an open source implementation of the ETSI X1 / X2 and X3 interfaces for lawful interception of
+telecommunications. At sipgate, we have to provide these interfaces to the authorities, and we decided to open source
+our implementation so others can learn and inspect how this actually works in code.
+
+## Installation
+
+Maven:
+
+```xml
+<depedency>
+    <groupId>com.sipgate</groupId>
+    <artifactId>li-lib-x1x2x3</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+Gradle (Kotlin DSL):
+
+```kotlin
+implementation("com.sipgate:li-lib-x1x2x3:1.0.0")
+```
+
+Gradle (Groovy DSL):
+
+```groovy
+implementation 'com.sipgate:li-lib-x1x2x3:1.0.0'
+```
+
+## How to use
+
 ## Metrics
 
 In order to collect Metrics, implement the interface `MetricsService` and set it on the `X1Server`.
