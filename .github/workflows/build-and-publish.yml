@@ -15,7 +15,10 @@ jobs:
           distribution: "zulu" # See 'Supported distributions' for available options
           java-version: "21"
           cache: maven
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
       - name: Build and test
-        run: mvn package verify
-      - name: Sign and deploy
+        run: mvn package
+      - name: Sign and deploy to Maven Central
         run: mvn -DskipTests package gpg:sign deploy
