@@ -18,7 +18,8 @@ jobs:
           server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-      - name: Build and test
-        run: mvn -B package
-      - name: Sign and deploy to Maven Central
-        run: mvn -B -DskipTests package gpg:sign deploy
+      - name: Build, Test, Sign and Deploy to Maven Central
+        env:
+          MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: mvn -B package gpg:sign deploy
