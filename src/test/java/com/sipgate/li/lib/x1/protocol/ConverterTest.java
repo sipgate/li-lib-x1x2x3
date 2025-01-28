@@ -174,11 +174,10 @@ class ConverterTest {
       container.getX1ResponseMessage().add(response);
 
       // WHEN
-      final var actual = underTest.toXml(container);
+      final var actual = stripCustomNamespaces(underTest.toXml(container));
 
-      final var expected = readResource("ConverterTest/ActivateTaskResponse_example.xml").replaceAll(
-        "\n|\r|(    )",
-        ""
+      final var expected = stripCustomNamespaces(
+        readResource("ConverterTest/ActivateTaskResponse_example.xml").replaceAll("\n|\r|(    )", "")
       );
 
       // THEN
@@ -198,11 +197,10 @@ class ConverterTest {
       response.setVersion("v1.6.1");
 
       // WHEN
-      final var actual = underTest.toXml(response);
+      final var actual = stripCustomNamespaces(underTest.toXml(response));
 
-      final var expected = readResource("ConverterTest/TopLevelErrorResponse_example.xml").replaceAll(
-        "\n|\r|(    )",
-        ""
+      final var expected = stripCustomNamespaces(
+        readResource("ConverterTest/TopLevelErrorResponse_example.xml").replaceAll("\n|\r|(    )", "")
       );
 
       // THEN
@@ -215,5 +213,17 @@ class ConverterTest {
       Objects.requireNonNull(is);
       return new String(is.readAllBytes(), StandardCharsets.UTF_8);
     }
+  }
+
+  /**
+   * Removes XML namespaces like xmlns:ns2="http://uri.etsi.org/03221/X1/2017/10/HashedID"
+   * from the input. Reason: The marshaller "sometimes" flips the order of them and while
+   * this does not matter semantically, it makes comparing strings in a deterministic way
+   * impossible.
+   * @param xml The input string
+   * @return The output without the namespaces
+   */
+  private String stripCustomNamespaces(final String xml) {
+    return xml.replaceAll(" xmlns:ns\\d+=\"[^\"]+\"", "");
   }
 }
