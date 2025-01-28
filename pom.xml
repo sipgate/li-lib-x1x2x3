@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sipgate</groupId>
 	<artifactId>li-lib-x1x2x3</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>li-lib-x1x2x3</name>
 	<description>X1/X2/X3 library for Java based on ETSI TS 103 221</description>
 	<url>https://github.com/sipgate/li-lib-x1x2x3</url>
@@ -28,7 +28,7 @@
 	<scm>
 		<url>https://github.com/sipgate/li-lib-x1x2x3</url>
 		<developerConnection>scm:git:git@github.com:sipgate/li-lib-x1x2x3.git</developerConnection>
-		<tag>1.0.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<profiles>
