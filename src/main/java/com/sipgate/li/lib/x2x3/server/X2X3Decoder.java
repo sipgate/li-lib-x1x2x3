@@ -38,7 +38,9 @@ public class X2X3Decoder {
       LOGGER.trace("- too short");
       return Optional.empty();
     }
-    in.skipBytes(4); // version:2, pduType:2
+    final var headerVersion = in.readUnsignedShort();
+    final var headerPduType = in.readUnsignedShort();
+    LOGGER.trace("- reading from header version: {}, pduType: {}", headerVersion, headerPduType);
     final var headerLength = in.readUnsignedInt();
     final var payloadLength = in.readUnsignedInt();
     if (headerLength > maxHeaderLength) {
@@ -73,8 +75,9 @@ public class X2X3Decoder {
       .conditionalAttributeFields(decodeTlv(in, condAttrLength)) // var conditionalAttributes
       .payload(getCopiedBytes(in, (int) payloadLength)); // var
 
-    LOGGER.trace("- decoded: {}", builder);
-    return Optional.of(builder.build());
+    final var pdu = builder.build();
+    LOGGER.trace("- decoded: {}", pdu);
+    return Optional.of(pdu);
   }
 
   private static byte[] getCopiedBytes(final ByteBuf in, final int length) {
