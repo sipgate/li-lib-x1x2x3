@@ -38,11 +38,14 @@ public class X2X3Decoder {
       LOGGER.trace("- too short");
       return Optional.empty();
     }
+
+    in.markReaderIndex();
     final var headerVersion = in.readUnsignedShort();
     final var headerPduType = in.readUnsignedShort();
     LOGGER.trace("- reading from header version: {}, pduType: {}", headerVersion, headerPduType);
     final var headerLength = in.readUnsignedInt();
     final var payloadLength = in.readUnsignedInt();
+    in.resetReaderIndex();
     if (headerLength > maxHeaderLength) {
       throw new IllegalArgumentException("Header length exceeds maximum allowed length: " + headerLength);
     }
@@ -51,7 +54,6 @@ public class X2X3Decoder {
     }
 
     final var expectedLength = headerLength + payloadLength;
-    in.resetReaderIndex();
     if (in.readableBytes() < expectedLength) {
       LOGGER.trace("- still too short");
       return Optional.empty();
