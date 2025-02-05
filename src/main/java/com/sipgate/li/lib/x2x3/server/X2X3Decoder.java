@@ -33,7 +33,7 @@ public class X2X3Decoder {
   }
 
   public Optional<PduObject> decode(final ByteBuf in) {
-    LOGGER.debug("Decoding message: {}", in);
+    LOGGER.debug("Decoding message:{}", in);
     if (in.readableBytes() < 12) { // version:2, pduType:2, headerLength:4, payloadLength:4 == 12
       LOGGER.trace("- too short");
       return Optional.empty();
@@ -69,6 +69,7 @@ public class X2X3Decoder {
     in.skipBytes(8); // length of headerLength and payloadLength
     final var payloadFormat = PayloadFormat.fromValue(in.readUnsignedShort()); // 2 payloadFormat
 
+    LOGGER.trace("- inside header byteBuf:{}", in);
     builder
       .pduTypeAndFormat(pduType, payloadFormat)
       .payloadDirection(PayloadDirection.fromValue(in.readUnsignedShort())) // 2 payloadDirection
@@ -78,7 +79,7 @@ public class X2X3Decoder {
       .payload(getCopiedBytes(in, (int) payloadLength)); // var
 
     final var pdu = builder.build();
-    LOGGER.trace("- decoded: {}", pdu);
+    LOGGER.trace("- decoded:{}, byteBuf:{}", pdu, in);
     return Optional.of(pdu);
   }
 
