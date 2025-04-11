@@ -102,7 +102,7 @@
 
 	<properties>
 		<maven.compiler.release>21</maven.compiler.release>
-		<junit.version>5.12.1</junit.version>
+		<junit.version>5.12.2</junit.version>
 		<jaxb-rich-contract-plugin.version>4.2.1.2</jaxb-rich-contract-plugin.version>
 	</properties>
 
