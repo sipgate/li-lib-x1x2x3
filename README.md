@@ -12,20 +12,20 @@ Maven:
 <depedency>
     <groupId>com.sipgate</groupId>
     <artifactId>li-lib-x1x2x3</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
 Gradle (Kotlin DSL):
 
 ```kotlin
-implementation("com.sipgate:li-lib-x1x2x3:1.0.0")
+implementation("com.sipgate:li-lib-x1x2x3:1.0.3")
 ```
 
 Gradle (Groovy DSL):
 
 ```groovy
-implementation 'com.sipgate:li-lib-x1x2x3:1.0.0'
+implementation 'com.sipgate:li-lib-x1x2x3:1.0.3'
 ```
 
 ## Overview of X1/X2/X3
