@@ -37,4 +37,19 @@ class X1RequestFactoryTest {
     // Does not place request-specific things
     assertThat(request.getTaskDetails()).isNull();
   }
+
+  @Test
+  void it_produces_a_timestamp_with_six_fractional_digits()
+    throws DatatypeConfigurationException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    // GIVEN
+    final var factory = new X1RequestFactory(DatatypeFactory.newInstance(), NE_ID, ADMF_ID);
+
+    // WHEN
+    final var request = factory.builder(ActivateTaskRequest.builder()).build();
+
+    // THEN
+    assertThat(request.getMessageTimestamp().toXMLFormat()).matches(
+      "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z"
+    );
+  }
 }
