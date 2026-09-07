@@ -10,6 +10,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import com.sipgate.li.lib.metrics.MetricsService;
 import com.sipgate.li.lib.metrics.NoopMetricsService;
 import com.sipgate.li.lib.x1.protocol.Converter;
+import com.sipgate.li.lib.x1.protocol.MessageTimestamp;
 import com.sipgate.li.lib.x1.protocol.X1Version;
 import com.sipgate.li.lib.x1.protocol.error.ErrorResponseException;
 import com.sipgate.li.lib.x1.protocol.error.GenericErrorException;
@@ -192,10 +193,7 @@ public class X1NetworkElementHandler extends SimpleChannelInboundHandler<FullHtt
     tler.setAdmfIdentifier(extractAdmfIdentifier(sslHandler));
     tler.setNeIdentifier(neIdentifier);
 
-    // TODO
-    final var calendar = new GregorianCalendar();
-    calendar.setTimeInMillis(Instant.now().toEpochMilli());
-    tler.setMessageTimestamp(datatypeFactory.newXMLGregorianCalendar(calendar));
+    tler.setMessageTimestamp(MessageTimestamp.now(datatypeFactory));
     tler.setVersion(VERSION);
 
     final var xml = converter.toXml(tler);
@@ -314,9 +312,7 @@ public class X1NetworkElementHandler extends SimpleChannelInboundHandler<FullHtt
     responseMessage.setVersion(VERSION);
     responseMessage.setX1TransactionId(requestMessage.getX1TransactionId());
 
-    final var gcal = new GregorianCalendar();
-    gcal.setTimeInMillis(Instant.now().toEpochMilli());
-    responseMessage.setMessageTimestamp(datatypeFactory.newXMLGregorianCalendar(gcal));
+    responseMessage.setMessageTimestamp(MessageTimestamp.now(datatypeFactory));
 
     countResponseMessage(responseMessage);
     return responseMessage;
