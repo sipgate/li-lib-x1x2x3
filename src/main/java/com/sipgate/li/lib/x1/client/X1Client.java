@@ -34,8 +34,17 @@ public class X1Client {
       final var x1requestContainer = RequestContainer.builder().withX1RequestMessage(x1Request).build();
 
       final var body = converter.toXml(x1requestContainer);
-      final var httpRequest = HttpRequest.newBuilder(target).POST(HttpRequest.BodyPublishers.ofString(body)).build();
+      final var httpRequest = HttpRequest.newBuilder(target)
+        .header("Content-Type", "application/xml; charset=UTF-8")
+        .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build();
       final var httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+      // X1 answers every request, including errors, with 200 and an XML body.
+      // Anything else is a transport failure and its body is not X1.
+      if (httpResponse.statusCode() != 200) {
+        throw new X1ClientException("Unexpected HTTP status " + httpResponse.statusCode() + " from " + target);
+      }
 
       final var either = converter.parseResponse(httpResponse.body());
 
@@ -51,6 +60,16 @@ public class X1Client {
       }
 
       final var responseMessage = either.right().getX1ResponseMessage().getFirst();
+      if (!Objects.equals(x1Request.getX1TransactionId(), responseMessage.getX1TransactionId())) {
+        throw new X1ClientException(
+          String.format(
+            "Response x1TransactionId %s does not match request x1TransactionId %s",
+            responseMessage.getX1TransactionId(),
+            x1Request.getX1TransactionId()
+          )
+        );
+      }
+
       final var responseMessageType = responseMessage.getClass();
       if (ErrorResponse.class.isAssignableFrom(responseMessageType)) {
         throw new ErrorResponseClientException((ErrorResponse) responseMessage);
