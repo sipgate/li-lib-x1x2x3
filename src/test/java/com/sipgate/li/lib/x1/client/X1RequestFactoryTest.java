@@ -5,6 +5,7 @@ package com.sipgate.li.lib.x1.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sipgate.li.lib.x1.protocol.X1Version;
 import java.lang.reflect.InvocationTargetException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -32,7 +33,7 @@ class X1RequestFactoryTest {
     assertThat(request.getAdmfIdentifier()).isEqualTo(ADMF_ID);
     assertThat(request.getNeIdentifier()).isEqualTo(NE_ID);
     assertThat(request.getMessageTimestamp()).isNotNull();
-    assertThat(request.getVersion()).isNotEmpty();
+    assertThat(request.getVersion()).isEqualTo(X1Version.VERSION);
 
     // Does not place request-specific things
     assertThat(request.getTaskDetails()).isNull();
