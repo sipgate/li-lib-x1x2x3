@@ -12,20 +12,20 @@ Maven:
 <depedency>
     <groupId>com.sipgate</groupId>
     <artifactId>li-lib-x1x2x3</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
 Gradle (Kotlin DSL):
 
 ```kotlin
-implementation("com.sipgate:li-lib-x1x2x3:1.0.4")
+implementation("com.sipgate:li-lib-x1x2x3:1.1.2")
 ```
 
 Gradle (Groovy DSL):
 
 ```groovy
-implementation 'com.sipgate:li-lib-x1x2x3:1.0.4'
+implementation 'com.sipgate:li-lib-x1x2x3:1.1.2'
 ```
 
 ## Overview of X1/X2/X3
@@ -91,30 +91,32 @@ Below you find code snippets for several use cases. If you want to see a complet
 ```java
 // set to null if you want to disable mutual TLS (not recommended)
 final var sslContext = SSLContextBuilder.newBuilder()
-        .withKeyStore(Path.of("keystore.jks"), "password")
-        .withTrustStore(Path.of("truststore.jks"), "password")
-        .build();
+  .withKeyStore(Path.of("keystore.jks"), "password")
+  .withTrustStore(Path.of("truststore.jks"), "password")
+  .build();
 
 // use your implementation instead (e.g. store to pgsql)
 final var destinationRepository = new YourDestinationRepositoryImpl();
+
 final var taskRepository = new YourTaskRepositoryImpl();
 
 // use your implementation instead (e.g. control your SIP/RTP stack)
 final var taskListener = new NoopTaskListener();
+
 final var destinationListener = new NoopDestinationListener();
 
 // use your implementation instead (e.g. wrap Micrometer)
 final var metricsService = new NoopMetricsService();
 
 final var x1Server = X1Server.createNetworkElement(
-                sslContext,
-                destinationRepository,
-                taskRepository,
-                "network-element-id"
-        )
-        .setTaskListener(taskListener)
-        .setDestinationListener(destinationListener)
-        .setMetricsService(metricsService);
+  sslContext,
+  destinationRepository,
+  taskRepository,
+  "network-element-id"
+)
+  .setTaskListener(taskListener)
+  .setDestinationListener(destinationListener)
+  .setMetricsService(metricsService);
 
 // listen on TCP port 8443 for any IPv4 address
 // this call blocks, so start it in a separate thread if needed
@@ -126,29 +128,37 @@ x1Server.start(new InetSocketAddress("0.0.0.0", 8443));
 ```java
 // set to null if you want to disable mutual TLS (not recommended)
 final var sslContext = SSLContextBuilder.newBuilder()
-        .withKeyStore(Path.of("keystore.jks"), "password")
-        .withTrustStore(Path.of("truststore.jks"), "password")
-        .build();
+  .withKeyStore(Path.of("keystore.jks"), "password")
+  .withTrustStore(Path.of("truststore.jks"), "password")
+  .build();
 
 final var socketFactory = sslContext.getSocketFactory();
 
-final List<TLV> conditionalAttributes = new ArrayList<>(List.of(
-        /* add your TLVs according to your business logic */
-        new TimestampTLV(Instant.now())
-));
+final List<TLV> conditionalAttributes = new ArrayList<>(
+  List.of(
+    /* add your TLVs according to your business logic */
+    new TimestampTLV(Instant.now())
+  )
+);
 
 // forward RTP, change this according to your business logic
 final var pduObject = new PduObjectBuilder()
-        .rtp()
-        .payloadDirection(PayloadDirection.SENT_TO_TARGET)
-        .correlationID(new byte[]{/* fill according to X2/X3 standard */})
-        .xid(UUID.randomUUID() /* use the XID from the task activation via X1 */)
-        .conditionalAttributeFields(conditionalAttributes)
-        .payload(new byte[]{/* raw RTP payload */})
-        .build();
+  .rtp()
+  .payloadDirection(PayloadDirection.SENT_TO_TARGET)
+  .correlationID(new byte[] {
+    /* fill according to X2/X3 standard */
+  })
+  .xid(UUID.randomUUID() /* use the XID from the task activation via X1 */)
+  .conditionalAttributeFields(conditionalAttributes)
+  .payload(new byte[] {
+    /* raw RTP payload */
+  })
+  .build();
 
 final var timeout = 30_000; // milliseconds
+
 final var client = new X2X3Client(socketFactory, "1.2.3.4", 12345, timeout);
+
 client.send(pduObject);
 ```
 
@@ -157,14 +167,19 @@ client.send(pduObject);
 ```java
 // set to null if you want to disable mutual TLS (not recommended)
 final var sslContext = SSLContextBuilder.newBuilder()
-        .withKeyStore(Path.of("keystore.jks"), "password")
-        .withTrustStore(Path.of("truststore.jks"), "password")
-        .build();
+  .withKeyStore(Path.of("keystore.jks"), "password")
+  .withTrustStore(Path.of("truststore.jks"), "password")
+  .build();
 
 final var requestFactory = new X1RequestFactory(DatatypeFactory.newInstance(), "ne-id", "admf-id");
+
 final var request = requestFactory.builder(ListAllDetailsRequest.builder()).build();
 
-final var client = X1ClientBuilder.newBuilder().withTarget("https://ne.example.org:8443/X1/NE").withContext(sslContext).build();
+final var client = X1ClientBuilder.newBuilder()
+  .withTarget("https://ne.example.org:8443/X1/NE")
+  .withContext(sslContext)
+  .build();
+
 // when you send other types of request, change the response class
 // when a request fails, an X1ClientException is thrown
 final var response = client.request(request, ListAllDetailsResponse.class);
@@ -177,20 +192,20 @@ System.out.println(resp.getListOfXIDs());
 ```java
 // set to null if you want to disable mutual TLS (not recommended)
 final var sslContext = SSLContextBuilder.newBuilder()
-        .withKeyStore(Path.of("keystore.jks"), "password")
-        .withTrustStore(Path.of("truststore.jks"), "password")
-        .build();
+  .withKeyStore(Path.of("keystore.jks"), "password")
+  .withTrustStore(Path.of("truststore.jks"), "password")
+  .build();
 
 final var maxHeaderLength = 320;
+
 final var maxPayloadLength = 8192;
 
 // implement your business logic for receiving SIP/RTP via X2/X3 here
 final Consumer<PduObject> pduConsumer = (pduObject) -> {};
 
-final var server = new X2X3Server(
-      sslContext,
-      new X2X3Decoder(maxHeaderLength, maxPayloadLength)
-    ).addConsumer(pduConsumer);
+final var server = new X2X3Server(sslContext, new X2X3Decoder(maxHeaderLength, maxPayloadLength)).addConsumer(
+  pduConsumer
+);
 
 // listen on TCP port 12345 for any IPv4 address
 // this call blocks, so start it in a separate thread if needed
