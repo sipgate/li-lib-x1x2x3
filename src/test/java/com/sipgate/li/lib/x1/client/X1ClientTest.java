@@ -158,10 +158,13 @@ class X1ClientTest {
 
   @Test
   void it_posts_with_xml_content_type() throws Exception {
+    // GIVEN
     respondWith(200, readResource("PingResponse_example.xml"));
 
+    // WHEN
     underTest.request(createPingRequest(), PingResponse.class);
 
+    // THEN
     final var request = ArgumentCaptor.forClass(HttpRequest.class);
     verify(httpClient).send(request.capture(), any(HttpResponse.BodyHandler.class));
     assertThat(request.getValue().method()).isEqualTo("POST");
@@ -170,8 +173,10 @@ class X1ClientTest {
 
   @Test
   void it_throws_on_non_200_status_without_parsing_the_body() throws Exception {
+    // GIVEN
     respondWith(500, "<html>Internal Server Error</html>");
 
+    // WHEN + THEN
     assertThatThrownBy(() -> underTest.request(createPingRequest(), PingResponse.class))
       .isExactlyInstanceOf(X1ClientException.class)
       .hasMessageContaining("500");
@@ -179,10 +184,12 @@ class X1ClientTest {
 
   @Test
   void it_throws_when_response_transaction_id_does_not_match_request() throws Exception {
-    respondWith(200, readResource("PingResponse_example.xml"));
+    // GIVEN
     final var pingRequest = createPingRequest();
     pingRequest.setX1TransactionId("00000000-0000-4000-8000-000000000000");
+    respondWith(200, readResource("PingResponse_example.xml"));
 
+    // WHEN + THEN
     assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class))
       .isExactlyInstanceOf(X1ClientException.class)
       .hasMessageContaining("00000000-0000-4000-8000-000000000000")
@@ -191,10 +198,12 @@ class X1ClientTest {
 
   @Test
   void it_throws_when_error_response_transaction_id_does_not_match_request() throws Exception {
-    respondWith(200, readResource("ErrorResponse_example.xml"));
+    // GIVEN
     final var pingRequest = createPingRequest();
     pingRequest.setX1TransactionId("00000000-0000-4000-8000-000000000000");
+    respondWith(200, readResource("ErrorResponse_example.xml"));
 
+    // WHEN + THEN
     assertThatThrownBy(() -> underTest.request(pingRequest, PingResponse.class)).isExactlyInstanceOf(
       X1ClientException.class
     );
